@@ -1,0 +1,284 @@
+<!-- This page was last generated on 2018-06-25 -->
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta 
+            name="keywords" 
+            content="Scala,Dotty,PL,Language,Compiler,Compile,JVM,FP,OOP,Scala 3"
+        >
+
+        <title>Dotty 中文站</title>
+
+        <link rel="icon" type="image/png" href="./images/favicon.png">
+
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <link
+            rel="stylesheet"
+            href="./css/bootstrap.min.css"
+        >
+
+        <link
+            rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        >
+
+        <link
+            rel="stylesheet"
+            href="./css/dottydoc.css"
+        >
+
+        <link
+            rel="stylesheet"
+            href="./css/color-brewer.css"
+        >
+
+        
+        <link
+            rel="stylesheet"
+            href="./css/animate.css"
+        >
+        
+        <link
+            rel="stylesheet"
+            href="./css/default.css"
+        >
+        
+    </head>
+    <body>
+
+        <div id="content">
+    <div class="page red exactly-one-page">
+    <div id="header">
+        <nav class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link" href="#getting-started">
+                    现在开始尝试使用
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="./blog/index.html">
+                    博客
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="./docs/index.html">
+                    文档
+                </a>
+            </li>
+            <!--
+            <li class="nav-item">
+                <a class="nav-link" href="#build-status">
+                    Community Projects
+                </a>
+            </li>
+            -->
+            <li class="nav-item">
+                <a class="nav-link" href="https://github.com/lampepfl/dotty">
+                    <img id="github-logo" src="./images/github-logo.svg" />
+                </a>
+            </li>
+        </nav>
+    </div>
+    <div id="mobile-header">
+        <nav class="navbar navbar-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsed-header" aria-controls="collapsed-header" aria-expanded="false" aria-label="Toggle navigation">
+                &#9776;
+            </button>
+            <div class="collapse" id="collapsed-header">
+                <div class="bg-inverse p-a-1">
+                    <ul>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#getting-started">
+                                现在开始尝试
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./blog/index.html">
+                                博客
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="./docs/index.html">
+                                文档
+                            </a>
+                        </li>
+                        <!--
+                        <li class="nav-item">
+                            <a class="nav-link" href="#build-status">
+                                Community Projects
+                            </a>
+                        </li>
+                        -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://github.com/lampepfl/dotty">
+                                <img id="github-logo" src="./images/github-logo.svg" />
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="scala-logo-container">
+        <p><img src="./images/scala-logo.svg" alt="image" /></p>
+        <div class="centered-subtitle">
+            <h1 id="dotty">Dotty</h1>
+            <p>Scala 的下一代编译器</p>
+        </div>
+    </div>
+</div>
+
+    <div class="page blue">
+    <div class="centered questions">
+
+        <h1 id="getting-started">尝试 Dotty</h1>
+        <p>如果您是 Mac 用户，您可以使用 <a href="https://brew.sh/">brew</a>:</p>
+        <pre class="sourceCode bright"><code>brew install lampepfl/brew/dotty</code></pre>
+
+        <p>如果您是 Linux 用户，请在<a href="https://github.com/lampepfl/dotty/releases">本页面</a>下载 Dotty 最新发布版。您可以将 Dotty 存放目录下的 <code>bin/</code> 子目录加入系统 <code>PATH</code> 环境变量中。</p>
+
+        <p>现在您可以编译 Scala 源代码了：<p>
+        <pre class="sourceCode bright"><code>dotc hello.scala</code></pre>
+
+        <p>您也可以使用 <code>dotr</code> 命令启动 Dotty repl。<p>
+
+        <p>您也可以使用 <a href="https://scastie.scala-lang.org/?target=dotty">Scastie</a> 在浏览器中试用 Dotty。</p>
+
+        <h1 id="getting-started-with-a-project">创建 Dotty 项目</h1>
+        <p>创建一个新的 Dotty 项目最快捷的方式是使用 <a href="http://www.scala-sbt.org/">sbt (1.1.4+)</a>。</p>
+
+        <p>创建一个 Dotty 项目：</p>
+        <pre class="sourceCode bright"><code>sbt new <a href="https://github.com/lampepfl/dotty.g8">lampepfl/dotty.g8</a></code></pre>
+
+        <p>或者创建一个 Dotty 与 Scala 2 混合编译项目：</p>
+        <pre class="sourceCode bright"><code>sbt new <a href="https://github.com/lampepfl/dotty-cross.g8">lampepfl/dotty-cross.g8</a></code></pre>
+
+        <p>请参见 <a href="https://github.com/Dotty-China/dotty-example-project">Dotty Example Projec</a> 查阅相关文档。</p>
+    </div>
+</div>
+
+    <div class="page teal">
+    <div class="centered questions">
+        <h1 id="so-features">所以，Dotty 有哪些特性？</h1>
+        <div class="centered-table">
+            <table>
+                <colgroup>
+                    <col width="82%" />
+                    <col width="17%" />
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td><a href="./docs/reference/union-types.html">并集类型</a>，<a href="./docs/reference/intersection-types.html">交集类型</a> 以及 <a href="./docs/reference/singleton-types.html">单例字面量类型</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="http://docs.scala-lang.org/sips/pending/trait-parameters.html">特质参数</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/scala/scala.github.com/pull/491">@static 方法和字段</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="./#getting-started">SBT 增量构建</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="./docs/reference/changed/pattern-matching.html">无 Option 模式匹配</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="./docs/reference/auto-parameter-tupling.html">函数参数自动元组化</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="./docs/reference/multiversal-equality.html">多元相等</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="./docs/reference/implicit-function-types.html">隐式函数类型</a></td>
+                        <td>已实施</td>
+                    </tr>
+                    <tr>
+                        <td><a href="./docs/reference/erased-terms.html">被擦除项</a></td>
+                        <td>实施中</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/dotty-linker/dotty">自动特化</a></td>
+                        <td>实施中</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/lampepfl/dotty/pull/1840">全局优化</a></td>
+                        <td>实施中</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://github.com/lampepfl/dotty/pull/2199">HList &amp; HMaps/Record 类型</a></td>
+                        <td>实施中</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Effects</td>
+                        <td>考虑中</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h1 id="talks-on-dotty">我可以在哪里讨论 Dotty？</h1>
+        <ul>
+            <li><a href="https://www.youtube.com/watch?v=GHzWqJKFCk4">Scala's Road Ahead</a> by Martin Odersky (<a href="http://www.slideshare.net/Odersky/scala-days-nyc-2016">slides</a>)</li>
+            <li><a href="https://www.youtube.com/watch?v=WxyyJyB_Ssc">Compilers are Databases</a> by Martin Odersky (<a href="http://www.slideshare.net/Odersky/compilers-are-databases">slides</a>)</li>
+            <li><a href="https://www.youtube.com/watch?v=aftdOFuVU1o">Exploring the future of Scala</a> by Dmitry Petrashko (<a href="https://d-d.me/scalaworld2015/#/">slides</a>)</li>
+            <li><a href="./docs/resources/talks.html">Deep Dive with Dotty</a></li>
+            <li><a href="https://jq.qq.com/?_wv=1027&k=5QEYJCE">Dotty China QQ 群: 314968684</a></li>
+        </ul>
+        <h1 id="i-have-more-questions">我有更多的问题！</h1>
+        <div class="centered-text">
+            <p>太好了！我们有更多关于<a href="./docs/index.html">文档</a>的细节，请加入我们的<a href="https://gitter.im/lampepfl/dotty">Gitter 频道</a>！</p>
+        </div>
+        <br/>
+    </div>
+</div>
+
+
+</div>
+
+        <script src="./js/jquery.min.js"></script>
+        <script src="./js/tether.min.js"></script>
+        <script src="./js/highlight.pack.js"></script>
+        <script src="./js/bootstrap.min.js"></script>
+        
+        <script src="./js/elasticlunr.min.js"></script>
+        
+        <script src="./js/search.js"></script>
+        
+        <script src="./js/scrollreveal.min.js"></script>
+        
+        <script src="./js/index.js"></script>
+        
+        <script>
+            $(document).ready(function() {
+                $('pre code').each(function(i, block) {
+                    hljs.highlightBlock(block);
+                });
+
+                if (window.location.hash.length > 0) {
+                    window.scrollTo(0, $(window.location.hash).offset().top - 90);
+                }
+            });
+        </script>
+
+        <script>
+          ((window.gitter = {}).chat = {}).options = {
+            room: 'lampepfl/dotty'
+          };
+        </script>
+        <script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+    </body>
+</html>
