@@ -1089,6 +1089,8 @@ https://www.dotty-china.org/api/dotty/tools/dotc/quoted/QuoteDriver.html
 https://www.dotty-china.org/api/dotty/tools/dotc/quoted/Toolbox$/Settings$.html
 https://www.dotty-china.org/api/dotty/tools/dotc/quoted/Toolbox$/Settings.html
 https://www.dotty-china.org/api/dotty/tools/dotc/quoted/Toolbox$.html
+https://www.dotty-china.org/api/dotty/tools/dotc/quoted/ToolboxSettings$.html
+https://www.dotty-china.org/api/dotty/tools/dotc/quoted/ToolboxSettings.html
 https://www.dotty-china.org/api/dotty/tools/dotc/quoted/TreeCleaner.html
 https://www.dotty-china.org/api/dotty/tools/dotc/quoted/TypeCompilationUnit.html
 https://www.dotty-china.org/api/dotty/tools/dotc/reporting/ConsoleReporter$.html
