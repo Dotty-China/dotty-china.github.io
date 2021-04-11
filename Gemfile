@@ -9,8 +9,9 @@ source "https://rubygems.org"
 # Happy Jekylling!
 gem "jekyll", ">= 3.3.0"
 gem "jekyll-remote-theme"
+gem "jekyll-seo-tag"
 # This is the default theme for new Jekyll sites. You may change this to anything you like.
-gem "just-the-docs", "~> 0.3.3"
+# gem "just-the-docs", "~> 0.3.3"
 # If you want to use GitHub Pages, remove the "gem "jekyll"" above and
 # uncomment the line below. To upgrade, run `bundle update github-pages`.
 # gem "github-pages", group: :jekyll_plugins

@@ -36,9 +36,11 @@ aux_links:
 footer_content: "© 2009-2021 Aliyun.com 版权所有 "
 
 # Build settings
-theme: just-the-docs
+remote_theme: pmarsceill/just-the-docs@v0.3.3
 plugins:
+  - jekyll-remote-theme
   - jekyll-feed
+  - jekyll-seo-tag
 
 
 # Exclude from processing.
