@@ -40,7 +40,7 @@ scalac hello.scala
 
 ## 创建一个 Scala 3 项目
 
-最快的创建 Scala 3 新项目的方法是使用 sbt(1.1.4+)。
+创建 Scala 3 新项目的最快方法是使用 [sbt(1.1.4+)](http://www.scala-sbt.org/)。
 
 创建一个 Scala 3项目：
 

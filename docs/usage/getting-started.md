@@ -11,7 +11,7 @@ nav_order: 1
 [Scastie](https://scastie.scala-lang.org/?target=dotty) 是一个支持 Scala 3 的在线 Scala playground。这是一个快速尝试 Dotty 而无需安装额外程序的方式，它直接运行在您的浏览器中。
 
 ## sbt
-最快的创建 Scala 3 新项目的方法是使用 [sbt(1.1.4+)](http://www.scala-sbt.org/)。
+创建 Scala 3 新项目的最快方法是使用 [sbt(1.1.4+)](http://www.scala-sbt.org/)。
 
 创建一个 Scala 3 项目：
 ```bash
