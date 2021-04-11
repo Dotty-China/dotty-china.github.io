@@ -2,7 +2,7 @@
 layout: default
 title: Scala 3 的 IDE 支持
 parent: 用法
-nav_order: 2
+nav_order: 3
 ---
 
 基于 [Scala Metals](https://scalameta.org/metals/) 的 IDE（例如 Visual Studio Code 和 vim）
