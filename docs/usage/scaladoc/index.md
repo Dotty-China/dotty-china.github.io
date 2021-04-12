@@ -3,6 +3,7 @@ layout: default
 title: scaladoc
 parent: 用法
 nav_order: 7
+has_children: true
 ---
 
 ![scaladoc logo](https://z3.ax1x.com/2021/04/12/cDrJF1.png)
