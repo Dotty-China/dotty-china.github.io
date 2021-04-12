@@ -14,9 +14,7 @@ Worksheet 是在保存时被执行的 Scala 文件，每个表达式的结果显
 
 目前唯一支持 Worksheet 模式的终端是 [Visual Studio Code](https://code.visualstudio.com/)。
 
-To use the worksheets, start Dotty IDE by [following the
-instruction](ide-support.md) and create a new file `MyWorksheet.sc` and
-write some code:
+要使用 Worksheet，请按照[说明](ide-support.md)启动 Scala 3 IDE 创建一个新文件 `MyWorksheet.sc`，并写下以下代码：
 
 ```scala
 val xyz = 123
@@ -24,27 +22,20 @@ println("Hello, worksheets!")
 456 + xyz
 ```
 
-On top of the buffer, the message `Run this worksheet` appears. Click it to
-evaluate the code of the worksheet. Each line of output is printed on the right
-of the expression that produced it. The worksheets run with the classes of your
-project and its dependencies on their classpath.
+缓存区顶部会显示消息 `Run this worksheet`。点击它执行 Worksheet 代码。输出的每一行都打印在生成它的表达式右侧。
+Worksheet 与项目的类和类路径上的依赖项一起执行。
 
-![](../../images/worksheets/worksheet-run.png "Run worksheet")
+![Run worksheet](https://z3.ax1x.com/2021/04/12/cDNxjs.png)
 
-By default, the worksheets are also run when the file is saved. This can be
-configured in VSCode preferences:
+默认情况下，保存 Worksheet 文件时也会执行 Worksheet。可以在 VSCode preferences 中配置这个行为：
 
-![](../../images/worksheets/config-autorun.png "Configure run on save")
+![Configure run on save](https://z3.ax1x.com/2021/04/12/cDUSun.png)
 
-Note that the worksheet are fully integrated with the rest of Dotty IDE: While
-typing, errors are shown, completions are suggested, and you can use all the
-other features of Dotty IDE such as go to definition, find all references, etc.
+请注意，Worksheet 与 Scala 3 IDE 的其余部分完全集成：输入时会提示错误、建议补全，并且你可以使用 Scala 3 IDE 的所有其他功能，
+例如 go to definition、find all references 等。
 
-![](../../images/worksheets/worksheet-help.png "IDE features in the worksheet")
+![IDE features in the worksheet](https://z3.ax1x.com/2021/04/12/cDNvcj.png)
 
-Implementation details
-======================
+## 实现细节
 
-The implementation details of the worksheet mode and the information necessary to add support for
-other clients are available in [Worksheet mode - Implementation
-details](worksheet-mode-implementation-details.md).
+Worksheet 模式的实现细节以及为其他客户端添加支持的信息可以在 [Worksheet 模式 - 实现细节](worksheet-mode-implementation-details.md)中找到。
