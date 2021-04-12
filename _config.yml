@@ -33,6 +33,8 @@ search_enabled: false
 aux_links:
   "官方网站":
     - "https://dotty.epfl.ch/"
+  "":
+    - "https://github.com/Dotty-China/dotty-china.github.io"
 
 footer_content: "© 2009-2021 Aliyun.com 版权所有 "
 
