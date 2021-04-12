@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Dotty 中文站
+title: Scala 3 中文站
 email: zjx001202@gmail.com
 description: Scala 3 中文站点
 # baseurl: "" # the subpath of your site, e.g. /blog
@@ -30,8 +30,8 @@ lang: zh-CN
 search_enabled: false
 
 aux_links:
-#  "下载游戏":
-#    - "/download.html"
+  "官方网站":
+    - "https://dotty.epfl.ch/"
 
 footer_content: "© 2009-2021 Aliyun.com 版权所有 "
 
