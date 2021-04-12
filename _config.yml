@@ -25,6 +25,7 @@ description: Scala 3 中文站点
 # url: "" # the base hostname & protocol for your site, e.g. http://example.com
 # logo: "/favicon.ico"
 lang: zh-CN
+timezone: Asia/Shanghai
 
 # heading_anchors: true
 search_enabled: false
