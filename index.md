@@ -20,7 +20,7 @@ permalink: /
 
 如果您是 **Mac** 用户，那么您可以用 [brew](https://brew.sh/) 安装 Scala 3：
 
-```
+```bash
 brew install lampepfl/brew/dotty
 ```
 
@@ -32,7 +32,7 @@ brew install lampepfl/brew/dotty
 
 现在您可以这样编译 Scala 代码：
 
-```
+```bash
 scalac hello.scala
 ```
 
@@ -44,13 +44,13 @@ scalac hello.scala
 
 创建一个 Scala 3项目：
 
-```
+```bash
 sbt new lampepfl/dotty.g8
 ```
 
 或者创建一个与 Scala 2 交叉编译的 Scala 3 项目：
 
-```
+```bash
 sbt new lampepfl/dotty-cross.g8
 ```
 
