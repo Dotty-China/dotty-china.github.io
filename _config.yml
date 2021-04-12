@@ -44,8 +44,7 @@ gh_edit_link: true
 gh_edit_link_text: "在 GitHub 上修改此页面"
 gh_edit_repository: "https://github.com/Dotty-China/dotty-china.github.io"
 gh_edit_branch: "main"
-
-
+gh_edit_view_mode: "tree"
 
 # Build settings
 remote_theme: pmarsceill/just-the-docs@v0.3.3
