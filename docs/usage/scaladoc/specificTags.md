@@ -2,6 +2,7 @@
 layout: default
 title: Scaladoc 特定的标记和功能
 parent: Scaladoc
+grand_parent: 用法
 nav_order: 3
 ---
 

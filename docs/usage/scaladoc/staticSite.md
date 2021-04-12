@@ -2,6 +2,7 @@
 layout: default
 title: 静态文档
 parent: Scaladoc
+grand_parent: 用法
 nav_order: 4
 ---
 

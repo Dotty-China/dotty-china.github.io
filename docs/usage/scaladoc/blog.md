@@ -2,6 +2,7 @@
 layout: default
 title: 内置博客
 parent: Scaladoc
+grand_parent: 用法
 nav_order: 2
 ---
 

@@ -7,10 +7,9 @@ nav_order: 1
 
 # {{ page.title }}
 
-Scala 3 implements many language changes and improvements over Scala 2.
-In this reference, we discuss design decisions and present important differences compared to Scala 2.
+Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考文档中，我们论述了设计上的决策以及 Scala 3 与 Scala 2 的重要区别。
 
-## Goals
+## 目标
 
 The language redesign was guided by three main goals:
 
