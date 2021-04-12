@@ -5,7 +5,7 @@ nav_order: 1
 description: "Just the Docs is a responsive Jekyll theme with built-in search that is easily customizable and hosted on GitHub Pages."
 permalink: /
 ---
-**Scala 3 中文站正在更新中，最后更新时间 {{ site.time }}。**
+**Scala 3 中文站正在更新中，最后更新时间 {{ site.time | slice: 0, 19}}。**
 
 ## 试用 Scala 3
 
