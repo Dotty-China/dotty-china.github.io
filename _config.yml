@@ -18,9 +18,9 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Scala 3 中文站
-email: zjx001202@gmail.com
-description: Scala 3 中文站点
+title: "Scala 3 中文站"
+email: "zjx001202@gmail.com"
+description: "Scala 3 中文站点"
 # baseurl: "" # the subpath of your site, e.g. /blog
 # url: "" # the base hostname & protocol for your site, e.g. http://example.com
 # logo: "/favicon.ico"
@@ -38,13 +38,13 @@ aux_links:
   "捐赠支持":
     - "https://donate.glavo.site/"
 
-footer_content: "© 2009-2021 Aliyun.com 版权所有 <!--a href="https://beian.miit.gov.cn" target="_blank" rel="nofollow noopener">鄂ICP备20002499号-3</a-->"
+footer_content: "© 2009-2021 Aliyun.com 版权所有"
 
 gh_edit_link: true
 gh_edit_link_text: "在 GitHub 上修改此页面"
 gh_edit_repository: "https://github.com/Dotty-China/dotty-china.github.io"
 gh_edit_branch: "main"
-gh_edit_view_mode: "tree"
+
 
 
 # Build settings
