@@ -4,6 +4,8 @@ title: Worksheet 模式 - 实现细节
 nav_exclude: true
 ---
 
+# {{ page.title }}
+
 简而言之，Worksheet 扩展了 Language Server Protocol 并依赖 Scala 3 REPL 执行代码。
 
 ## 执行

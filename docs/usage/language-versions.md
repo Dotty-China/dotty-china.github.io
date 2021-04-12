@@ -5,6 +5,8 @@ parent: 用法
 nav_order: 5
 ---
 
+# {{ page.title }}
+
 Scala 3 编译器当前支持的默认 Scala 语言版本是 `3.0`。也可以指定其他语言版本：
 
  - `3.0-migration`：与 `3.0` 相同，但是具有 Scala 2 兼容模式，有助于将源码从 Scala 2.13 迁移到 Scala 3。主要区别是：

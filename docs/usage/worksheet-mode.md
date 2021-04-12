@@ -5,10 +5,10 @@ parent: 用法
 nav_order: 4
 ---
 
+# {{ page.title }}
+
 Worksheet 是在保存时被执行的 Scala 文件，每个表达式的结果显示在程序右侧的一列中。Worksheet 就像一个 steroids 上的 REPL 会话，
 并享受一等的编辑器支持：补全、超链接、键入时的交互式报错等。Worksheet 使用 `.sc` 扩展名。
-
-
 
 ## 如何使用 Worksheet
 

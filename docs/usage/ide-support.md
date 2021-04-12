@@ -5,6 +5,8 @@ parent: 用法
 nav_order: 3
 ---
 
+# {{ page.title }}
+
 基于 [Scala Metals](https://scalameta.org/metals/) 的 IDE（例如 Visual Studio Code 和 vim）
 以及 [IntelliJ IDEA](https://www.jetbrains.com/idea/) 支持 Scala 3。
 
