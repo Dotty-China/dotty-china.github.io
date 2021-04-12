@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API 文档
-parent: scaladoc
+parent: Scaladoc
 nav_order: 1
 ---
 

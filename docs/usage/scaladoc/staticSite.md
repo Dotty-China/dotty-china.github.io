@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 静态文档
-parent: scaladoc
+parent: Scaladoc
 nav_order: 4
 ---
 

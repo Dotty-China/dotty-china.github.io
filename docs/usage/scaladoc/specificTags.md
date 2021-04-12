@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Scaladoc 特定的标记和功能
-parent: scaladoc
+parent: Scaladoc
 nav_order: 3
 ---
 

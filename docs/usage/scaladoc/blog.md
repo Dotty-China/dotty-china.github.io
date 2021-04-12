@@ -1,7 +1,7 @@
 ---
 layout: default
 title: 内置博客
-parent: scaladoc
+parent: Scaladoc
 nav_order: 2
 ---
 
