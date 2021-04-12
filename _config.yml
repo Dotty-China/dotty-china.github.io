@@ -38,7 +38,14 @@ aux_links:
   "捐赠支持":
     - "https://donate.glavo.site/"
 
-footer_content: "© 2009-2021 Aliyun.com 版权所有 "
+footer_content: "© 2009-2021 Aliyun.com 版权所有 <!--a href="https://beian.miit.gov.cn" target="_blank" rel="nofollow noopener">鄂ICP备20002499号-3</a-->"
+
+gh_edit_link: true
+gh_edit_link_text: "在 GitHub 上修改此页面"
+gh_edit_repository: "https://github.com/Dotty-China/dotty-china.github.io"
+gh_edit_branch: "main"
+gh_edit_view_mode: "tree"
+
 
 # Build settings
 remote_theme: pmarsceill/just-the-docs@v0.3.3
