@@ -6,20 +6,21 @@ nav_order: 1
 ---
 
 # {{ page.title }}
+{: .no_toc }
 
 Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考文档中，我们论述了设计上的决策以及 Scala 3 与 Scala 2 的重要区别。
 
 ## 目标
 
-The language redesign was guided by three main goals:
+语言的重设计以三个主要目标为指导：
 
-- Strengthen Scala's foundations.
-  Make the full programming language compatible with the foundational work on the
-  [DOT calculus](https://infoscience.epfl.ch/record/227176/files/soundness_oopsla16.pdf)
-  and apply the lessons learned from that work.
-- Make Scala easier and safer to use.
-  Tame powerful constructs such as implicits to provide a gentler learning curve. Remove warts and puzzlers.
-- Further improve the consistency and expressiveness of Scala's language constructs.
+- 巩固 Scala 的基础。使完整的编程语言与 [DOT calculus](https://infoscience.epfl.ch/record/227176/files/soundness_oopsla16.pdf) 
+上的基础工作兼容，并应用从此工作中得到的经验。
+- 使 Scala 更安全易用。Tame 像 implicit 这样强大的构造，以提供更温和的学习曲线。去除 wart 和 puzzler。
+- 进一步改善 Scala 语言结构的一致性和表达能力。
+
+与这些目标对应的，语言变化分为七类：(1) 巩固基础的核心结构，(2)简化和(3)[限制]()，使得语言更安全易用，(4)[减少结构]()使得语言更小更规则，
+(5)改变结构以消除 wart，增加一致性和可用性，(6)[增加结构]()以填补空白和提高表现力，(7)一种新的、
 
 Corresponding to these goals, the language changes fall into seven categories:
 (1) Core constructs to strengthen foundations, (2) simplifications and (3) [restrictions](#restrictions), to make the language easier and safer to use, (4) [dropped constructs](#dropped-constructs) to make the language smaller and more regular, (5) [changed constructs](#changes) to remove warts, and increase consistency and usability, (6) [new constructs](#new-constructs) to fill gaps and increase expressiveness, (7) a new, principled approach to metaprogramming that replaces [Scala 2 experimental macros](https://docs.scala-lang.org/overviews/macros/overview.html).

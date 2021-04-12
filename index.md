@@ -5,7 +5,25 @@ nav_order: 1
 description: "Just the Docs is a responsive Jekyll theme with built-in search that is easily customizable and hosted on GitHub Pages."
 permalink: /
 ---
-**Scala 3 中文站正在更新中，最后更新时间 {{ site.time | slice: 0, 19}}。**
+
+**Scala 3 中文站处于早期阶段，正在活跃更新。最后更新时间 {{ site.time | slice: 0, 19}}。**
+
+# Scala 3 中文站
+
+官方资源：
+
+* [Scala 3 官方网站](https://dotty.epfl.ch/)
+* [Scala 3 GitHub 仓库](https://github.com/lampepfl/dotty)
+
+中文站资源：
+
+* [Scala 3 中文站 GitHub 仓库](https://github.com/Dotty-China/dotty-china.github.io)
+* [GitHub Discussions](https://github.com/Dotty-China/dotty-china.github.io/discussions)
+* [QQ 群：314968684](https://jq.qq.com/?_wv=1027&k=BCxI4ukn)
+
+点击每个页面最下方“在 GitHub 上修改此页面”链接可以跳转到对应文件的 GitHub 页面。如果发现翻译有误，可以[打开 issue](https://github.com/Dotty-China/dotty-china.github.io/issues) 告诉我们，也欢迎贡献翻译。
+
+赞助支持中文站请访问[捐赠支持](https://donate.glavo.site/)页面。
 
 ## 试用 Scala 3
 
