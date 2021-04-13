@@ -75,3 +75,4 @@ exclude:
   - vendor/ruby/
   - git-push.bat
   - jekyll-build.sh
+  - README.md
