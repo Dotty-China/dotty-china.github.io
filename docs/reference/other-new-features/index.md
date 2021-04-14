@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "其他变化的特性"
+title: "其他新特性"
 parent: "参考"
 nav_order: 7
 has_children: true
