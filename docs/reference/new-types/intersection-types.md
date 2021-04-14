@@ -32,7 +32,7 @@ def f(x: Resettable & Growable[String]) =
 例如 `Resettable & Growable[String]` 具有成员方法 `reset` 和 `add`。
 
 
-`&` 是*可交换的*：`A & B` 与 `B & A` 是同一个类型。
+`&` 是*可交换的*：`A & B` 与 `B & A` 是相同的类型。
 
 如果一个成员同时出现在 `A` 和 `B` 中，则它在 `A & B` 中的类型是其在 `A` 中的类型与其在 `B` 中类型的交集。
 例如，假设定义如下：
@@ -66,4 +66,4 @@ class C extends A, B:
 ```
 
 
-[更多细节](./intersection-types-spec.md)
+[更多细节](./intersection-types-spec.md){: .btn .btn-purple }
