@@ -20,44 +20,33 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 - 进一步改善 Scala 语言结构的一致性和表达能力。
 
 与这些目标对应的，语言变化分为七类：(1) 巩固基础的核心结构，(2)简化和(3)[限制]()，使得语言更安全易用，(4)[减少结构]()使得语言更小更规则，
-(5)改变结构以消除 wart，增加一致性和可用性，(6)[增加结构]()以填补空白和提高表现力，(7)一种新的、
+(5)改变结构以消除 wart，增加一致性和可用性，(6)[增加结构]()以填补空白和提高表现力，(7)一种新的、principled 的元编程替换掉 
+[Scala 2 实验宏]((https://docs.scala-lang.org/overviews/macros/overview.html))。
 
-Corresponding to these goals, the language changes fall into seven categories:
-(1) Core constructs to strengthen foundations, (2) simplifications and (3) [restrictions](#restrictions), to make the language easier and safer to use, (4) [dropped constructs](#dropped-constructs) to make the language smaller and more regular, (5) [changed constructs](#changes) to remove warts, and increase consistency and usability, (6) [new constructs](#new-constructs) to fill gaps and increase expressiveness, (7) a new, principled approach to metaprogramming that replaces [Scala 2 experimental macros](https://docs.scala-lang.org/overviews/macros/overview.html).
+## 必要基础
 
-## Essential Foundations
+这些构造直接 model 了 DOT、高阶类型和[隐式解析的 SI calculus](https://infoscience.epfl.ch/record/229878/files/simplicitly_1.pdf)。
 
-These new constructs directly model core features of DOT, higher-kinded types, and the [SI calculus for implicit resolution](https://infoscience.epfl.ch/record/229878/files/simplicitly_1.pdf).
+- [交集类型](new-types/intersection-types.md)，替代了复合类型，
+- [并集类型](new-types/union-types.md)，
+- [类型 Lambda](new-types/type-lambdas.md)，替代了使用结构类型和类型投影的编码，
+- [Context 函数](contextual/context-functions.md)，提供对 given 参数的抽象。
 
-- [Intersection types](new-types/intersection-types.md), replacing compound types,
-- [Union types](new-types/union-types.md),
-- [Type lambdas](new-types/type-lambdas.md), replacing encodings using structural types and type projection.
-- [Context functions](contextual/context-functions.md), offering abstraction over given parameters.
+## 简化
 
-## Simplifications
+这些构造取代了现有构造，目的是让语言更简单易用，并促进代码样式的一致性。
 
-These constructs replace existing constructs with the aim of making the language safer and simpler to use, and to promote uniformity in code style.
-
-- [Trait parameters](other-new-features/trait-parameters.md)
-  replace [early initializers](dropped-features/early-initializers.md) with a more generally useful construct.
-- [Given instances](contextual/givens.md)
-  replace implicit objects and defs, focussing on intent over mechanism.
-- [Using clauses](contextual/using-clauses.md)
-  replace implicit parameters, avoiding their ambiguities.
-- [Extension methods](contextual/extension-methods.md)
-  replace implicit classes with a clearer and simpler mechanism.
-- [Opaque type aliases](other-new-features/opaques.md)
-  replace most uses of value classes while guaranteeing absence of boxing.
-- [Top-level definitions](dropped-features/package-objects.md)
-  replace package objects, dropping syntactic boilerplate.
-- [Export clauses](other-new-features/export.md)
-  provide a simple and general way to express aggregation, which can replace
-  the previous facade pattern of package objects inheriting from classes.
-- [Vararg splices](changed-features/vararg-splices.md)
-  now use the form `xs*` in function arguments and patterns instead of `xs: _*` and `xs @ _*`,
-- [Universal apply methods](other-new-features/creator-applications.md)
-  allow using simple function call syntax instead of `new` expressions. `new` expressions stay around
-  as a fallback for the cases where creator applications cannot be used.
+- [Trait 参数](other-new-features/trait-parameters.md)用更通用的构造替代了[早期初始化器](dropped-features/early-initializers.md)。
+- [Given instances](contextual/givens.md) 替代了隐式对象和隐式 def，更关注意图而非机制。
+- [Using clauses](contextual/using-clauses.md) 替代了隐式参数，避免了它们的歧义。
+- [扩展方法](contextual/extension-methods.md)用更简单清晰的机制替代了隐式类。
+- [不透明类型别名](other-new-features/opaques.md)替代了值类的大多数用途，并确保不进行装箱。
+- [顶层定义](dropped-features/package-objects.md)替代了包对象，减少样板代码。
+- [Export clauses](other-new-features/export.md) 提供了一种简单而通用的机制实现组合，
+它可以替代之前包对象继承类的 facade 模式。
+- [可变参数拼接](changed-features/vararg-splices.md)现在在函数中使用 `xs*` 替代 `xs: _*` 和 `xs @ _*`，
+- [Universal apply methods](other-new-features/creator-applications.md)允许使用简单的函数调用语法而无需 `new` 表达式创建对象。
+`new` 表达式作为 creator application 无法使用时的备选方案保留。
 
 With the exception of [early initializers](dropped-features/early-initializers.md) and old-style vararg patterns, all superseded constructs continue to be available in Scala 3.0. The plan is to deprecate and phase them out later.
 
