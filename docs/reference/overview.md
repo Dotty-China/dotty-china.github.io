@@ -19,8 +19,8 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 - 使 Scala 更安全易用。Tame 像 implicit 这样强大结构，以提供更温和的学习曲线。去除 wart 和 puzzler。
 - 进一步改善 Scala 语言结构的一致性和表达能力。
 
-与这些目标对应的，语言变化分为七类：(1) 巩固基础的核心结构，(2)简化和(3)[限制]()，使得语言更安全易用，(4)[减少结构]()使得语言更小更规则，
-(5)改变结构以消除 wart，增加一致性和可用性，(6)[增加结构]()以填补空白和提高表现力，(7)一种新的、principled 的元编程替换掉 
+与这些目标对应的，语言变化分为七类：(1) 巩固基础的核心结构，(2)简化和(3)[限制](#限制)，使得语言更安全易用，(4)[减少结构](#被弃用的结构)使得语言更小更规则，
+(5)[改变结构](#更改)以消除 wart，增加一致性和可用性，(6)[增加结构](#新结构)以填补空白和提高表现力，(7)一种新的、principled 的元编程替换掉 
 [Scala 2 实验宏]((https://docs.scala-lang.org/overviews/macros/overview.html))。
 
 ## 必要基础
@@ -89,24 +89,19 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 - 在 3.0 中支持，将被弃用并逐步淘汰：
   - [XML 字面量](dropped-features/xml.md)，组合类型。
 
-The date when these constructs are dropped varies. The current status is:
+## 更改
 
-## Changes
+这些结构发生了变化，现在它们更加规则且实用。
 
-These constructs have undergone changes to make them more regular and useful.
+- [结构类型](changed-features/structural-types.md)：现在它们允许插入实现，大大提高了它们的实用性。与现在的实现相比，一些用例受到限制。
+- [基于名称的模式匹配](changed-features/pattern-matching.md)：现有的无文档的 Scala 2 实现使用稍简化的形式编码。
+- [自动 Eta 扩展](changed-features/eta-expansion.md)：现在 Eta 扩展也会在没有预期类型的时候一致地执行。
+因此 `_` 后缀运算现在是多余的。它将在 Scala 3.0 之后被弃用并删除。
+- [隐式解析](changed-features/implicit-resolution.md)：隐式解析规则已被清理，现在更易用、更符合直觉。隐式作用域被限制，不再包含包前缀，
 
-- [Structural Types](changed-features/structural-types.md):
-  They now allow pluggable implementations, which greatly increases their usefulness. Some usage patterns are restricted compared to the status quo.
-- [Name-based pattern matching](changed-features/pattern-matching.md):
-  The existing undocumented Scala 2 implementation has been codified in a slightly simplified form.
-- [Automatic Eta expansion](changed-features/eta-expansion.md):
-  Eta expansion is now performed universally also in the absence of an expected type. The postfix `_` operator is thus made redundant. It will be deprecated and dropped after Scala 3.0.
-- [Implicit Resolution](changed-features/implicit-resolution.md):
-  The implicit resolution rules have been cleaned up to make them more useful and less surprising. Implicit scope is restricted to no longer include package prefixes.
+旧式隐式解析的大多数部分在 `-source 3.0-migration` 下依然可用。此列表中的其他更改被无条件应用。
 
-Most aspects of old-style implicit resolution are still available under `-source 3.0-migration`. The other changes in this list are applied unconditionally.
-
-## New Constructs
+## 新结构
 
 These are additions to the language that make it more powerful or pleasant to use.
 
