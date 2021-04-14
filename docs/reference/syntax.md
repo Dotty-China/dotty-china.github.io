@@ -5,6 +5,8 @@ parent: 参考
 nav_order: 9
 ---
 
+# {{ page.title }}
+
 The following description of Scala tokens uses literal characters `‘c’` when
 referring to the ASCII fragment `\u0000` – `\u007F`.
 
