@@ -1,6 +1,7 @@
 ---
-layout: doc-page
-title: "Union Types - More Details"
+layout: default
+title: "并集类型 - 更多细节"
+nav_exclude: true
 ---
 
 ## Syntax

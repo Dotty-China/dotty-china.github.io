@@ -1,6 +1,7 @@
 ---
-layout: doc-page
-title: "Type Lambdas - More Details"
+layout: default
+title: "类型 Lambda - 更多细节"
+nav_exclude: true
 ---
 
 ## Syntax
