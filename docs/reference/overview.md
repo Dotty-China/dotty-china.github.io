@@ -48,24 +48,23 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 - [Universal apply methods](other-new-features/creator-applications.md)允许使用简单的函数调用语法而无需 `new` 表达式创建对象。
 `new` 表达式作为 creator application 无法使用时的备选方案保留。
 
-With the exception of [early initializers](dropped-features/early-initializers.md) and old-style vararg patterns, all superseded constructs continue to be available in Scala 3.0. The plan is to deprecate and phase them out later.
+除了[早期初始化器]](dropped-features/early-initializers.md)和旧式可变参数模式外，其他被取代的结构在 Scala 3.0 中仍然可用。
+计划是弃用并在未来逐步淘汰它们。
 
-Value classes (superseded by opaque type aliases) are a special case. There are currently no deprecation plans for value classes, since we might bring them back in a more general form if they are supported natively by the JVM as is planned by [project Valhalla](https://openjdk.java.net/projects/valhalla/).
+值类（被不透明类型别名取代）是一个例外。目前我们没有计划弃用值类，因为如果 JVM 按照 [Project Valhalla](https://openjdk.java.net/projects/valhalla/)
+中的计划原生支持了它们，我们可能会用更通用的形式将它们带回 Scala。
 
-## Restrictions
+## 限制
 
-These constructs are restricted to make the language safer.
+为了使语言更加安全，这些结构受到更多限制。
 
-- [Implicit Conversions](contextual/conversions.md):
-  there is only one way to define implicit conversions instead of many, and potentially surprising implicit conversions require a language import.
-- [Given Imports](contextual/given-imports.md):
-  implicits now require a special form of import, to make the import clearly visible.
-- [Type Projection](dropped-features/type-projection.md):
-  only classes can be used as prefix `C` of a type projection `C#A`. Type projection on abstract types is no longer supported since it is unsound.
-- [Multiversal Equality](contextual/multiversal-equality.md):
-  implement an "opt-in" scheme to rule out nonsensical comparisons with `==` and `!=`.
-- [infix](changed-features/operators.md):
-  make method application syntax uniform across code bases.
+- [隐式转换](contextual/conversions.md)：现在只有一种方式定义隐式转换，并且潜在的意外转换需要 language import。
+- [Given 导入](contextual/given-imports.md)：现在需要一种特殊形式的 import 导入隐式，使得导入清晰可见。
+- [类型投影](dropped-features/type-projection.md)：现在只有类可以作为类型投影的前缀。抽象类型上的类型投影是 unsound 的，所以不再受支持。
+- [Multiversal Equality](contextual/multiversal-equality.md)：实现一个“opt-in”方案排除 `==` 和 `!=` 的无意义比较。
+- [中缀](changed-features/operators.md)：使得方法应用语法在 code base 之间保持一致。
+
+无限制的隐式转换在 Scala 3.0 中仍然可用，但即将被弃用并删除。上述列表中其他构造的无限制版本仅在 `-source 3.0-migration` 下可用。
 
 Unrestricted implicit conversions continue to be available in Scala 3.0, but will be deprecated and removed later. Unrestricted versions of the other constructs in the list above are available only under `-source 3.0-migration`.
 
