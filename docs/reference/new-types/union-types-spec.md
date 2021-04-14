@@ -4,36 +4,35 @@ title: "并集类型 - 更多细节"
 nav_exclude: true
 ---
 
-## Syntax
+## 语法
 
-Syntactically, unions follow the same rules as intersections, but have a lower precedence, see
-[Intersection Types - More Details](./intersection-types-spec.md).
+语法上，并集类型遵循与交集类型相同的规则，但优先级较低，请参见[交集类型 - 更多细节](./intersection-types-spec.md)。
 
-### Interaction with pattern matching syntax
-`|` is also used in pattern matching to separate pattern alternatives and has
-lower precedence than `:` as used in typed patterns, this means that:
+### 与模式匹配语法的交互
+
+`|` 也用于在模式匹配中分割 pattern alternatives，并且其优先级低于用于类型模式中的 `:`，这意味着：
 
 ```scala
 case _: A | B => ...
 ```
 
-is still equivalent to:
+等价于：
 
 ```scala
 case (_: A) | B => ...
 ```
 
-and not to:
+而不同于：
 
 ```scala
 case _: (A | B) => ...
 ```
 
-## Subtyping Rules
+## 子类型规则
 
-- `A` is always a subtype of `A | B` for all `A`, `B`.
-- If `A <: C` and `B <: C` then `A | B <: C`
-- Like `&`, `|` is commutative and associative:
+- 对于任意类型 `A` 和 `B`，`A` 总是 `A | B` 的子类型。
+- 如果 `A <: C` 并且 `B <: C`，则 `A | B <: C`
+- 类似于 `&`，`|` 满足交换律和结合律：
 
   ```scala
   A | B =:= B | A
@@ -46,11 +45,10 @@ case _: (A | B) => ...
   A & (B | C) =:= A & B | A & C
   ```
 
-From these rules it follows that the _least upper bound_ (LUB) of a set of types
-is the union of these types. This replaces the
-[definition of least upper bound in the Scala 2 specification](https://www.scala-lang.org/files/archive/spec/2.13/03-types.html#least-upper-bounds-and-greatest-lower-bounds).
+根据这些规则，一组类型的*LUB*（最小上限）是这些类型的并集。这替代了 
+[Scala 2 规范中的最小上限定义](https://www.scala-lang.org/files/archive/spec/2.13/03-types.html#least-upper-bounds-and-greatest-lower-bounds)。
 
-## Motivation
+## 动机
 
 The primary reason for introducing union types in Scala is that they allow us to
 guarantee that for every set of types, we can always form a finite LUB. This is
