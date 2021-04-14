@@ -6,11 +6,13 @@ grand_parent: 参考
 nav_order: 1
 ---
 
-Used on types, the `&` operator creates an intersection type.
+# {{ page.title }}
 
-## Type Checking
+在类型上，`&` 操作符创建一个交集类型（intersection type）。
 
-The type `S & T` represents values that are of the type `S` and `T` at the same time.
+## 类型检查
+
+类型 `S & T` 表示同时属于类型 `S` 和 `T` 的值。
 
 ```scala
 trait Resettable:
@@ -24,17 +26,16 @@ def f(x: Resettable & Growable[String]) =
    x.add("first")
 ```
 
-The parameter `x` is required to be _both_ a `Resettable` and a
-`Growable[String]`.
+参数 `x` 必须*同时*是类型 `Resettable` 和 `Growable[String]` 的值。
 
-The members of an intersection type `A & B` are all the members of `A` and all
-the members of `B`.  For instance `Resettable & Growable[String]`
-has member methods `reset` and `add`.
+交集类型 `A & B` 的成员是 `A` 的所有成员和 `B` 的所有成员。
+例如 `Resettable & Growable[String]` 具有成员方法 `reset` 和 `add`。
 
-`&` is _commutative_: `A & B` is the same type as `B & A`.
 
-If a member appears in both `A` and `B`, its type in `A & B` is the intersection
-of its type in `A` and its type in `B`. For instance, assume the definitions:
+`&` 是*可交换的*：`A & B` 与 `B & A` 是同一个类型。
+
+如果一个成员同时出现在 `A` 和 `B` 中，则它在 `A & B` 中的类型是其在 `A` 中的类型与其在 `B` 中类型的交集。
+例如，假设定义如下：
 
 ```scala
 trait A:
@@ -47,10 +48,8 @@ val x: A & B = new C
 val ys: List[A & B] = x.children
 ```
 
-The type of `children` in `A & B` is the intersection of `children`'s
-type in `A` and its type in `B`, which is `List[A] & List[B]`. This
-can be further simplified to `List[A & B]` because `List` is
-covariant.
+`A & B` 中的 `children` 的类型是 `A` 和 `B` 中 `children` 类型的交集，即 `List[A] & List[B]`。
+因为 `List` 是协变的，所以它能够进一步简化为 `List[A & B]`。
 
 One might wonder how the compiler could come up with a definition for
 `children` of type `List[A & B]` since what is given are `children`
@@ -67,4 +66,4 @@ class C extends A, B:
 ```
 
 
-[More details](./intersection-types-spec.md)
+[更多细节](./intersection-types-spec.md)
