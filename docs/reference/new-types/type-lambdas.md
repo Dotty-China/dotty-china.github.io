@@ -6,14 +6,15 @@ grand_parent: 参考
 nav_order: 3
 ---
 
-A _type lambda_ lets one express a higher-kinded type directly, without
-a type definition.
+# {{ page.title }}
+
+*类型 Lambda*能够在无需类型定义的情况下直接表示高阶类型。
 
 ```scala
 [X, Y] =>> Map[Y, X]
 ```
 
-For instance, the type above defines a binary type constructor, which maps arguments `X` and `Y` to `Map[Y, X]`.
-Type parameters of type lambdas can have bounds, but they cannot carry `+` or `-` variance annotations.
+例如，上面表示了一个双参数的类型构造器，它将参数 `X` 和 `Y` 映射至 `Map[Y, X]`。
+类型 Lambda 的类型参数可以有边界，但不能携带 `+` 或 `-` variance 标注。
 
-[More details](./type-lambdas-spec.md)
+[更多细节](./type-lambdas-spec.md){: .btn .btn-purple }
