@@ -5,10 +5,6 @@ parent: 新类型
 grand_parent: 参考
 nav_order: 6
 ---
----
-layout: doc-page
-title: "Polymorphic Function Types"
----
 
 A polymorphic function type is a function type which accepts type parameters.
 For example:
