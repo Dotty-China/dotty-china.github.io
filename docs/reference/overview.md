@@ -16,7 +16,7 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 
 - 巩固 Scala 的基础。使完整的编程语言与 [DOT calculus](https://infoscience.epfl.ch/record/227176/files/soundness_oopsla16.pdf) 
 上的基础工作兼容，并应用从此工作中得到的经验。
-- 使 Scala 更安全易用。Tame 像 implicit 这样强大的构造，以提供更温和的学习曲线。去除 wart 和 puzzler。
+- 使 Scala 更安全易用。Tame 像 implicit 这样强大结构，以提供更温和的学习曲线。去除 wart 和 puzzler。
 - 进一步改善 Scala 语言结构的一致性和表达能力。
 
 与这些目标对应的，语言变化分为七类：(1) 巩固基础的核心结构，(2)简化和(3)[限制]()，使得语言更安全易用，(4)[减少结构]()使得语言更小更规则，
@@ -25,7 +25,7 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 
 ## 必要基础
 
-这些构造直接 model 了 DOT、高阶类型和[隐式解析的 SI calculus](https://infoscience.epfl.ch/record/229878/files/simplicitly_1.pdf)。
+这些结构直接 model 了 DOT、高阶类型和[隐式解析的 SI calculus](https://infoscience.epfl.ch/record/229878/files/simplicitly_1.pdf)。
 
 - [交集类型](new-types/intersection-types.md)，替代了复合类型，
 - [并集类型](new-types/union-types.md)，
@@ -34,9 +34,9 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 
 ## 简化
 
-这些构造取代了现有构造，目的是让语言更简单易用，并促进代码样式的一致性。
+这些结构取代了现有结构，目的是让语言更简单易用，并促进代码样式的一致性。
 
-- [Trait 参数](other-new-features/trait-parameters.md)用更通用的构造替代了[早期初始化器](dropped-features/early-initializers.md)。
+- [Trait 参数](other-new-features/trait-parameters.md)用更通用的结构替代了[早期初始化器](dropped-features/early-initializers.md)。
 - [Given instances](contextual/givens.md) 替代了隐式对象和隐式 def，更关注意图而非机制。
 - [Using clauses](contextual/using-clauses.md) 替代了隐式参数，避免了它们的歧义。
 - [扩展方法](contextual/extension-methods.md)用更简单清晰的机制替代了隐式类。
@@ -64,33 +64,32 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 - [Multiversal Equality](contextual/multiversal-equality.md)：实现一个“opt-in”方案排除 `==` 和 `!=` 的无意义比较。
 - [中缀](changed-features/operators.md)：使得方法应用语法在 code base 之间保持一致。
 
-无限制的隐式转换在 Scala 3.0 中仍然可用，但即将被弃用并删除。上述列表中其他构造的无限制版本仅在 `-source 3.0-migration` 下可用。
+无限制的隐式转换在 Scala 3.0 中仍然可用，但即将被弃用并删除。上述列表中其他结构的无限制版本仅在 `-source 3.0-migration` 下可用。
 
-Unrestricted implicit conversions continue to be available in Scala 3.0, but will be deprecated and removed later. Unrestricted versions of the other constructs in the list above are available only under `-source 3.0-migration`.
+## 被弃用的结构
 
-## Dropped Constructs
+这些结构被建议在没有新的结构作为替代品的情况下删除。放弃这些结构的目的是简化语言和实现。
 
-These constructs are proposed to be dropped without a new construct replacing them. The motivation for dropping these constructs is to simplify the language and its implementation.
+- [延迟初始化](dropped-features/delayed-init.md)，
+- [存在类型](dropped-features/existential-types.md)，
+- [过程语法](dropped-features/procedure-syntax.md)，
+- [类遮蔽](dropped-features/class-shadowing.md)，
+- [XML 字面量](dropped-features/xml.md)，
+- [Symbol 字面量](dropped-features/symlits.md)，
+- [自动应用](dropped-features/auto-apply.md)，
+- [弱一致性](dropped-features/weak-conformance.md)，
+- 组合类型（被[交集类型](new-types/intersection-types.md)替代），
+- [自动元组化](https://github.com/lampepfl/dotty/pull/4311) （已实现，但尚未合并）。
 
-- [DelayedInit](dropped-features/delayed-init.md),
-- [Existential types](dropped-features/existential-types.md),
-- [Procedure syntax](dropped-features/procedure-syntax.md),
-- [Class shadowing](dropped-features/class-shadowing.md),
-- [XML literals](dropped-features/xml.md),
-- [Symbol literals](dropped-features/symlits.md),
-- [Auto application](dropped-features/auto-apply.md),
-- [Weak conformance](dropped-features/weak-conformance.md),
-- Compound types (replaced by [Intersection types](new-types/intersection-types.md)),
-- [Auto tupling](https://github.com/lampepfl/dotty/pull/4311) (implemented, but not merged).
+删除这些结构的时间各不相同。当前状态为：
+- 完全未实现：
+  - 延迟初始化，存在类型，弱一致性。
+- `-source 3.0-migration` 下支持：
+  - 过程语法，类遮蔽，Symbol 字面量，自动应用，受限形式的自动元组化。
+- 在 3.0 中支持，将被弃用并逐步淘汰：
+  - [XML 字面量](dropped-features/xml.md)，组合类型。
 
 The date when these constructs are dropped varies. The current status is:
-
-- Not implemented at all:
-  - DelayedInit, existential types, weak conformance.
-- Supported under `-source 3.0-migration`:
-  - procedure syntax, class shadowing, symbol literals, auto application, auto tupling in a restricted form.
-- Supported in 3.0, to be deprecated and phased out later:
-  - [XML literals](dropped-features/xml.md), compound types.
 
 ## Changes
 
