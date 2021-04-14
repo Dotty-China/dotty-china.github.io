@@ -103,37 +103,38 @@ Scala 3 基于 Scala 2 实现了很多语言上的更改与增强。这篇参考
 
 ## 新结构
 
-These are additions to the language that make it more powerful or pleasant to use.
+这些结构是对语言的补充，使其更强大易用。
 
-- [Enums](enums/enums.md) provide concise syntax for enumerations and [algebraic data types](enums/adts.md).
-- [Parameter untupling](other-new-features/parameter-untupling.md) avoids having to use `case` for tupled parameter destructuring.
-- [Dependent function types](new-types/dependent-function-types.md) generalize dependent methods to dependent function values and types.
-- [Polymorphic function types](new-types/polymorphic-function-types.md) generalize polymorphic methods to polymorphic function values and types.
-  _Current status_: There is a proposal and a merged prototype implementation, but the implementation has not been finalized (it is notably missing type inference support).
-- [Kind polymorphism](other-new-features/kind-polymorphism.md) allows the definition of operators working equally on types and type constructors.
-- [`@targetName` annotations](other-new-features/targetName.md) make it easier to interoperate with code written in other languages and give more flexibility for avoiding name clashes.
+- [枚举](enums/enums.md)为 enumeration 和[代数数据类型（Algebraic Data Type）](enums/adts.md)提供了简洁的语法。
+- [参数解元组](other-new-features/parameter-untupling.md)避免了需要用 `case` 解构元组参数的情况。
+- [依赖函数类型](new-types/dependent-function-types.md)将依赖方法类推到依赖函数值和类型。
+- [多态函数类型](new-types/polymorphic-function-types.md)将多态方法类推到多态函数值和类型。
+_当前状态_：有一个提案和一个已经合并的原型实现，但实现尚未最终确定（非常缺乏类型推导支持）。
+- [Kind 多态](other-new-features/kind-polymorphism.md)允许定义同时能在类型和类型构造器上工作的操作符。
+- [`@targetName` 注解](other-new-features/targetName.md)使其更容易与用其他语言编写的代码进行互操作，
+并为了避免名称冲突提供了更大的灵活性。
 
-## Metaprogramming
+## 元编程
 
-The following constructs together aim to put metaprogramming in Scala on a new basis. So far, metaprogramming was achieved by a combination of macros and libraries such as [Shapeless](https://github.com/milessabin/shapeless) that were in turn based on some key macros. Current Scala 2 macro mechanisms are a thin veneer on top the current Scala 2 compiler, which makes them fragile and in many cases impossible to port to Scala 3.
+下面的结构目标在于让 Scala 元编程基于新的基础。到目前位置，Scala 元编程是基于宏和像 [Shapeless](https://github.com/milessabin/shapeless)
+这样的库的组合实现的，而 Shapeless 又基于一些关键宏。现在 Scala 2 的宏机制是 a thin veneer on top the current Scala 2 compiler，
+这使得它们很脆弱，并且难以移植到 Scala 3。
 
-It's worth noting that macros were never included in the [Scala 2 language specification](https://scala-lang.org/files/archive/spec/2.13/) and were so far made available only under an `-experimental` flag. This has not prevented their widespread usage.
+值得注意的是，[Scala 2 语言规范](https://scala-lang.org/files/archive/spec/2.13/)中从未包括宏，
+到目前为止宏只在 `-experimental` 标识下可用。但这没有阻止它被广泛使用。
 
-To enable porting most uses of macros, we are experimenting with the advanced language constructs listed below. These designs are more provisional than the rest of the proposed language constructs for Scala 3.0. There might still be some changes until the final release. Stabilizing the feature set needed for metaprogramming is our first priority.
+为了能够移植宏的大部分功能，我们正在实验下面列出的高级语言结构。这些设计比 Scala 3.0 的其他语言结构更具临时性。
+在最终发布前仍可能有一些更改。稳定的元编程所需的特性集是我们的首要目标。
 
-- [Match Types](new-types/match-types.md)
-  allow computation on types.
-- [Inline](metaprogramming/inline.md)
-  provides by itself a straightforward implementation of some simple macros and is at the same time an essential building block for the implementation of complex macros.
-- [Quotes and Splices](metaprogramming/macros.md)
-  provide a principled way to express macros and staging with a unified set of abstractions.
-- [Type class derivation](contextual/derivation.md)
-  provides an in-language implementation of the `Gen` macro in Shapeless and other foundational libraries. The new implementation is more robust, efficient and easier to use than the macro.
-- [By-name context parameters](contextual/by-name-context-parameters.md)
-  provide a more robust in-language implementation of the `Lazy` macro in [Shapeless](https://github.com/milessabin/shapeless).
+- [匹配类型](new-types/match-types.md)允许对类型进行计算。
+- [内联](metaprogramming/inline.md)本身提供了一些简单宏的简易实现，同时也是实现复杂宏的必要构造块。
+- [引用和拼接](metaprogramming/macros.md)提供了一种用统一的抽象集表示宏和 staging 的规则的方法。
+- [Type class 派生](contextual/derivation.md)提供了 Shapeless 以及其他基础库中 `Gen` 宏的语言内置实现。
+新的实现比宏更健壮、更高效、更易用。
+- [按名上下文参数](contextual/by-name-context-parameters.md)提供 [Shapeless](https://github.com/milessabin/shapeless) 
+中的 `Lazy` 宏的更健壮的语言内置实现。
 
-## See Also
+## 另请参见
 
-[A classification of proposed language features](./features-classification.md) is
-an expanded version of this page that adds the status (i.e. relative importance to be a part of Scala 3, and relative urgency when to decide this) and expected migration cost
-of each language construct.
+[计划中的语言特性分类](https://dotty.epfl.ch/docs/reference/features-classification.html)是本页的扩展版本，
+它添加了每个语言结构的状态（即作为 Scala 3 一部分的相对重要性，以及选择它的相对紧迫程度）和预期迁移成本。

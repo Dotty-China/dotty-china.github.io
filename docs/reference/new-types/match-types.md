@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Match 类型
+title: 匹配类型
 parent: 新类型
 grand_parent: 参考
 nav_order: 4
