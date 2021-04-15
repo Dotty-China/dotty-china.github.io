@@ -6,42 +6,36 @@ grand_parent: 参考
 nav_order: 3
 ---
 
+# {{ page.title }}
 
-The compiler expands enums and their cases to code that only uses
-Scala's other language features. As such, enums in Scala are
-convenient _syntactic sugar_, but they are not essential to understand
-Scala's core.
+编译器将枚举和它的 case 扩展为值使用 Scala 其他语言特性的代码。因此，Scala 中的枚举是便捷的*语法糖*，
+它们不是理解 Scala 核心所必需的。
 
-We now explain the expansion of enums in detail. First,
-some terminology and notational conventions:
+现在我们详细解释枚举的扩展。首先，一些术语和惯用符号：
 
- - We use `E` as a name of an enum, and `C` as a name of a case that appears in `E`.
- - We use `<...>` for syntactic constructs that in some circumstances might be empty. For instance,
-   `<value-params>` represents one or more parameter lists `(...)` or nothing at all.
+ - 我们使用 `E` 作为一个枚举的名称，使用 `C` 作为出现在 `E` 中的 case。
+ - 我们使用 `<...>` 表示在某些情况下可能为空的语法结构。例如，`<value-params>` 表示一个或多个多个参数列表 `(...)`，或者什么都没有。
 
- - Enum cases fall into three categories:
+ - 枚举 case 分为三类：
+   - *类 case* 是那些参数化的 case，可以带有一个类型参数部分 `[...]`，一个或多个参数部分 `(...)`。
+   - *简单 case* 是非泛型枚举中既没有参数也没有 extends 子句或者类体的 case。也就是说，它们只包含一个名称。
+   - *值 case* 是所有没有参数部分，但是有（可能是生成的）extends 子句或类体的 case。
 
-   - _Class cases_ are those cases that are parameterized, either with a type parameter section `[...]` or with one or more (possibly empty) parameter sections `(...)`.
-   - _Simple cases_ are cases of a non-generic enum that have neither parameters nor an extends clause or body. That is, they consist of a name only.
-   - _Value cases_ are all cases that do not have a parameter section but that do have a (possibly generated) `extends` clause and/or a body.
+  简单 case 和值 case 统称为*单例 case*。
 
-  Simple cases and value cases are collectively called _singleton cases_.
+脱糖规则表明类 case 会被映射到 case 类，单例 case 会被映射到 `val` 定义。
 
-The desugaring rules imply that class cases are mapped to case classes, and singleton cases are mapped to `val` definitions.
+有九条脱糖规则。规则(1)脱糖枚举定义。规则(2)和(3)脱糖简单 case。规则(4)到(6)为缺少 `extends` 子句的 case 定义它们。
+规则(7)到(9)定义了如何将带有 `extends` 子句的 case 映射到 `case class` 或者 `val`。
 
-There are nine desugaring rules. Rule (1) desugars enum definitions. Rules
-(2) and (3) desugar simple cases. Rules (4) to (6) define `extends` clauses for cases that
-are missing them. Rules (7) to (9) define how such cases with `extends` clauses
-map into `case class`es or `val`s.
-
-1. An `enum` definition
+1. 一个 `enum` 定义
    ```scala
    enum E ... { <defs> <cases> }
    ```
-   expands to a `sealed abstract` class that extends the `scala.reflect.Enum` trait and
-   an associated companion object that contains the defined cases, expanded according
-   to rules (2 - 8). The enum class starts with a compiler-generated import that imports
-   the names `<caseIds>` of all cases so that they can be used without prefix in the class.
+   扩展为一个继承 `scala.reflect.Enum` trait 的 `sealed abstract` 
+   类和与其关联的包含所有定义的 case 通过规则 (2-8) 展开后结果的伴生对象。
+   枚举类以编译器生成的 import 开始，导入了所有 case 的名称 `<caseIds>`，
+   以便在类中不使用前缀的情况下使用它们。
    ```scala
    sealed abstract class E ... extends <parents> with scala.reflect.Enum {
      import E.{ <caseIds> }
@@ -50,89 +44,81 @@ map into `case class`es or `val`s.
    object E { <cases> }
    ```
 
-2. A simple case consisting of a comma-separated list of enum names
+2. 由 `,` 分隔的枚举名列表
    ```scala
    case C_1, ..., C_n
    ```
-   expands to
+   扩展为
    ```scala
    case C_1; ...; case C_n
    ```
-   Any modifiers or annotations on the original case extend to all expanded
-   cases.
+   原本的 case 上的所有 modifier 和注解都会延伸到所有扩展出的 case 上。
 
-3. A simple case
+3. 枚举 `E` 中不接受类型参数的简单 case
    ```scala
    case C
    ```
-   of an enum `E` that does not take type parameters expands to
+   扩展为
    ```scala
    val C = $new(n, "C")
    ```
-   Here, `$new` is a private method that creates an instance of `E` (see
-   below).
+   这里 `$new` 是一个私有方法，用于创建 `E` 的实例（见下文）。
 
-4. If `E` is an enum with type parameters
+4. 如果 `E` 是一个接受类型参数
    ```scala
    V1 T1 >: L1 <: U1 ,   ... ,    Vn Tn >: Ln <: Un      (n > 0)
    ```
-   where each of the variances `Vi` is either `'+'` or `'-'`, then a simple case
+   的枚举，其中每个 variance `Vi` 是 `'+'` 或 `'-'`，则简单 case
    ```scala
    case C
    ```
-   expands to
+   扩展为
    ```scala
    case C extends E[B1, ..., Bn]
    ```
-   where `Bi` is `Li` if `Vi = '+'` and `Ui` if `Vi = '-'`. This result is then further
-   rewritten with rule (8). Simple cases of enums with non-variant type
-   parameters are not permitted (however value cases with explicit `extends` clause are)
+   `Bi` 当 `Vi = '+'` 时为 `Li`，当 `Vi = '-'` 时为 `Ui`。然后使用规则(8)进一步重写该结果。
+   枚举带有 non-variant 类型参数情况下的简单 case 是不允许的（但可以使用显式带有 `extends` 子句的值 case）。
 
-5. A class case without an extends clause
+5. 不接受类型参数的枚举 `E` 中没有 extends 子句的类 case 
    ```scala
    case C <type-params> <value-params>
    ```
-   of an enum `E` that does not take type parameters expands to
+   扩展为
    ```scala
    case C <type-params> <value-params> extends E
    ```
-   This result is then further rewritten with rule (9).
-
-6. If `E` is an enum with type parameters `Ts`, a class case with neither type parameters nor an extends clause
+   然后使用规则(9)进一步重写该结果。
+6. 如果 `E` 是一个接受类型参数(们) `Ts` 的枚举，则既没有类型参数也没有 extends 子句的类 case
    ```scala
    case C <value-params>
    ```
-   expands to
+   扩展为
    ```scala
    case C[Ts] <value-params> extends E[Ts]
    ```
-   This result is then further rewritten with rule (9). For class cases that have type parameters themselves, an extends clause needs to be given explicitly.
+   然后使用规则(9)进一步重写该结果。本身带有类型参数的类 case 需要显式给出 extends 子句。
 
-7. If `E` is an enum with type parameters `Ts`, a class case without type parameters but with an extends clause
+7. 如果 `E` 是一个接受类型参数(们) `Ts` 的枚举，则没有类型参数但带有 extends 子句的类 case
    ```scala
    case C <value-params> extends <parents>
    ```
-   expands to
+   扩展为
    ```scala
    case C[Ts] <value-params> extends <parents>
    ```
-   provided at least one of the parameters `Ts` is mentioned in a parameter type in
-   `<value-params>` or in a type argument in `<parents>`.
+   前提是类型参数(们) `Ts` 至少在 `<value-params>` 中的参数类型或 `<parents>` 的类型参数中提到至少一次。
 
-8. A value case
+8. 值 case
    ```scala
    case C extends <parents>
    ```
-   expands to a value definition in `E`'s companion object:
+   扩展为 `E` 的伴生对象中的值定义
    ```scala
    val C = new <parents> { <body>; def ordinal = n }
    ```
-   where `n` is the ordinal number of the case in the companion object,
-   starting from 0. The anonymous class also
-   implements the abstract `Product` methods that it inherits from `Enum`.
-
-   It is an error if a value case refers to a type parameter of the enclosing `enum`
-   in a type argument of `<parents>`.
+   其中 `n` 是伴生对象中 case 从零开始的序号。这个匿名类还实现了从 `Enum` 中继承的抽象的 `Product` 方法。
+   
+   值 case 引用 `<parents>` 类型参数中封闭 `enum` 的类型参数是一个错误。
 
 9. A class case
    ```scala
