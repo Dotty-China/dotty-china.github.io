@@ -90,9 +90,10 @@ end Planet
 
 ### 枚举类的弃用
 
-As a library author, you may want to signal that an enum case is no longer intended for use. However you could still want to gracefully handle the removal of a case from your public API, such as special casing deprecated cases.
+作为库的作者，您可能想发出枚举 case 不再适用的信号。
+However you could still want to gracefully handle the removal of a case from your public API, such as special casing deprecated cases.
 
-To illustrate, say that the `Planet` enum originally had an additional case:
+举例来说，假设枚举 `Planet` 开始有一个额外的 case：
 
 ```diff
  enum Planet(mass: Double, radius: Double):
@@ -101,8 +102,7 @@ To illustrate, say that the `Planet` enum originally had an additional case:
 +   case Pluto   extends Planet(1.309e+22, 1.1883e3)
  end Planet
 ```
-
-We now want to deprecate the `Pluto` case. First we add the `scala.deprecated` annotation to `Pluto`:
+现在我们想弃用 `Pluto` case。首先我们向 `Pluto` 添加 `scala.deprecated` 注解：
 
 ```diff
  enum Planet(mass: Double, radius: Double):
@@ -115,7 +115,8 @@ We now want to deprecate the `Pluto` case. First we add the `scala.deprecated` a
  end Planet
 ```
 
-Outside the lexical scopes of `enum Planet` or `object Planet`, references to `Planet.Pluto` will produce a deprecation warning, but within those scopes we can still reference it to implement introspection over the deprecated cases:
+在 `enum Planet` 和 `object Planet` 的词法范围以外，引用 `Planet.Pluto` 将产生一个弃用警告，但在这些词法范围内，
+我们仍然能够引用它 to implement introspection over the deprecated cases：
 
 ```scala
 trait Deprecations[T <: reflect.Enum] {
@@ -130,33 +131,36 @@ object Planet {
 }
 ```
 
-We could imagine that a library may use [type class derivation](../contextual/derivation.md) to automatically provide an instance for `Deprecations`.
+我们可以设想一个库可能可以使用 [type class 派生](../contextual/derivation.md)自动提供 `Deprecations` 
+的实例。
 
-### Compatibility with Java Enums
+### 与 Java 枚举的兼容性
 
-If you want to use the Scala-defined enums as [Java enums](https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html), you can do so by extending
-the class `java.lang.Enum`, which is imported by default, as follows:
+你可以通过继承类 `java.lang.Enum` 使 Scala 中定义的枚举成为 [Java 枚举](https://docs.oracle.com/javase/tutorial/java/javaOO/enum.html)。
+`java.lang.Enum` 默认被导入，如下所示：
 
 ```scala
 enum Color extends Enum[Color] { case Red, Green, Blue }
 ```
 
-The type parameter comes from the Java enum [definition](https://docs.oracle.com/javase/8/docs/api/index.html?java/lang/Enum.html) and should be the same as the type of the enum.
-There is no need to provide constructor arguments (as defined in the Java API docs) to `java.lang.Enum` when extending it – the compiler will generate them automatically.
+类型参数来自 [Java 枚举的定义](https://docs.oracle.com/javase/8/docs/api/index.html?java/lang/Enum.html)，
+应该与枚举类型相同。不需要提供 `java.lang.Enum` 的构造器参数（像 Java API 文档中定义的那样），
+当继承 `java.lang.Enum` 时，编译器会自动生成它们。
 
-After defining `Color` like that, you can use it like you would a Java enum:
+在定义了这样的 `Color` 之后，您可以像使用 Java 枚举一样使用它：
 
 ```scala
 scala> Color.Red.compareTo(Color.Green)
 val res15: Int = -1
 ```
 
-For a more in-depth example of using Scala 3 enums from Java, see [this test](https://github.com/lampepfl/dotty/tree/master/tests/run/enum-java). In the test, the enums are defined in the `MainScala.scala` file and used from a Java source, `Test.java`.
+有关从 Java 使用 Scala 3 枚举的更深入的示例，请参见[这个测试](https://github.com/lampepfl/dotty/tree/master/tests/run/enum-java)。
+在这个测试中，枚举定义于文件 `MainScala.scala` 中，并且在 Java 源文件 `Test.java` 中被使用。
 
-### Implementation
+### 实现
 
-Enums are represented as `sealed` classes that extend the `scala.reflect.Enum` trait.
-This trait defines a single public method, `ordinal`:
+枚举被表示为继承自 `scala.reflect.Enum` trait 的 `sealed` 类。
+这个  trait 定义了一个 public 方法 `ordinal`：
 
 ```scala
 package scala.reflect
@@ -168,8 +172,7 @@ transparent trait Enum extends Any, Product, Serializable:
    def ordinal: Int
 ```
 
-Enum values with `extends` clauses get expanded to anonymous class instances.
-For instance, the `Venus` value above would be defined like this:
+带有 `extends` 子句的枚举值被扩展为匿名类实例。例如，上面的 `Venus` 值定义类似这样：
 
 ```scala
 val Venus: Planet = new Planet(4.869E24, 6051800.0):
@@ -178,16 +181,14 @@ val Venus: Planet = new Planet(4.869E24, 6051800.0):
    override def toString: String = "Venus"
 ```
 
-Enum values without `extends` clauses all share a single implementation
-that can be instantiated using a private method that takes a tag and a name as arguments.
-For instance, the first
-definition of value `Color.Red` above would expand to:
+不带 `extends` 子句的枚举值都共享一个实现，这个实现可以使用一个接受一个 tag 和一个名称作为参数的私有方法实例化。
+例如，最早那个定义中的值 `Color.Red` 会被扩展为：
 
 ```scala
 val Red: Color = $new(0, "Red")
 ```
 
-### Reference
+### 参考
 
-For more information, see [Issue #1970](https://github.com/lampepfl/dotty/issues/1970) and
-[PR #4003](https://github.com/lampepfl/dotty/pull/4003).
+想要了解更多信息，请参见 [Issue #1970](https://github.com/lampepfl/dotty/issues/1970) 和 
+[PR #4003](https://github.com/lampepfl/dotty/pull/4003)。
