@@ -6,8 +6,9 @@ grand_parent: 参考
 nav_order: 6
 ---
 
-A polymorphic function type is a function type which accepts type parameters.
-For example:
+# {{ page.title }}
+
+多态函数类型（Polymorphic Function Type）是接受类型参数的函数类型。例如：
 
 ```scala
 // A polymorphic method:
@@ -20,25 +21,23 @@ val bar: [A] => List[A] => List[A]
        = [A] => (xs: List[A]) => foo[A](xs)
 ```
 
-Scala already has _polymorphic methods_, i.e. methods which accepts type parameters.
-Method `foo` above is an example, accepting a type parameter `A`.
-So far, it
-was not possible to turn such methods into polymorphic function values like `bar` above,
-which can be passed as parameters to other functions, or returned as results.
+Scala 已经有了*多态方法（Polymorphi Method）*，即接受类型参数的方法。上面的 `foo` 方法就是一个例子，
+它接受一个类型参数 `A`。到目前为止，还不能将这些方法转化为上面 `bar` 这样能够作为参数传递，
+能够作为结果返回的多态函数值。
 
-In Scala 3 this is now possible. The type of the `bar` value above is
+现在在 Scala 3 中，这是可能的。上述的值 `bar` 的类型是
 
 ```scala
 [A] => List[A] => List[A]
 ```
 
-This type describes function values which take a type `A` as a parameter,
-then take a list of type `List[A]`, and return a list of the same type `List[A]`.
+这个类型描述了接受一个类型 `A` 作为参数，接受一个类型为 `List[A]` 的列表，并返回相同的类型为 `List[A]` 
+的列表的函数值。
 
-[More details](https://github.com/lampepfl/dotty/pull/4672)
+更多细节参见 [PR 4672](https://github.com/lampepfl/dotty/pull/4672)。
 
 
-## Example Usage
+## 示例用法
 
 Polymorphic function type are particularly useful
 when callers of a method are required to provide a
@@ -80,7 +79,7 @@ val e1 = mapSubexpressions(e0)(
 println(e1) // Apply(Apply(Var(wrap),Var(f)),Apply(Var(wrap),Var(a)))
 ```
 
-## Relationship With Type Lambdas
+## 与类型 Lambda 的关系
 
 Polymorphic function types are not to be confused with
 [_type lambdas_](type-lambdas.md).
