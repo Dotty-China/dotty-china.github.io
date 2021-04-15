@@ -6,8 +6,9 @@ grand_parent: 参考
 nav_order: 5
 ---
 
-A dependent function type is a function type whose result depends
-on the function's parameters. For example:
+# {{ page.title }}
+
+依赖函数类型（Dependent Function Type）是结果类型依赖函数参数的函数类型。例如：
 
 ```scala
 trait Entry { type Key; val key: Key }
@@ -19,33 +20,27 @@ val extractor: (e: Entry) => e.Key = extractKey  // a dependent function value
 //             a dependent function type
 ```
 
-Scala already has _dependent methods_, i.e. methods where the result
-type refers to some of the parameters of the method. Method
-`extractKey` is an example. Its result type, `e.Key` refers to its
-parameter `e` (we also say, `e.Key` _depends_ on `e`). But so far it
-was not possible to turn such methods into function values, so that
-they can be passed as parameters to other functions, or returned as
-results. Dependent methods could not be turned into functions simply
-because there was no type that could describe them.
+Scala 已经有了*依赖方法（Dependent Method）*，即结果类型引用方法某些参数的方法。方法 `extractKey` 就是一个例子。
+它的结果类型 `e.Key` 引用了它的参数 `e`（我们也称 `e.Key` *依赖* `e`）。但目前为止，我们还无法将这些方法转换为函数值，
+以便将它们作为参数传递给其他函数，或者作为结果返回。依赖方法不能简单地转化为函数，因为没有类型可以描述它们。
 
-In Scala 3 this is now possible. The type of the `extractor` value above is
+现在在 Scala 3 中，这是可能的。上述的值 `extractor` 的类型是
 
 ```scala
 (e: Entry) => e.Key
 ```
 
-This type describes function values that take any argument `e` of type
-`Entry` and return a result of type `e.Key`.
+这个类型描述了接受任意 `Entry` 类型的参数 `e`，并返回类型为 `e.Key` 的值的函数值。
 
-Recall that a normal function type `A => B` is represented as an
-instance of the [`Function1` trait](https://dotty.epfl.ch/api/scala/Function1.html)
-(i.e. `Function1[A, B]`) and analogously for functions with more parameters. Dependent functions
-are also represented as instances of these traits, but they get an additional
-refinement. In fact, the dependent function type above is just syntactic sugar for
+回想一下，普通的函数类型 `A => B` 表示为 [`Function1` trait](https://dotty.epfl.ch/api/scala/Function1.html) 
+的一个实例，具有更多参数的方法也用类似的方式来表示。依赖函数被表示为这些特质的实例，但它们得到了额外的 refinement。
+事实上，上述的依赖函数类型只是
 
 ```scala
 Function1[Entry, Entry#Key]:
    def apply(e: Entry): e.Key
 ```
 
-[More details](./dependent-function-types-spec.md)
+的语法糖。
+
+[更多细节](./dependent-function-types-spec.md){: .btn .btn-purple }
