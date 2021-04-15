@@ -39,15 +39,9 @@ Scala 已经有了*多态方法（Polymorphi Method）*，即接受类型参数�
 
 ## 示例用法
 
-Polymorphic function type are particularly useful
-when callers of a method are required to provide a
-function which has to be polymorphic,
-meaning that it should accept arbitrary types as part of its inputs.
+当方法的调用方需要提供一个必须多态的函数（这意味着它应该接受任意类型作为其输入的一部分）的时候，多态函数类型非常有用。
 
-For instance, consider the situation where we have
-a data type to represent the expressions of a simple language
-(consisting only of variables and function applications)
-in a strongly-typed way:
+例如，考虑这样一种情况，即我们有一个数据类型，用强类型的方式表示一个简单语言（仅有变量和函数应用组成）的表达式：
 
 ```scala
 enum Expr[A]:
@@ -55,11 +49,8 @@ enum Expr[A]:
    case Apply[A, B](fun: Expr[B => A], arg: Expr[B]) extends Expr[A]
 ```
 
-We would like to provide a way for users to map a function
-over all immediate subexpressions of a given `Expr`.
-This requires the given function to be polymorphic,
-since each subexpression may have a different type.
-Here is how to implement this using polymorphic function types:
+我们想要给用户提供一个方法，将函数映射到给定的 `Expr` 的所有 immediate 子表达式上。这将要求给定的函数是多态的，
+因为每个子表达式可能有不同的类型。下面展示了如何用多态函数类型实现这一点：
 
 ```scala
 def mapSubexpressions[A](e: Expr[A])(f: [B] => Expr[B] => Expr[B]): Expr[A] =
@@ -68,9 +59,7 @@ def mapSubexpressions[A](e: Expr[A])(f: [B] => Expr[B] => Expr[B]): Expr[A] =
       case Var(n) => Var(n)
 ```
 
-And here is how to use this function to _wrap_ each subexpression
-in a given expression with a call to some `wrap` function,
-defined as a variable:
+然后下面展示了如何使用这个函数将每个子表达式*包装*到给定的表达式中，并调用某个被定义为变量的 `wrap` 函数：
 
 ```scala
 val e0 = Apply(Var("f"), Var("a"))
@@ -81,14 +70,9 @@ println(e1) // Apply(Apply(Var(wrap),Var(f)),Apply(Var(wrap),Var(a)))
 
 ## 与类型 Lambda 的关系
 
-Polymorphic function types are not to be confused with
-[_type lambdas_](type-lambdas.md).
-While the former describes the _type_ of a polymorphic _value_,
-the latter is an actual function value _at the type level_.
+多态函数类型不能与[*类型 Lambda*](type-lambdas.md) 混淆。前者描述多态*值*的*类型*，后者是*类型级别的*实际函数值。
 
-A good way of understanding the difference is to notice that
-**_type lambdas are applied in types,
-whereas polymorphic functions are applied in terms_**:
+理解这种差异的最好方法是注意**_类型 Lambda 应用于类型，而多态函数应用于 term 中_**：
 One would call the function `bar` above
 by passing it a type argument `bar[Int]` _within a method body_.
 On the other hand, given a type lambda such as `type F = [A] =>> List[A]`,
