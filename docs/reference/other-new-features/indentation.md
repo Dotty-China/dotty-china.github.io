@@ -19,12 +19,11 @@ Scala 3 enforces some rules on indentation and allows some occurrences of braces
 
 ## 缩进规则
 
-The compiler enforces two rules for well-indented programs, flagging violations as warnings.
+编译器对缩进良好的程序强制执行两个规则，对违规处标为警告。
 
- 1. In a brace-delimited region, no statement is allowed to start to the left
-    of the first statement after the opening brace that starts a new line.
-
-    This rule is helpful for finding missing closing braces. It prevents errors like:
+ 1. 在用大括号分隔的区域中，不允许任何语句从左括号后新行中第一个语句的左侧开始。
+    
+    这个规则有助于查找缺失的右括号。它可以防止类似下面的错误：
 
     ```scala
     if (x < 0) {
@@ -33,8 +32,9 @@ The compiler enforces two rules for well-indented programs, flagging violations 
 
     println("done")  // error: indented too far to the left
     ```
-
- 2. If significant indentation is turned off (i.e. under Scala 2 mode or under `-no-indent`) and we are at the  start of an indented sub-part of an expression, and the indented part ends in a newline, the next statement must start at an indentation width less than the sub-part. This prevents errors where an opening brace was forgotten, as in
+ 2. 如果关闭了 significant indentation（也就是在 Scala 2 模式或 `-no-indent` 下），
+    并且我们位于表达式缩进子部分的开头，并且缩进部分以换行结束，则下一条语句必须以小于子部分的缩进宽度开始。
+    这可以防止因为忘记左大括号出现错误，如
 
     ```scala
     if (x < 0)
@@ -42,12 +42,11 @@ The compiler enforces two rules for well-indented programs, flagging violations 
       println(2)   // error: missing `{`
     ```
 
-These rules still leave a lot of leeway how programs should be indented. For instance, they do not impose
-any restrictions on indentation within expressions, nor do they require that all statements of an indentation block line up exactly.
+这些规则仍为程序的缩进留下了很大余地。例如，它们不对表达式中的缩进施加任何限制，也不要求缩进块中的所有语句完全对齐。
 
-The rules are generally helpful in pinpointing the root cause of errors related to missing opening or closing braces. These errors are often quite hard to diagnose, in particular in large programs.
+这些规则通常有助于查明与缺少左或右大括号相关的错误的根本原因。这些错误通常很难诊断，尤其是在大型程序中。
 
-## Optional Braces
+## 可选括号
 
 The compiler will insert `<indent>` or `<outdent>`
 tokens at certain line breaks. Grammatically, pairs of `<indent>` and `<outdent>` tokens have the same effect as pairs of braces `{` and `}`.
