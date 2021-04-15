@@ -6,8 +6,9 @@ grand_parent: 参考
 nav_order: 4
 ---
 
-A match type reduces to one of its right-hand sides, depending on the type of
-its scrutinee. For example:
+# {{ page.title }}
+
+匹配类型依赖于它 scrutinee 的类型，化简至其右侧的类型之一。例如：
 
 ```scala
 type Elem[X] = X match
@@ -16,7 +17,7 @@ type Elem[X] = X match
    case Iterable[t] => t
 ```
 
-This defines a type that reduces as follows:
+这定义了一个遵循以下的化简规则的类型：
 
 ```scala
 Elem[String]       =:=  Char
@@ -25,19 +26,17 @@ Elem[List[Float]]  =:=  Float
 Elem[Nil.type]     =:=  Nothing
 ```
 
-Here `=:=` is understood to mean that left and right-hand sides are mutually
-subtypes of each other.
+这里 `=:=` 代表左侧和右侧的类型互为彼此的子类型。
 
-In general, a match type is of the form
+通常匹配类型的形式为
 
 ```scala
 S match { P1 => T1 ... Pn => Tn }
 ```
 
-where `S`, `T1`, ..., `Tn` are types and `P1`, ..., `Pn` are type patterns. Type
-variables in patterns start with a lower case letter, as usual.
+其中 `S`、`T1`、...、`Tn` 是类型，`P1`、...、 `Pn` 是类型模式。模式中的类型变量通常以小写字母开头。
 
-Match types can form part of recursive type definitions. Example:
+匹配类型可以构成递归类型定义的一部分。例如：
 
 ```scala
 type LeafElem[X] = X match
@@ -47,7 +46,7 @@ type LeafElem[X] = X match
    case AnyVal => X
 ```
 
-Recursive match type definitions can also be given an upper bound, like this:
+递归匹配类型也可以像这样给定一个上限：
 
 ```scala
 type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
@@ -55,16 +54,12 @@ type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
    case x *: xs => x *: Concat[xs, Ys]
 ```
 
-In this definition, every instance of `Concat[A, B]`, whether reducible or not,
-is known to be a subtype of `Tuple`. This is necessary to make the recursive
-invocation `x *: Concat[xs, Ys]` type check, since `*:` demands a `Tuple` as its
-right operand.
+在这个定义中，`Concat[A, B]` 的每个实例，无论是否可化简，都是 `Tuple` 的一个子类型。这是递归调用 `x *: Concat[xs, Ys]` 
+所必需的，因为 `*:` 需要一个 `Tuple` 作为右操作数。
 
-## Dependent Typing
+## 依赖类型
 
-Match types can be used to define dependently typed methods. For instance, here
-is the value level counterpart to the `LeafElem` type defined above (note the
-use of the match type as the return type):
+匹配类型可以用于定义依赖类型的方法。例如，这是上面 `LeafElem` 在值级别的对应（注意，这里使用匹配类型作为返回值类型）：
 
 ```scala
 def leafElem[X](x: X): LeafElem[X] = x match
@@ -74,24 +69,21 @@ def leafElem[X](x: X): LeafElem[X] = x match
    case x: AnyVal      => x
 ```
 
-This special mode of typing for match expressions is only used when the
-following conditions are met:
+匹配表达式的特殊类型模式只有在满足以下条件时才可用：
 
-1. The match expression patterns do not have guards
-2. The match expression scrutinee's type is a subtype of the match type
-   scrutinee's type
-3. The match expression and the match type have the same number of cases
-4. The match expression patterns are all [Typed Patterns](https://scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#typed-patterns),
-   and these types are `=:=` to their corresponding type patterns in the match
-   type
+1. 这个匹配表达式的模式没有 guard
+2. 这个匹配表达式的 scrutinee 们的类型是匹配类型 scrutinee 们的类型的子类型
+3. 匹配表达式和匹配类型的 case 数相同
+4. 匹配表达式的模式都是 [Typed Pattern](https://scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#typed-patterns)，
+并且这些类型与匹配类型中的对应类型模式是 `=:=` 的。
 
-## Representation of Match Types
+## 匹配类型的表示
 
-The internal representation of a match type
+匹配类型
 ```
 S match { P1 => T1 ... Pn => Tn }
 ```
-is `Match(S, C1, ..., Cn) <: B` where each case `Ci` is of the form
+的内部表示是 `Match(S, C1, ..., Cn) <: B`，其中每个 `Ci` 的形式是
 ```
 [Xs] =>> P => T
 ```
@@ -106,7 +98,7 @@ given.  We will leave it out in places where it does not matter for the
 discussion. The scrutinee, bound, and pattern types must all be first-order
 types.
 
-## Match Type Reduction
+## 匹配类型简化
 
 Match type reduction follows the semantics of match expressions, that is, a
 match type of the form `S match { P1 => T1 ... Pn => Tn }` reduces to `Ti` if
@@ -145,7 +137,7 @@ bounds of all variables in the input constraint unchanged, i.e. existing
 variables in the constraint cannot be instantiated by matching the scrutinee
 against the patterns.
 
-## Subtyping Rules for Match Types
+## 匹配类型的子类型规则
 
 The following rules apply to match types. For simplicity, we omit environments
 and constraints.
