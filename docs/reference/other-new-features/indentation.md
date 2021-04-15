@@ -48,58 +48,50 @@ Scala 3 enforces some rules on indentation and allows some occurrences of braces
 
 ## 可选括号
 
-The compiler will insert `<indent>` or `<outdent>`
-tokens at certain line breaks. Grammatically, pairs of `<indent>` and `<outdent>` tokens have the same effect as pairs of braces `{` and `}`.
+编译器将在某些换行符处插入 `<indent>` 或 `<outdent>` 标记。语法上成对的 `<indent>` 和 `<outdent>` 
+标记与成对的大括号 `{` 和 `}` 有相同的效果。
 
-The algorithm makes use of a stack `IW` of previously encountered indentation widths. The stack initially holds a single element with a zero indentation width. The _current indentation width_ is the indentation width of the top of the stack.
+该算法使用了 `IW` 栈存储前面代码缩进宽度。栈开始包含一个缩进宽度为零的元素。
+*当前缩进宽度*是栈顶的缩进宽度。
 
-There are two rules:
+有两条规则：
 
- 1. An `<indent>` is inserted at a line break, if
-
-     - An indentation region can start at the current position in the source, and
-     - the first token on the next line has an indentation width strictly greater
-       than the current indentation width
-
-    An indentation region can start
-
-     - after the leading parameters of an `extension`, or
-     - after a `with` in a given instance, or
-     - after a ": at end of line" token (see below)
-     - after one of the following tokens:
+ 1. 满足这些条件时，`<indent>` 被插入至换行符处：
+ 
+     - 缩进区域可以从源中的当前位置开始。
+     - 下一行的第一个 token 的缩进宽度严格大于当前缩进宽度。
+   
+    一个缩进区域可以从这些地方开始：
+     
+     - `extension` 的前导参数后。
+     - `with` 中的 given instance 后。
+     - “在行末的 : ” token 后（见下文）
+     - 在下面的 token 之一后：
 
        ```
        =  =>  ?=>  <-  catch  do  else  finally  for
        if  match  return  then  throw  try  while  yield
        ```
 
-    If an `<indent>` is inserted, the indentation width of the token on the next line
-    is pushed onto `IW`, which makes it the new current indentation width.
+    如果插入了一个 `<indent>`，则该 token 下一行的缩进宽度被 push 到 `IW` 上，使其成为新的当前缩进宽度。
 
- 2. An `<outdent>` is inserted at a line break, if
+ 2.  满足这些条件时，`<outdent>` 被插入至换行符处：
 
-    - the first token on the next line has an indentation width strictly less
-        than the current indentation width, and
-    - the last token on the previous line is not one of the following tokens
-      which indicate that the previous statement continues:
+    - 下一行的第一个 token 的缩进宽度严格小于当前缩进宽度。
+    - 上一行的最后一个 token 不是以下表示上一语句继续的标记之一：
       ```
       then  else  do  catch  finally  yield  match
       ```
-    - if the first token on the next line is a
-        [leading infix operator](../changed-features/operators.md).
-      then its indentation width is less then the current indentation width,
-      and it either matches a previous indentation width or is also less
-      than the enclosing indentation width.
+    - 如果下一行的第一个 token 是一个 [leading infix operator](../changed-features/operators.md)，
+      则其缩进宽度小于当前缩进宽度，并且它要么匹配之前的缩进宽度，要么也小于封闭的缩进宽度。
 
-    If an `<outdent>` is inserted, the top element is popped from `IW`.
-    If the indentation width of the token on the next line is still less than the new current indentation width, step (2) repeats. Therefore, several `<outdent>` tokens
-    may be inserted in a row.
+    如果插入了一个 `<outdent>`，则弹出 `IW` 的顶部元素。如果下一行缩进宽度仍然小于新的当前缩进宽度，则重复步骤(2)。
+    因此，可以在一行中插入多个 `<outdent>`。
 
-    The following two additional rules support parsing of legacy code with ad-hoc layout. They might be withdrawn in future language versions:
+    下面两个附加规则支持使用 ad-hoc layout 解析遗留代码。在未来的语言版本中，它们可能会被移除。
 
      - An `<outdent>` is also inserted if the next token following a statement sequence starting with an `<indent>` closes an indentation region, i.e. is one of `then`, `else`, `do`, `catch`, `finally`, `yield`, `}`, `)`, `]` or `case`.
-
-    An `<outdent>` is finally inserted in front of a comma that follows a statement sequence starting with an `<indent>` if the indented region is itself enclosed in parentheses
+     - An `<outdent>` is finally inserted in front of a comma that follows a statement sequence starting with an `<indent>` if the indented region is itself enclosed in parentheses.
 
 It is an error if the indentation width of the token following an `<outdent>` does not match the indentation of some previous line in the enclosing indentation region. For instance, the following would be rejected.
 
