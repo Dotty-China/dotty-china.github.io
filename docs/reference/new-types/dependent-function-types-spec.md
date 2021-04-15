@@ -4,9 +4,9 @@ title: "依赖函数类型 - 更多细节"
 nav_exclude: true
 ---
 
-Initial implementation in [PR #3464](https://github.com/lampepfl/dotty/pull/3464).
+初步实施于 [PR #3464](https://github.com/lampepfl/dotty/pull/3464)。
 
-## Syntax
+## 语法
 
 ```ebnf
 FunArgTypes       ::=  InfixType
@@ -15,36 +15,27 @@ FunArgTypes       ::=  InfixType
 TypedFunParam     ::=  id ‘:’ Type
 ```
 
-Dependent function types associate to the right, e.g.
-`(s: S) => (t: T) => U` is the same as `(s: S) => ((t: T) => U)`.
+依赖函数类型是右关联的，例如 `(s: S) => (t: T) => U` 与 `(s: S) => ((t: T) => U)` 相同。
 
-## Implementation
+## 实现
 
-Dependent function types are shorthands for class types that define `apply`
-methods with a dependent result type. Dependent function types desugar to
-refinement types of `scala.FunctionN`. A dependent function type
-`(x1: K1, ..., xN: KN) => R` of arity `N` translates to:
+依赖函数类型是定义了依赖结果类型的 `apply` 方法的类类型的简写。依赖函数类型脱糖成 `scala.FunctionN` 的 refinement type。
+有 `N` 个参数的依赖函数类型 `(x1: K1, ..., xN: KN) => R` 被翻译为：
 
 ```scala
 FunctionN[K1, ..., Kn, R']:
    def apply(x1: K1, ..., xN: KN): R
 ```
 
-where the result type parameter `R'` is the least upper approximation of the
-precise result type `R` without any reference to value parameters `x1, ..., xN`.
+其中结果类型参数 `R'` 是精确的结果类型 `R` 的近似最小上界，不引用参数值 `x1, ..., xN`。
 
-The syntax and semantics of anonymous dependent functions is identical to the
-one of regular functions. Eta expansion is naturally generalized to produce
-dependent function types for methods with dependent result types.
+匿名依赖函数的语法和语义与普通的函数相同。Eta 扩展自然地类推为从带有依赖结果类型的方法生成依赖函数类型。
 
-Dependent functions can be implicit, and generalize to arity `N > 22` in the
-same way that other functions do, see
-[the corresponding documentation](../dropped-features/limit22.md).
+依赖函数可以是隐式的，并以与其他函数相同的方式类推到 `N > 22` 个元数，参见[相应的文档](../dropped-features/limit22.md)。
 
-## Examples
+## 示例
 
-The example below defines a trait `C` and the two dependent function types
-`DF` and `IDF` and prints the results of the respective function applications:
+下面的实例定义了一个 trait `C` 和两个依赖函数类型 `DF` 与 `IDF`，并分别打印相应的函数调用结果：
 
 [depfuntype.scala]: https://github.com/lampepfl/dotty/blob/master/tests/pos/depfuntype.scala
 
@@ -68,7 +59,7 @@ type IDF = (x: C) ?=> x.M
 
 ```
 
-In the following example the depend type `f.Eff` refers to the effect type `CanThrow`:
+在下面的例子中，依赖类型 `f.Eff` 引用 effect 类型 `CanThrow`：
 
 [eff-dependent.scala]: https://github.com/lampepfl/dotty/blob/master/tests/run/eff-dependent.scala
 
@@ -120,6 +111,6 @@ def composeFn[A, B, C]:
    assert(composeFn(i2s)(s2i)(22) == 2)
 ```
 
-### Type Checking
+### 类型检查
 
-After desugaring no additional typing rules are required for dependent function types.
+脱糖后不需要其他类型规则来处理依赖函数类型。
