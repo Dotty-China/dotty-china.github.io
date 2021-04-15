@@ -6,15 +6,18 @@ grand_parent: 参考
 nav_order: 13
 ---
 
+# {{ page.title }}
+
+Scala 3 强制实施了一些规则，并允许让一些地方的括号 `{...}` 是可选的：
+
+- 首先，一些缩进糟糕的程序被标记为警告。
+- 其次，`{...}` 在一些地方是可选的。通常规则是添加一对可选的大括号不会改变缩进良好的程序的含义。
+
 Scala 3 enforces some rules on indentation and allows some occurrences of braces `{...}` to be optional:
 
-- First, some badly indented programs are flagged with warnings.
-- Second, some occurrences of braces `{...}` are made optional. Generally, the rule
-  is that adding a pair of optional braces will not change the meaning of a well-indented program.
+可以使用编译器 flag `-no-indent` 关闭这些变化。
 
-These changes can be turned off with the compiler flag `-no-indent`.
-
-### Indentation Rules
+## 缩进规则
 
 The compiler enforces two rules for well-indented programs, flagging violations as warnings.
 
@@ -44,7 +47,7 @@ any restrictions on indentation within expressions, nor do they require that all
 
 The rules are generally helpful in pinpointing the root cause of errors related to missing opening or closing braces. These errors are often quite hard to diagnose, in particular in large programs.
 
-### Optional Braces
+## Optional Braces
 
 The compiler will insert `<indent>` or `<outdent>`
 tokens at certain line breaks. Grammatically, pairs of `<indent>` and `<outdent>` tokens have the same effect as pairs of braces `{` and `}`.
@@ -129,7 +132,7 @@ else d
 ```
 is parsed as `if x then a + b + c else d`.
 
-### Optional Braces Around Template Bodies
+## Optional Braces Around Template Bodies
 
 The Scala grammar uses the term _template body_ for the definitions of a class, trait, or object that are normally enclosed in braces. The braces around a template body can also be omitted by means of the following rule.
 
@@ -181,11 +184,11 @@ The lexical analyzer is modified so that a `:` at the end of a line
 is reported as `colonEol` if the parser is at a point where a `colonEol` is
 valid as next token.
 
-### Spaces vs Tabs
+## Spaces vs Tabs
 
 Indentation prefixes can consist of spaces and/or tabs. Indentation widths are the indentation prefixes themselves, ordered by the string prefix relation. So, so for instance "2 tabs, followed by 4 spaces" is strictly less than "2 tabs, followed by 5 spaces", but "2 tabs, followed by 4 spaces" is incomparable to "6 tabs" or to "4 spaces, followed by 2 tabs". It is an error if the indentation width of some line is incomparable with the indentation width of the region that's current at that point. To avoid such errors, it is a good idea not to mix spaces and tabs in the same source file.
 
-### Indentation and Braces
+## Indentation and Braces
 
 Indentation can be mixed freely with braces `{...}`, as well as brackets `[...]` and parentheses `(...)`. For interpreting indentation inside such regions, the following rules apply.
 
@@ -219,7 +222,7 @@ statement starting with `val`).
    (i.e. the indentation width of `y + 1`).
  - Finally, the indentation width of the last region in parentheses starting with `(x` is 6 (i.e. the indentation width of the indented region following the `=>`.
 
-### Special Treatment of Case Clauses
+## Special Treatment of Case Clauses
 
 The indentation rules for `match` expressions and `catch` clauses are refined as follows:
 
@@ -242,7 +245,7 @@ case 5 => print("V")
 println(".")
 ```
 
-### The End Marker
+## The End Marker
 
 Indentation-based syntax has many advantages over other conventions. But one possible problem is that it makes it hard to discern when a large indentation region ends, since there is no specific token that delineates the end. Braces are not much better since a brace by itself also contains no information about what region is closed.
 
@@ -327,7 +330,7 @@ package p1.p2:
 end p2
 ```
 
-#### When to Use End Markers
+## When to Use End Markers
 
 It is recommended that `end` markers are used for code where the extent of an indentation region is not immediately apparent "at a glance". People will have different preferences what this means, but one can nevertheless give some guidelines that stem from experience. An end marker makes sense if
 
@@ -337,7 +340,7 @@ It is recommended that `end` markers are used for code where the extent of an in
 
 If none of these criteria apply, it's often better to not use an end marker since the code will be just as clear and more concise. If there are several ending regions that satisfy one of the criteria above, we usually need an end marker only for the outermost closed region. So cascades of end markers as in the example above are usually better avoided.
 
-#### Syntax
+## Syntax
 
 ```
 EndMarker         ::=  ‘end’ EndMarkerTag    -- when followed by EOL
@@ -348,7 +351,7 @@ TemplateStat      ::=  ... | EndMarker
 TopStat           ::=  ... | EndMarker
 ```
 
-### Example
+## Example
 
 Here is a (somewhat meta-circular) example of code using indentation. It provides a concrete representation of indentation widths as defined above together with efficient operations for constructing and comparing indentation widths.
 
@@ -401,7 +404,7 @@ object IndentWidth:
 end IndentWidth
 ```
 
-### Settings and Rewrites
+## Settings and Rewrites
 
 Significant indentation is enabled by default. It can be turned off by giving any of the options `-no-indent`, `old-syntax` and `language:Scala2`. If indentation is turned off, it is nevertheless checked that indentation conforms to the logical program structure as defined by braces. If that is not the case, the compiler issues a warning.
 
@@ -411,7 +414,7 @@ indented regions where possible. When invoked with options `-rewrite -no-indent`
 The `-indent` option only works on [new-style syntax](./control-syntax.md). So to go from old-style syntax to new-style indented code one has to invoke the compiler twice, first with options `-rewrite -new-syntax`, then again with options
 `-rewrite -indent`. To go in the opposite direction, from indented code to old-style syntax, it's `-rewrite -no-indent`, followed by `-rewrite -old-syntax`.
 
-### Variant: Indentation Marker `:`
+## Variant: Indentation Marker `:`
 
 Generally, the possible indentation regions coincide with those regions where braces `{...}` are also legal, no matter whether the braces enclose an expression or a set of definitions. There is one exception, though: Arguments to function can be enclosed in braces but they cannot be simply indented instead. Making indentation always significant for function arguments would be too restrictive and fragile.
 
