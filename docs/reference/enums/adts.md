@@ -6,9 +6,10 @@ grand_parent: 参考
 nav_order: 2
 ---
 
-The [`enum` concept](./enums.md) is general enough to also support algebraic data
-types (ADTs) and their generalized version (GADTs). Here is an example
-how an `Option` type can be represented as an ADT:
+# {{ page.title }}
+
+[`enum` 概念](./enums.md)足够通用，它可以支持代数数据类型（Algebraic Data Type，ADT）
+及其广义版本（GADT）。下面是一个将 `Option` 类型表示为 ADT 的示例：
 
 ```scala
 enum Option[+T]:
@@ -16,14 +17,11 @@ enum Option[+T]:
    case None
 ```
 
-This example introduces an `Option` enum with a covariant type
-parameter `T` consisting of two cases, `Some` and `None`. `Some` is
-parameterized with a value parameter `x`. It is a shorthand for writing a
-case class that extends `Option`. Since `None` is not parameterized, it
-is treated as a normal enum value.
+此示例介绍了一个 带有协变类型参数的 `Option` 枚举，它有两种 case，`Some` 和 `None`。
+`Some` 是由值参数 `x` 参数化的。它是继承 `Option` 的 case class 的缩写。
+因为 `None` 没有参数化，所以它被视为一个普通的枚举值。
 
-The `extends` clauses that were omitted in the example above can also
-be given explicitly:
+上述示例中省略的 `extends` 子句也可以显式给出：
 
 ```scala
 enum Option[+T]:
@@ -31,15 +29,12 @@ enum Option[+T]:
    case None       extends Option[Nothing]
 ```
 
-Note that the parent type of the `None` value is inferred as
-`Option[Nothing]`. Generally, all covariant type parameters of the enum
-class are minimized in a compiler-generated `extends` clause whereas all
-contravariant type parameters are maximized. If `Option` was non-variant,
-you would need to give the extends clause of `None` explicitly.
+注意，值 `None` 的父类型被推断为 `Option[Nothing]`。通常，在编译器生成的 `extends` 子句中，
+所有协变类型参数都被最小化，而所有逆变类型参数都被最大化。如果 `Option` 的类型参数是不变的，
+那么 `None` 的 `extends` 子句需要显式给出。
 
-As for normal enum values, the cases of an `enum` are all defined in
-the `enum`s companion object. So it's `Option.Some` and `Option.None`
-unless the definitions are "pulled out" with an import:
+对于普通的枚举值，`enum` 的 case 都被定义在 `enum` 的伴生对象中。所以他们是 `Option.Some` 和 `Option.None`，
+除非用 import “拉出”定义。
 
 ```scala
 scala> Option.Some("hello")
@@ -49,7 +44,8 @@ scala> Option.None
 val res2: t2.Option[Nothing] = None
 ```
 
-Note that the type of the expressions above is always `Option`. Generally, the type of a enum case constructor application will be widened to the underlying enum type, unless a more specific type is expected. This is a subtle difference with respect to normal case classes. The classes making up the cases do exist, and can be unveiled, either by constructing them directly with a `new`, or by explicitly providing an expected type.
+请注意，上述表达式的类型始终为 `Option`。通常来说，除非需要更具体的类型，否则枚举 case 的构造函数应用的类型会被放宽到基础枚举类型。
+这与普通的 case 类有一些细微的区别。构成 case 的类确实存在，并且可以直接用 `new` 构造它们，或者显式提供预期的类型。
 
 ```scala
 scala> new Option.Some(2)
@@ -58,8 +54,8 @@ scala> val x: Option.Some[Int] = Option.Some(3)
 val res4: Option.Some[Int] = Some(3)
 ```
 
-As all other enums, ADTs can define methods. For instance, here is `Option` again, with an
-`isDefined` method and an `Option(...)` constructor in its companion object.
+就像其他枚举一样，ADT 可以定义方法。以 `Option` 举例，这里定义了一个 `isDefined` 方法，
+和一个定义在它伴生对象中的 `Option(...)` 工厂方法：
 
 ```scala
 enum Option[+T]:
@@ -78,12 +74,8 @@ object Option:
 end Option
 ```
 
-Enumerations and ADTs have been presented as two different
-concepts. But since they share the same syntactic construct, they can
-be seen simply as two ends of a spectrum and it is perfectly possible
-to construct hybrids. For instance, the code below gives an
-implementation of `Color` either with three enum values or with a
-parameterized case that takes an RGB value.
+枚举和 ADT 是两个不同的概念，但因为它们有相同的语法结构，因此可以简单地看作一个 spectrum 的两端，
+完全可以组成混合。例如，下面的代码给出了一个具有三个枚举值和一个参数化的接受 RGB 值的 case 组成的 `Color` 的实现。
 
 ```scala
 enum Color(val rgb: Int):
@@ -149,12 +141,12 @@ enum View[-T, +U] extends (T => U):
       case refl: Refl[r] => refl.f(t)
 ```
 
-### Syntax of Enums
+### 枚举的语法
 
-Changes to the syntax fall in two categories: enum definitions and cases inside enums.
+对语法的更改分为两类：枚举定义和枚举内的 case。
 The changes are specified below as deltas with respect to the Scala syntax given [here](../syntax.md)
 
- 1. Enum definitions are defined as follows:
+ 1. 枚举定义被定义如下：
 
     ```ebnf
     TmplDef   ::=  `enum' EnumDef
@@ -164,12 +156,12 @@ The changes are specified below as deltas with respect to the Scala syntax given
                 |  {Annotation [nl]} {Modifier} EnumCase
     ```
 
- 2. Cases of enums are defined as follows:
+ 2. 枚举的 case 的定义如下：
 
     ```ebnf
     EnumCase  ::=  `case' (id ClassConstr [`extends' ConstrApps]] | ids)
     ```
 
-### Reference
+### 参考
 
-For more information, see [Issue #1970](https://github.com/lampepfl/dotty/issues/1970).
+更多信息请参见 [Issue #1970](https://github.com/lampepfl/dotty/issues/1970)。
