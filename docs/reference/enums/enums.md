@@ -8,20 +8,19 @@ nav_order: 1
 
 # {{ page.title }}
 
-An enumeration is used to define a type consisting of a set of named values.
+枚举（Enumeration）用于定义包含一组命名值的类型。
 
 ```scala
 enum Color:
    case Red, Green, Blue
 ```
 
-This defines a new `sealed` class, `Color`, with three values, `Color.Red`,
-`Color.Green`, `Color.Blue`.  The color values are members of `Color`s
-companion object.
+这定义了一个新的 `sealed` 类 `Color`，以及三个值 `Color.Red`、`Color.Green` 和 `Color.Blue`。
+颜色值是 `Color` 的伴生对象的成员。
 
-### Parameterized enums
+### 参数化枚举
 
-Enums can be parameterized.
+枚举可以是参数化的。
 
 ```scala
 enum Color(val rgb: Int):
@@ -30,13 +29,11 @@ enum Color(val rgb: Int):
    case Blue  extends Color(0x0000FF)
 ```
 
-As the example shows, you can define the parameter value by using an
-explicit extends clause.
+如例所示，可以显式用 `extends` 子句确定参数值。
 
-### Methods defined for enums
+### 枚举方法
 
-The values of an enum correspond to unique integers. The integer
-associated with an enum value is returned by its `ordinal` method:
+枚举的值对应于一个唯一的证书。枚举值对应的整数由其 `ordinal` 方法返回：
 
 ```scala
 scala> val red = Color.Red
@@ -45,11 +42,9 @@ scala> red.ordinal
 val res0: Int = 0
 ```
 
-The companion object of an enum also defines three utility methods.
-The `valueOf` method obtains an enum value
-by its name. The `values` method returns all enum values
-defined in an enumeration in an `Array`. The `fromOrdinal`
-method obtains an enum value from its ordinal (`Int`) value.
+枚举的伴生对象中还定义了三个工具方法。`valueOf` 方法通过名称获取枚举值。
+`values` 方法返回包含枚举中定义的所有枚举值的一个 `Array`。
+`fromOrdinal` 方法从序号（`Int` 类型）获取枚举值。
 
 ```scala
 scala> Color.valueOf("Blue")
@@ -60,9 +55,9 @@ scala> Color.fromOrdinal(0)
 val res2: Color = Red
 ```
 
-### User-defined members of enums
+### 枚举的用户定义成员
 
-It is possible to add your own definitions to an enum. Example:
+您可以将自己的定义加入一个枚举中。例如：
 
 ```scala
 enum Planet(mass: Double, radius: Double):
@@ -81,7 +76,7 @@ enum Planet(mass: Double, radius: Double):
 end Planet
 ```
 
-It is also possible to define an explicit companion object for an enum:
+也可以为枚举定义显式的伴生对象：
 
 ```scala
 object Planet:
@@ -93,7 +88,7 @@ object Planet:
 end Planet
 ```
 
-### Deprecation of Enum Cases
+### 枚举类的弃用
 
 As a library author, you may want to signal that an enum case is no longer intended for use. However you could still want to gracefully handle the removal of a case from your public API, such as special casing deprecated cases.
 
