@@ -1,22 +1,25 @@
 ---
 layout: default
-title: Implementing Type classes
+title: 实现 Type Class
 parent: 上下文抽象
 grand_parent: 参考
 nav_order: 7
 ---
 
-A _type class_ is an abstract, parameterized type that lets you add new behavior to any closed data type without using sub-typing. This can be useful in multiple use-cases, for example:
+# {{ page.title }}
 
-* expressing how a type you don't own (from the standard or 3rd-party library) conforms to such behavior
-* expressing such a behavior for multiple types without involving sub-typing relationships (one `extends` another) between those types (see: [ad hoc polymorphism](https://en.wikipedia.org/wiki/Ad_hoc_polymorphism) for instance)
+*Type Class* 是一种抽象的参数化类型，它允许在不使用子类型的情况下向任何封闭数据结构添加新行为。
+这在很多用例中很有用，例如：
 
-Therefore in Scala 3, _type classes_ are just _traits_ with one or more parameters whose implementations are not defined through the `extends` keyword, but by **given instances**.
-Here are some examples of common type classes:
+* 表达您不拥有的类型（来自标准库或第三方库）如何遵守这些行为。
+* 表达如何为多个类型定义行为，而不涉及这些类型之间的子类型关系（一个 `extends` 另一个）。（例如，参见 [ad hoc polymorphism](https://en.wikipedia.org/wiki/Ad_hoc_polymorphism）
 
-### Semigroups and monoids
+因此在 Scala 3 中，*Type Class*只是具有一个或多个参数的 *Trait*，它们的实现不是通过 `extends` 关键字，
+而是通过 **given 实例**定义的。下面是一些常见 type class 的定义示例：
 
-Here's the `Monoid` type class definition:
+## Semigroup 和 Monoid
+
+这是 `Monoid` type class 的定义：
 
 ```scala
 trait SemiGroup[T]:
@@ -26,7 +29,7 @@ trait Monoid[T] extends SemiGroup[T]:
    def unit: T
 ```
 
-An implementation of this `Monoid` type class for the type `String` can be the following:
+这个 `Monoid` type class 对于类型 `String` 的实现可以像下面这样：
 
 ```scala
 given Monoid[String] with
@@ -34,7 +37,7 @@ given Monoid[String] with
    def unit: String = ""
 ```
 
-Whereas for the type `Int` one could write the following:
+而对于类型 `Int` 可以这样：
 
 ```scala
 given Monoid[Int] with
@@ -42,41 +45,41 @@ given Monoid[Int] with
    def unit: Int = 0
 ```
 
-This monoid can now be used as _context bound_ in the following `combineAll` method:
+现在可以将这个 Monoid 在以下 `combineAll` 方法中用作*上下文边界*：
 
 ```scala
 def combineAll[T: Monoid](xs: List[T]): T =
    xs.foldLeft(summon[Monoid[T]].unit)(_.combine(_))
 ```
 
-To get rid of the `summon[...]` we can define a `Monoid` object as follows:
+为了摆脱 `summon[...]`，我们可以为 `Monoid` 定义如下所示的伴生对象：
 
 ```scala
 object Monoid:
    def apply[T](using m: Monoid[T]) = m
 ```
 
-Which would allow to re-write the `combineAll` method this way:
+这允许以这种方式重写 `combineAll` 方法：
 
 ```scala
 def combineAll[T: Monoid](xs: List[T]): T =
    xs.foldLeft(Monoid[T].unit)(_.combine(_))
 ```
 
-### Functors
+## Functor
 
-A `Functor` for a type provides the ability for its values to be "mapped over", i.e. apply a function that transforms inside a value while remembering its shape. For example, to modify every element of a collection without dropping or adding elements.
-We can represent all types that can be "mapped over" with `F`. It's a type constructor: the type of its values becomes concrete when provided a type argument.
-Therefore we write it `F[_]`, hinting that the type `F` takes another type as argument.
-The definition of a generic `Functor` would thus be written as:
+类型的 `Functor` 提供了将值“映射到”的能力，即应用一个函数在值的内部进行进行变换，同时记住它的 shape。
+例如，在不添加或删除元素的情况下修改集合的每个元素。
+我们可以用 `F` 表示所有可以“映射到”的类型。它是一个类型构造器：当提供一个类型参数后，它的值的类型变得具体。
+因此我们把它写作 `F[_]`，暗示类型 `F` 接受另一个类型作为参数。因此，泛型 `Functor` 的定义可以写作：
 
 ```scala
 trait Functor[F[_]]:
    def map[A, B](x: F[A], f: A => B): F[B]
 ```
 
-Which could read as follows: "A `Functor` for the type constructor `F[_]` represents the ability to transform `F[A]` to `F[B]` through the application of function `f` with type `A => B`". We call the `Functor` definition here a _type class_.
-This way, we could define an instance of `Functor` for the `List` type:
+可以这样理解：“类型构造器 `F[_]` 的 `Functor` 表示通过应用类型 `A => B` 的函数能够将 `F[A]` 转换为 `F[B]` 的能力”。
+我们称这里的 `Functor` 定义为 *Type Class*。这样，我们就可以为类型 `List` 定义一个 `Functor` 实例：
 
 ```scala
 given Functor[List] with
@@ -84,23 +87,25 @@ given Functor[List] with
       x.map(f) // List already has a `map` method
 ```
 
-With this `given` instance in scope, everywhere a `Functor` is expected, the compiler will accept a `List` to be used.
+当这个 `given` 实例在作用域中时，任何需要一个 `Functor` 的地方编译器都能接受 `List`。
 
-For instance, we may write such a testing method:
+例如，我们可以编写一个这样的测试方法：
 
 ```scala
 def assertTransformation[F[_]: Functor, A, B](expected: F[B], original: F[A], mapping: A => B): Unit =
    assert(expected == summon[Functor[F]].map(original, mapping))
 ```
 
-And use it this way, for example:
+然后可以这样使用：
 
 ```scala
 assertTransformation(List("a1", "b1"), List("a", "b"), elt => s"${elt}1")
 ```
 
-That's a first step, but in practice we probably would like the `map` function to be a method directly accessible on the type `F`. So that we can call `map` directly on instances of `F`, and get rid of the `summon[Functor[F]]` part.
-As in the previous example of Monoids, [`extension` methods](extension-methods.md) help achieving that. Let's re-define the `Functor` type class with extension methods.
+这是第一步，但实践中我们更希望 `map` 函数是一个可以直接在类型 `F` 上访问的方法。
+这样我们就可以直接在 `F` 的实例上调用 `map`，而不需要 `summon[Functor[F]]` 部分。
+与前面的 Monoid 示例类似，[`extension` 方法](extension-methods.md)帮助我们实现这一点。
+让我们用扩展方法重新定义 `Functor` type class。
 
 ```scala
 trait Functor[F[_]]:
@@ -108,7 +113,7 @@ trait Functor[F[_]]:
       def map[B](f: A => B): F[B]
 ```
 
-The instance of `Functor` for `List` now becomes:
+`List` 的 `Functor` 实例现在变为：
 
 ```scala
 given Functor[List] with
@@ -118,27 +123,28 @@ given Functor[List] with
 
 ```
 
-It simplifies the `assertTransformation` method:
+这简化了 `assertTransformation` 方法：
 
 ```scala
 def assertTransformation[F[_]: Functor, A, B](expected: F[B], original: F[A], mapping: A => B): Unit =
    assert(expected == original.map(mapping))
 ```
 
-The `map` method is now directly used on `original`. It is available as an extension method
-since `original`'s type is `F[A]` and a given instance for `Functor[F[A]]` which defines `map`
-is in scope.
+`map` 方法现在直接在 `original` 上使用。它可以用作扩展方法，因为 `original` 的类型是 `F[A]`，
+并且定义了 `map` 方法的 `Functor[F]` given 实例在作用域中。
 
-### Monads
+## Monad
 
-Applying `map` in `Functor[List]` to a mapping function of type `A => B` results in a `List[B]`. So applying it to a mapping function of type `A => List[B]` results in a `List[List[B]]`. To avoid managing lists of lists, we may want to "flatten" the values in a single list.
+将 `Functor[List]` 中的 `map` 应用于 `A => B` 类型的映射函数得到 `List[B]` 类型的结果。
+因此将它应用于 `A => List[B]` 类型的映射函数得到 `List[List[B]]` 类型的结果，我们可能会希望“展平”这些值到一个列表中。
 
-That's where `Monad` comes in. A `Monad` for type `F[_]` is a `Functor[F]` with two more operations:
 
-* `flatMap`, which turns an `F[A]` into an `F[B]` when given a function of type `A => F[B]`,
-* `pure`, which creates an `F[A]` from a single value `A`.
+That's where `Monad` comes in. `F[_]` 类型的 `Monad` 是带有两个额外操作的 `Functor[F]`：
 
-Here is the translation of this definition in Scala 3:
+* `flatMap`，当给定一个 `A => F[B]` 类型的函数时，它将 `F[A]` 转换为 `F[B]`。
+* `pure`，它从单个 `A` 类型的值创建一个 `F[A]`。
+
+下面就是这个定义在 Scala 3 中的翻译：
 
 ```scala
 trait Monad[F[_]] extends Functor[F]:
@@ -156,9 +162,9 @@ trait Monad[F[_]] extends Functor[F]:
 end Monad
 ```
 
-#### List
+### List
 
-A `List` can be turned into a monad via this `given` instance:
+`List` 可以用下面的 `given` 实例转换为 monad：
 
 ```scala
 given listMonad: Monad[List] with
@@ -169,13 +175,12 @@ given listMonad: Monad[List] with
          xs.flatMap(f) // rely on the existing `flatMap` method of `List`
 ```
 
-Since `Monad` is a subtype of `Functor`, `List` is also a functor. The Functor's `map`
-operation is already provided by the `Monad` trait, so the instance does not need to define
-it explicitly.
+因为 `Monad` 是 `Functor` 的子类型，所以 `List` 也是一个 functor。Functor 的 `map` 操作已经由 `Monad` trait 提供，
+因此实例不需要再显式定义它。
 
-#### Option
+### Option
 
-`Option` is an other type having the same kind of behaviour:
+`Option` 是另一种具有同类行为的类型：
 
 ```scala
 given optionMonad: Monad[Option] with
@@ -187,13 +192,12 @@ given optionMonad: Monad[Option] with
          case None => None
 ```
 
-#### Reader
+### Reader
 
-Another example of a `Monad` is the _Reader_ Monad, which acts on functions instead of
-data types like `List` or `Option`. It can be used to combine multiple functions
-that all need the same parameter. For instance multiple functions needing access to some configuration, context, environment variables, etc.
+`Monad` 的另一个例子是 _Reader_ Monad，它作用于函数，而不是 `List` 或 `Option` 之类的数据类型上。
+它可以用于组合需要相同参数的多个函数。例如多个需要访问同一个配置、上下文、环境变量等的函数。
 
-Let's define a `Config` type, and two functions using it:
+让我们定义一个 `Config` 类型，以及两个使用它的函数：
 
 ```scala
 trait Config
@@ -202,27 +206,27 @@ def compute(i: Int)(config: Config): String = ???
 def show(str: String)(config: Config): Unit = ???
 ```
 
-We may want to combine `compute` and `show` into a single function, accepting a `Config` as parameter, and showing the result of the computation, and we'd like to use
-a monad to avoid passing the parameter explicitly multiple times. So postulating
-the right `flatMap` operation, we could write:
+我们可能希望把 `compute` 和 `show` 组合成一个函数，接受 `Config` 作为参数，并显示计算结果，
+我们希望使用 monad 避免多次显式传递参数。假设有一个正确的 `flatMap` 操作，我们可以这样写：
 
 ```scala
 def computeAndShow(i: Int): Config => Unit = compute(i).flatMap(show)
 ```
 
-instead of
+而不是
 
 ```scala
 show(compute(i)(config))(config)
 ```
 
-Let's define this m then. First, we are going to define a type named `ConfigDependent` representing a function that when passed a `Config` produces a `Result`.
+让我们来定义这个 m。首先，我们定义一个名为 `ConfigDependent` 的类型，它表示一个函数，
+当传递一个 `Config` 时，这个函数产生一个 `Result`。
 
 ```scala
 type ConfigDependent[Result] = Config => Result
 ```
 
-The monad instance will look like this:
+Monad 实例看起来像这样：
 
 ```scala
 given configDependentMonad: Monad[ConfigDependent] with
@@ -237,13 +241,13 @@ given configDependentMonad: Monad[ConfigDependent] with
 end configDependentMonad
 ```
 
-The type `ConfigDependent` can be written using [type lambdas](../new-types/type-lambdas.md):
+可以使用 [type lambda](../new-types/type-lambdas.md) 定义 `ConfigDependent` 类型：
 
 ```scala
 type ConfigDependent = [Result] =>> Config => Result
 ```
 
-Using this syntax would turn the previous `configDependentMonad` into:
+使用此语法会让之前的 `configDependentMonad` 转换为：
 
 ```scala
 given configDependentMonad: Monad[[Result] =>> Config => Result] with
@@ -258,7 +262,8 @@ given configDependentMonad: Monad[[Result] =>> Config => Result] with
 end configDependentMonad
 ```
 
-It is likely that we would like to use this pattern with other kinds of environments than our `Config` trait. The Reader monad allows us to abstract away `Config` as a type _parameter_, named `Ctx` in the following definition:
+我们很可能希望在 `Config` trait 之外的此类环境中使用这个模式。Reader monad 允许我们将 `Config` 抽象为类型*参数*，
+在以下定义中命名为 `Ctx`：
 
 ```scala
 given readerMonad[Ctx]: Monad[[X] =>> Ctx => X] with
@@ -273,7 +278,7 @@ given readerMonad[Ctx]: Monad[[X] =>> Ctx => X] with
 end readerMonad
 ```
 
-### Summary
+## 总结
 
 The definition of a _type class_ is expressed with a parameterised type with abstract members, such as a `trait`.
 The main difference between subtype polymorphism and ad-hoc polymorphism with _type classes_ is how the definition of the _type class_ is implemented, in relation to the type it acts upon.

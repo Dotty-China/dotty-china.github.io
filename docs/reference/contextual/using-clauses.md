@@ -6,6 +6,8 @@ grand_parent: 参考
 nav_order: 3
 ---
 
+# {{ page.title }}
+
 Functional programming tends to express most dependencies as simple function parameterization.
 This is clean and powerful, but it sometimes leads to functions that take many parameters where the same value is passed over and over again in long call chains to many
 functions. Context parameters can help here since they enable the compiler to synthesize
