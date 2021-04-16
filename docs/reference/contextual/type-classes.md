@@ -12,7 +12,7 @@ nav_order: 7
 这在很多用例中很有用，例如：
 
 * 表达您不拥有的类型（来自标准库或第三方库）如何遵守这些行为。
-* 表达如何为多个类型定义行为，而不涉及这些类型之间的子类型关系（一个 `extends` 另一个）。（例如，参见 [ad hoc polymorphism](https://en.wikipedia.org/wiki/Ad_hoc_polymorphism）
+* 表达如何为多个类型定义行为，而不涉及这些类型之间的子类型关系（一个 `extends` 另一个）。（例如，参见 [ad hoc polymorphism](https://en.wikipedia.org/wiki/Ad_hoc_polymorphism)）
 
 因此在 Scala 3 中，*Type Class*只是具有一个或多个参数的 *Trait*，它们的实现不是通过 `extends` 关键字，
 而是通过 **given 实例**定义的。下面是一些常见 type class 的定义示例：
