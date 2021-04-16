@@ -75,7 +75,7 @@ Scala 3 enforces some rules on indentation and allows some occurrences of braces
 
     如果插入了一个 `<indent>`，则该 token 下一行的缩进宽度被 push 到 `IW` 上，使其成为新的当前缩进宽度。
 
- 2.  满足这些条件时，`<outdent>` 被插入至换行符处：
+ 2. 满足这些条件时，`<outdent>` 被插入至换行符处：
 
     - 下一行的第一个 token 的缩进宽度严格小于当前缩进宽度。
     - 上一行的最后一个 token 不是以下表示上一语句继续的标记之一：
