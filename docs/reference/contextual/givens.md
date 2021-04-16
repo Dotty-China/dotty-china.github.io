@@ -6,8 +6,10 @@ grand_parent: 参考
 nav_order: 2
 ---
 
-Given instances (or, simply, "givens") define "canonical" values of certain types
-that serve for synthesizing arguments to [context parameters](./using-clauses.md). Example:
+# {{ page.title }}
+
+Given 实例（或者简单称为 given）定义了某些类型的“经典”值，这些值用于为[上下文参数](./using-clauses.md)合成实际参数。
+例如：
 
 ```scala
 trait Ord[T]:
@@ -31,17 +33,14 @@ given listOrd[T](using ord: Ord[T]): Ord[List[T]] with
 
 ```
 
-This code defines a trait `Ord` with two given instances. `intOrd` defines
-a given for the type `Ord[Int]` whereas `listOrd[T]` defines givens
-for `Ord[List[T]]` for all types `T` that come with a given instance for `Ord[T]`
-themselves. The `using` clause in `listOrd` defines a condition: There must be a
-given of type `Ord[T]` for a given of type `Ord[List[T]]` to exist.
-Such conditions are expanded by the compiler to [context parameters](./using-clauses.md).
+这段代码定义了一个具有两个 given 实例的 trait `Ord`。`intOrd` 为类型 `Ord[Int]` 定义了 given 实例，
+而 `listOrd[T]` 对任意类型 `T` 为类型 `Ord[List[T]]` 定义了 Given 实例。`listOrd` 的 `using` 子句定义了一个条件：
+只有在类型 `Ord[T]` 的 given 实例存在时才存在 `Ord[List[T]]` 类型的 given 实例。
+编译器将这些条件扩展为[上下文参数](./using-clauses.md)。
 
-## Anonymous Givens
+## 匿名 Given
 
-The name of a given can be left out. So the definitions
-of the last section can also be expressed like this:
+Given 的名称可以省略。所以最后一段的定义也可以这样表示：
 
 ```scala
 given Ord[Int] with
@@ -49,50 +48,44 @@ given Ord[Int] with
 given [T](using Ord[T]): Ord[List[T]] with
    ...
 ```
+如果 given 缺少名称，编译器就会从实现的类型合成名称。
 
-If the name of a given is missing, the compiler will synthesize a name from
-the implemented type(s).
-
-**Note** The name synthesized by the compiler is chosen to be readable and reasonably concise. For instance, the two instances above would get the names:
+**注意**，编译器选择的合成名称简介且具有可读性。例如，上面两个实例会获得这样的名称：
 
 ```scala
 given_Ord_Int
 given_Ord_List_T
 ```
 
-The precise rules for synthesizing names are found [here](./relationship-implicits.html#anonymous-given-instances). These rules do not guarantee absence of name conflicts between
-given instances of types that are "too similar". To avoid conflicts one can
-use named instances.
+在[这里](./relationship-implicits.html#anonymous-given-instances)可以找到合成名称的精准规则。
+这些规则不能保证“过于相似”的 given 实例之间不存在名称冲突。可以使用命名实例避免冲突。
 
-**Note** To ensure robust binary compatibility, publicly available libraries should prefer named instances.
+**注意**，为了保证健壮的二进制兼容性，公共库应该更倾向使用命名实例。
 
-## Alias Givens
+## 别名 Given
 
-An alias can be used to define a given instance that is equal to some expression. Example:
+别名可以用于定义与某个表达式相等的 given 实例。例如：
 
 ```scala
 given global: ExecutionContext = ForkJoinPool()
 ```
 
-This creates a given `global` of type `ExecutionContext` that resolves to the right
-hand side `ForkJoinPool()`.
-The first time `global` is accessed, a new `ForkJoinPool` is created, which is then
-returned for this and all subsequent accesses to `global`. This operation is thread-safe.
+这会创建一个 `ExecutionContext` 类型的 given `global`，它被解析到右侧的 `ForkJoinPool()`。
+第一次访问 `global` 时会创建一个新的 `ForkJoinPool` 并返回，之后所有对 `global` 的访问都会返回这个 `ForkJoinPool`。
+这个操作是线程安全的。
 
-Alias givens can be anonymous as well, e.g.
+别名 given 也可以是匿名的，例如：
 
 ```scala
 given Position = enclosingTree.position
 given (using config: Config): Factory = MemoizingFactory(config)
 ```
 
-An alias given can have type parameters and context parameters just like any other given,
-but it can only implement a single type.
+别名 given 可以像其他 given 一样拥有类型参数和上下文参数，但它们只能为一个类型实现。
 
-## Given Macros
+## Given 宏
 
-Given aliases can have the `inline` and `transparent` modifiers.
-Example:
+别名 Given 可以又 `inline` 和 `transparent` 修饰符。例如：
 
 ```scala
 transparent inline given mkAnnotations[A, T]: Annotations[A, T] = ${
@@ -100,11 +93,12 @@ transparent inline given mkAnnotations[A, T]: Annotations[A, T] = ${
 }
 ```
 
-Since `mkAnnotations` is `transparent`, the type of an application is the type of its right-hand side, which can be a proper subtype of the declared result type `Annotations[A, T]`.
+因为 `mkAnnotations` 是 `transparent` 的，所以一个应用的类型是其右侧的类型，
+它可以是声明的结果 `Annotations[A, T]` 类型的恰当子类型。
 
 ## Pattern-Bound Given Instances
 
-Given instances can also appear in patterns. Example:
+Given 实例也可以在模式中出现。例如：
 
 ```scala
 for given Context <- applicationContexts do
@@ -113,19 +107,19 @@ pair match
    case (ctx @ given Context, y) => ...
 ```
 
-In the first fragment above, anonymous given instances for class `Context` are established by enumerating over `applicationContexts`. In the second fragment, a given `Context`
-instance named `ctx` is established by matching against the first half of the `pair` selector.
+在上面第一个片段中，通过在 `applicationContexts` 上枚举创建类 `Context` 的匿名 given 实例。
+第二个片段中通过匹配 `pair` 选择器的前半部分来创建一个名为 `ctx` 的 `Context` 类型 given 实例。
 
-In each case, a pattern-bound given instance consists of `given` and a type `T`. The pattern matches exactly the same selectors as the type ascription pattern `_: T`.
 
-## Negated Givens
+在所有情况下，模式绑定的 given 实例都由 `given` 和类型 `T` 组成。
+The pattern matches exactly the same selectors as the type ascription pattern `_: T`.
 
-Scala 2's somewhat puzzling behavior with respect to ambiguity has been exploited to implement the analogue of a "negated" search in implicit resolution,
-where a query Q1 fails if some other query Q2 succeeds and Q1 succeeds if Q2 fails. With the new cleaned up behavior these techniques no longer work.
-But the new special type `scala.util.NotGiven` now implements negation directly.
+## 否定 Given
 
-For any query type `Q`, `NotGiven[Q]` succeeds if and only if the implicit
-search for `Q` fails, for example:
+Scala 2 中在模糊性上的一些令人费解的行为被用来实现隐式解析中的“否定”搜索，如果查询 Q1 成功则查询 Q2 失败，如果查询 Q2 成功则查询 Q1 失败。
+这些技术随着对隐式新的清理不再工作，但现在新的特殊类型 `scala.util.NotGiven` 直接实现否定。
+
+对于任意查询类型 `Q`，当且仅当对 `Q` 的隐式搜索失败时，`NotGiven[Q]` 才会成功。例如：
 
 ```scala
 import scala.util.NotGiven
@@ -143,15 +137,14 @@ object Foo:
    assert(!summon[Foo[String]].value) // fooNotTagged is found
 ```
 
-## Given Instance Initialization
+## Given 实例初始化
 
-A given instance without type or context parameters is initialized on-demand, the first
-time it is accessed. If a given has type or context parameters, a fresh instance
-is created for each reference.
+没有类型或上下文参数的 given 实例在第一次访问的时候按需初始化。如果 given 有类型或者上下文参数，
+则为每个引用创建一个新实例。
 
-## Syntax
+## 语法
 
-Here is the syntax for given instances:
+这里是 given 实例的语法：
 
 ```ebnf
 TmplDef             ::=  ...
@@ -163,11 +156,9 @@ GivenSig            ::=  [id] [DefTypeParamClause] {UsingParamClause} ‘:’
 StructuralInstance  ::=  ConstrApp {‘with’ ConstrApp} ‘with’ TemplateBody
 ```
 
-A given instance starts with the reserved word `given` and an optional _signature_. The signature
-defines a name and/or parameters for the instance. It is followed by `:`. There are three kinds
-of given instances:
+Given 实例以保留字 `given` 和一个可选的*签名*开始。签名定义实例的名称和参数。然后是 `:`、
+Given 实例一共有三种：
 
-- A _structural instance_ contains one or more types or constructor applications,
-  followed by `with` and a template body that contains member definitions of the instance.
-- An _alias instance_ contains a type, followed by `=` and a right-hand side expression.
-- An _abstract instance_ contains just the type, which is not followed by anything.
+- *结构实例（Structural Instance）*包含一个或多个类型或构造器应用，其后紧跟着 `with`和一个包含实例成员定义的模板体、
+- *别名实例（Alias Instance）*包含一个类型，其后紧跟着 `=` 和一个右侧表达式。
+- *抽象实例（Abstract Instance）*只包含类型，其后不跟随任何内容。

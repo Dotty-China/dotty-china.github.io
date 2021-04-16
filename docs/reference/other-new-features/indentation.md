@@ -93,7 +93,7 @@ Scala 3 enforces some rules on indentation and allows some occurrences of braces
      - An `<outdent>` is also inserted if the next token following a statement sequence starting with an `<indent>` closes an indentation region, i.e. is one of `then`, `else`, `do`, `catch`, `finally`, `yield`, `}`, `)`, `]` or `case`.
      - An `<outdent>` is finally inserted in front of a comma that follows a statement sequence starting with an `<indent>` if the indented region is itself enclosed in parentheses.
 
-It is an error if the indentation width of the token following an `<outdent>` does not match the indentation of some previous line in the enclosing indentation region. For instance, the following would be rejected.
+如果 `<outdent>` 后 token 的缩进宽度与封闭缩进区域中之前的行缩进不匹配，则产生一个错误。例如，以下内容将被拒绝：
 
 ```scala
 if x < 0 then
