@@ -28,19 +28,18 @@ given [T: Show]     : Show[Tree]     = Show.derived
 
 我们称 `Tree` 为*推导类型*，`Eq`、`Ordering` 和 `Show` 的实例为*推导实例*。
 
-## Types supporting `derives` clauses
+## 支持 `derives` 子句的类型
 
-All data types can have a `derives` clause. This document focuses primarily on data types which also have a given instance
-of the `Mirror` type class available. Instances of the `Mirror` type class are generated automatically by the compiler
-for,
+所有数据类型都可以有一个 `derives` 子句。This document focuses primarily on data types which also have a given instance
+of the `Mirror` type class available. Type class `Mirror` 的实例由编译器为这些类型自动生成：
 
-+ enums and enum cases
-+ case classes and case objects
-+ sealed classes or traits that have only case classes and case objects as children
+- 枚举和枚举 case
+- case class 和 case object
+- 子类只有 case 类或 case 对象的 sealed 类或 sealed trait
 
-`Mirror` type class instances provide information at the type level about the components and labelling of the type.
-They also provide minimal term level infrastructure to allow higher level libraries to provide comprehensive
-derivation support.
+
+Type class `Mirror` 的实例在类型级别提供有关组件和类型标签的信息。它们还提供最小化的 term 级基础设施，
+以允许更高级别的库提供全面的推导支持。
 
 ```scala
 sealed trait Mirror:
@@ -80,10 +79,10 @@ object Mirror:
 end Mirror
 ```
 
-Product types (i.e. case classes and objects, and enum cases) have mirrors which are subtypes of `Mirror.Product`. Sum
-types (i.e. sealed class or traits with product children, and enums) have mirrors which are subtypes of `Mirror.Sum`.
+Product 类型（例如 case 类和对象，以及枚举的 case）具有为 `Mirror.Product` 子类型的镜像。
+Sum type（例如子类型只有 product 类型的 sealed 类或 trait，以及枚举）具有为 `Mirror.Sum` 子类型的镜像。
 
-For the `Tree` ADT from above the following `Mirror` instances will be automatically provided by the compiler,
+对于上面的 ADT `Tree`，编译器会自动提供以下 `Mirror` 实例：
 
 ```scala
 // Mirror for Tree
@@ -121,36 +120,31 @@ new Mirror.Product:
       new Leaf(...)
 ```
 
-Note the following properties of `Mirror` types,
+请注意 `Mirror` 类型的以下属性：
 
-+ Properties are encoded using types rather than terms. This means that they have no runtime footprint unless used and
-  also that they are a compile time feature for use with Scala 3's metaprogramming facilities.
-+ The kinds of `MirroredType` and `MirroredElemTypes` match the kind of the data type the mirror is an instance for.
-  This allows `Mirror`s to support ADTs of all kinds.
-+ There is no distinct representation type for sums or products (ie. there is no `HList` or `Coproduct` type as in
-  Scala 2 versions of Shapeless). Instead the collection of child types of a data type is represented by an ordinary,
-  possibly parameterized, tuple type. Scala 3's metaprogramming facilities can be used to work with these tuple types
-  as-is, and higher level libraries can be built on top of them.
-+ For both product and sum types, the elements of `MirroredElemTypes` are arranged in definition order (i.e. `Branch[T]`
-  precedes `Leaf[T]` in `MirroredElemTypes` for `Tree` because `Branch` is defined before `Leaf` in the source file).
-  This means that `Mirror.Sum` differs in this respect from Shapeless's generic representation for ADTs in Scala 2,
-  where the constructors are ordered alphabetically by name.
-+ The methods `ordinal` and `fromProduct` are defined in terms of `MirroredMonoType` which is the type of kind-`*`
+- 属性是使用类型而不是 term 编码的。这意味着除非使用了它们，否则没有运行时 footprint，并且它们是 Scala 3 元编程工具的编译时特性。
+- The kinds of `MirroredType` and `MirroredElemTypes` match the kind of the data type the mirror is an instance for.
+  这允许 `Mirror` 支持所有类别的 ADT。
+- Sum 或 Product 没有清晰的表示类型（例如没有 Scala 2 版本 Shapeless 中的 `HList` 或 `Coproduct` 类型）。
+  相反，数据类型的子类型集合由普通的、可能是参数化的元组类型表示。Scala 3 的元编程工具可以用于处理这些元组类型，
+  并在其上构建更高级别的库。
+- 对于 Product 和 Sum 类型，`MirroredElemTypes` 的元素都是按照定义顺序排列的（例如 `Tree` 的 `MirroredElemTypes`中，
+  `Branch[T]` 在 `Leaf[T]` 前，因为源文件中 `Branch` 的定义在 `Leaf` 的定义之前）。这意味着 `Mirror.Sum` 在这方面不同于 
+  Scala 2 中 Shapeless 对 ADT 的泛型表示，其构造器是按照首字母顺序排列的。
+- The methods `ordinal` and `fromProduct` are defined in terms of `MirroredMonoType` which is the type of kind-`*`
   which is obtained from `MirroredType` by wildcarding its type parameters.
 
-## Type classes supporting automatic deriving
+## 支持自动推导的 Type Class
 
-A trait or class can appear in a `derives` clause if its companion object defines a method named `derived`. The
-signature and implementation of a `derived` method for a type class `TC[_]` are arbitrary but it is typically of the
-following form,
+如果一个 trait 或者类的伴生对象定义了一个名为 `derived` 的方法，则它可以出现在 `derives` 子句中。
+Type class `TC[_]` 的 `derived` 方法的签名与实现是任意的，但通常采用以下形式：
 
 ```scala
 def derived[T](using Mirror.Of[T]): TC[T] = ...
 ```
 
-That is, the `derived` method takes a context parameter of (some subtype of) type `Mirror` which defines the shape of
-the deriving type `T`, and computes the type class implementation according to that shape. This is all that the
-provider of an ADT with a `derives` clause has to know about the derivation of a type class instance.
+也就是说，`derived` 方法接受一个类型为 `Mirror` 的某个子类型的上下文参数，该参数提供了推导类型的形状，
+并根据这个形状计算 type class 的实现。这就是带有 `derives` 子句的 ADT 提供者必须知道的关于 type class 推导的全部内容。
 
 Note that `derived` methods may have context `Mirror` parameters indirectly (e.g. by having a context argument which in turn
 has a context `Mirror` parameter, or not at all (e.g. they might use some completely different user-provided mechanism, for
@@ -164,7 +158,7 @@ authors would normally implement a `derived` method in this way, however this wa
 authors of the higher level derivation libraries that we expect typical type class authors will use (for a fully
 worked out example of such a library, see [Shapeless 3](https://github.com/milessabin/shapeless/tree/shapeless-3)).
 
-## How to write a type class `derived` method using low level mechanisms
+## 如何使用底层机制编写 type class 的 `derived` 方法
 
 The low-level method we will use to implement a type class `derived` method in this example exploits three new
 type-level constructs in Scala 3: inline methods, inline matches, and implicit searches via  `summonInline` or `summonFrom`. Given this definition of the
@@ -332,7 +326,7 @@ The framework described here enables all three of these approaches without manda
 For a brief discussion on how to use macros to write a type class `derived`
 method please read more at [How to write a type class `derived` method using macros](./derivation-macro.md).
 
-## Deriving instances elsewhere
+## 从别处推导实例
 
 Sometimes one would like to derive a type class instance for an ADT after the ADT is defined, without being able to
 change the code of the ADT itself.  To do this, simply define an instance using the `derived` method of the type class
@@ -346,7 +340,7 @@ Assuming the `Ordering.derived` method has a context parameter of type `Mirror[T
 compiler generated `Mirror` instance for `Option` and the derivation of the instance will be expanded on the right
 hand side of this definition in the same way as an instance defined in ADT companion objects.
 
-## Syntax
+## 语法
 
 ```ebnf
 Template          ::=  InheritClauses [TemplateBody]
@@ -369,7 +363,7 @@ It is equivalent to the old form
 class A extends B with C { ... }
 ```
 
-## Discussion
+## 讨论
 
 This type class derivation framework is intentionally very small and low-level. There are essentially two pieces of
 infrastructure in compiler-generated `Mirror` instances,
