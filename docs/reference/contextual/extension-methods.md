@@ -6,7 +6,9 @@ grand_parent: 参考
 nav_order: 6
 ---
 
-Extension methods allow one to add methods to a type after the type is defined. Example:
+# {{ page.title }}
+
+扩展方法（Extension Method）允许在定义类型后向其添加方法。例如：
 
 ```scala
 case class Circle(x: Double, y: Double, radius: Double)
@@ -15,17 +17,17 @@ extension (c: Circle)
    def circumference: Double = c.radius * math.Pi * 2
 ```
 
-Like regular methods, extension methods can be invoked with infix `.`:
+与常规方法一样，扩展方法也可以使用中缀 `.` 调用：
 
 ```scala
 val circle = Circle(0, 0, 1)
 circle.circumference
 ```
 
-### Translation of Extension Methods
+## 扩展方法的翻译
 
-An extension method translates to a specially labelled method that takes the leading parameter section as its first argument list. The label, expressed
-as `<extension>` here, is compiler-internal. So, the definition of `circumference` above translates to the following method, and can also be invoked as such:
+扩展方法被翻译为一个带有特殊标签的方法，该方法把前导参数部分作为其第一个参数列表。这里用 `<extension>` 表示的标签是编译器内部的。
+因此，上述 `circumference` 定义会被翻译为以下方法，也可以像这样调用：
 
 ```scala
 <extension> def circumference(c: Circle): Double = c.radius * math.Pi * 2
@@ -33,9 +35,9 @@ as `<extension>` here, is compiler-internal. So, the definition of `circumferenc
 assert(circle.circumference == circumference(circle))
 ```
 
-### Operators
+## 操作符
 
-The extension method syntax can also be used to define operators. Examples:
+扩展方法语法也可以用于定义操作符。例如：
 
 ```scala
 extension (x: String)
@@ -50,7 +52,7 @@ extension (x: Number)
 x min 3
 ```
 
-The three definitions above translate to
+以上三个定义被翻译为
 
 ```scala
 <extension> def < (x: String)(y: String): Boolean = ...
@@ -65,7 +67,7 @@ compiler preprocesses an infix operation `x +: xs` to `xs.+:(x)`, so the extensi
 method ends up being applied to the sequence as first argument (in other words, the
 two swaps cancel each other out). See [here for details](./right-associative-extension-methods.md).
 
-### Generic Extensions
+## Generic Extensions
 
 It is also possible to extend generic types by adding type parameters to an extension. For instance:
 
@@ -111,7 +113,7 @@ extension [T](x: T)(using n: Numeric[T])
    def + (y: T): T = n.plus(x, y)
 ```
 
-### Collective Extensions
+## Collective Extensions
 
 Sometimes, one wants to define several extension methods that share the same
 left-hand parameter type. In this case one can "pull out" the common parameters into
@@ -168,7 +170,7 @@ extension [T](xs: List[T])(using Ordering[T])
       xs.zipWithIndex.collect { case (x, i) if x <= limit => i }
 ```
 
-### Translation of Calls to Extension Methods
+## Translation of Calls to Extension Methods
 
 To convert a reference to an extension method, the compiler has to know about the extension
 method. We say in this case that the extension method is _applicable_ at the point of reference.
@@ -282,7 +284,7 @@ def position(s: String)(ch: Char, n: Int): Int =
    else n
 ```
 
-### Syntax
+## 语法
 
 Here are the syntax changes for extension methods and collective extensions relative
 to the [current syntax](../syntax.md).
