@@ -131,7 +131,7 @@ object Planet {
 }
 ```
 
-我们可以设想一个库可能可以使用 [type class 派生](../contextual/derivation.md)自动提供 `Deprecations` 
+我们可以设想一个库可能可以使用 [type class 推导](../contextual/derivation.md)自动提供 `Deprecations` 
 的实例。
 
 ### 与 Java 枚举的兼容性

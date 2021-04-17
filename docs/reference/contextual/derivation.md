@@ -1,15 +1,16 @@
 ---
 layout: default
-title: Type Class Derivation
+title: Type Class 推导
 parent: 上下文抽象
 grand_parent: 参考
 nav_order: 8
 ---
 
-Type class derivation is a way to automatically generate given instances for type classes which satisfy some simple
-conditions. A type class in this sense is any trait or class with a type parameter determining the type being operated
-on. Common examples are `Eq`, `Ordering`, or `Show`. For example, given the following `Tree` algebraic data type
-(ADT),
+# {{ page.title }}
+
+Type class 推导是为满足某些简单条件的 type class 自动生成 given 实例的一种方法。
+在这个意义上，type class 是任何具有一个类型参数的 trait 或者类，这个类型参数描决定了要操作的类型。
+常见的例子有 `Eq`、`Ordering` 和 `Show`。例如，给定以下 ADT `Tree`：
 
 ```scala
 enum Tree[T] derives Eq, Ordering, Show:
@@ -17,8 +18,7 @@ enum Tree[T] derives Eq, Ordering, Show:
    case Leaf(elem: T)
 ```
 
-The `derives` clause generates the following given instances for the `Eq`, `Ordering` and `Show` type classes in the
-companion object of `Tree`,
+`derives` 子句自动在 `Tree` 的伴生对象中生成了 type class `Eq`、`Ordering` 和 `Show` 的 given 实例：
 
 ```scala
 given [T: Eq]       : Eq[Tree[T]]    = Eq.derived
@@ -26,9 +26,9 @@ given [T: Ordering] : Ordering[Tree] = Ordering.derived
 given [T: Show]     : Show[Tree]     = Show.derived
 ```
 
-We say that `Tree` is the _deriving type_ and that the `Eq`, `Ordering` and `Show` instances are _derived instances_.
+我们称 `Tree` 为*推导类型*，`Eq`、`Ordering` 和 `Show` 的实例为*推导实例*。
 
-### Types supporting `derives` clauses
+## Types supporting `derives` clauses
 
 All data types can have a `derives` clause. This document focuses primarily on data types which also have a given instance
 of the `Mirror` type class available. Instances of the `Mirror` type class are generated automatically by the compiler
@@ -138,7 +138,7 @@ Note the following properties of `Mirror` types,
 + The methods `ordinal` and `fromProduct` are defined in terms of `MirroredMonoType` which is the type of kind-`*`
   which is obtained from `MirroredType` by wildcarding its type parameters.
 
-### Type classes supporting automatic deriving
+## Type classes supporting automatic deriving
 
 A trait or class can appear in a `derives` clause if its companion object defines a method named `derived`. The
 signature and implementation of a `derived` method for a type class `TC[_]` are arbitrary but it is typically of the
@@ -164,7 +164,7 @@ authors would normally implement a `derived` method in this way, however this wa
 authors of the higher level derivation libraries that we expect typical type class authors will use (for a fully
 worked out example of such a library, see [Shapeless 3](https://github.com/milessabin/shapeless/tree/shapeless-3)).
 
-#### How to write a type class `derived` method using low level mechanisms
+## How to write a type class `derived` method using low level mechanisms
 
 The low-level method we will use to implement a type class `derived` method in this example exploits three new
 type-level constructs in Scala 3: inline methods, inline matches, and implicit searches via  `summonInline` or `summonFrom`. Given this definition of the
@@ -332,7 +332,7 @@ The framework described here enables all three of these approaches without manda
 For a brief discussion on how to use macros to write a type class `derived`
 method please read more at [How to write a type class `derived` method using macros](./derivation-macro.md).
 
-### Deriving instances elsewhere
+## Deriving instances elsewhere
 
 Sometimes one would like to derive a type class instance for an ADT after the ADT is defined, without being able to
 change the code of the ADT itself.  To do this, simply define an instance using the `derived` method of the type class
@@ -346,7 +346,7 @@ Assuming the `Ordering.derived` method has a context parameter of type `Mirror[T
 compiler generated `Mirror` instance for `Option` and the derivation of the instance will be expanded on the right
 hand side of this definition in the same way as an instance defined in ADT companion objects.
 
-### Syntax
+## Syntax
 
 ```ebnf
 Template          ::=  InheritClauses [TemplateBody]
@@ -369,7 +369,7 @@ It is equivalent to the old form
 class A extends B with C { ... }
 ```
 
-### Discussion
+## Discussion
 
 This type class derivation framework is intentionally very small and low-level. There are essentially two pieces of
 infrastructure in compiler-generated `Mirror` instances,

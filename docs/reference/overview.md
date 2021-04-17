@@ -129,7 +129,7 @@ _当前状态_：有一个提案和一个已经合并的原型实现，但实现
 - [匹配类型](new-types/match-types.md)允许对类型进行计算。
 - [内联](metaprogramming/inline.md)本身提供了一些简单宏的简易实现，同时也是实现复杂宏的必要构造块。
 - [引用和拼接](metaprogramming/macros.md)提供了一种用统一的抽象集表示宏和 staging 的规则的方法。
-- [Type class 派生](contextual/derivation.md)提供了 Shapeless 以及其他基础库中 `Gen` 宏的语言内置实现。
+- [Type class 推导](contextual/derivation.md)提供了 Shapeless 以及其他基础库中 `Gen` 宏的语言内置实现。
 新的实现比宏更健壮、更高效、更易用。
 - [按名上下文参数](contextual/by-name-context-parameters.md)提供 [Shapeless](https://github.com/milessabin/shapeless) 
 中的 `Lazy` 宏的更健壮的语言内置实现。
