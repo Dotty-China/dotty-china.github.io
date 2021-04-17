@@ -1,20 +1,22 @@
 ---
 layout: default
-title: Context Functions
+title: 上下文函数
 parent: 上下文抽象
 grand_parent: 参考
 nav_order: 10
 ---
 
-_Context functions_ are functions with (only) context parameters.
-Their types are _context function types_. Here is an example of a context function type:
+# {{ page.title }}
+
+*上下文函数（Context Function）*是（只）有上下文参数的函数。它们的类型是*上下文函数类型（Context Function Type）*。
+下面是上下文函数类型的示例：
 
 ```scala
 type Executable[T] = ExecutionContext ?=> T
 ```
-Context functions are written using `?=>` as the "arrow" sign.
-They are applied to synthesized arguments, in
-the same way methods with context parameters are applied. For instance:
+
+上下文函数使用 `?=>` 作为“箭头”标志。它们应用于合成的参数，与应用带有上下文参数的方法相同。例如：
+
 ```scala
   given ec: ExecutionContext = ...
 
@@ -26,19 +28,19 @@ the same way methods with context parameters are applied. For instance:
   f(2)(using ec)   // explicit argument
   f(2)             // argument is inferred
 ```
-Conversely, if the expected type of an expression `E` is a context function type
-`(T_1, ..., T_n) ?=> U` and `E` is not already an
-context function literal, `E` is converted to a context function literal by rewriting it to
+
+如果表达式 `E` 的预期类型是上下文函数类型 `(T_1, ..., T_n) ?=> U`，并且 `E` 还不是一个上下文函数字面量，
+则 `E` 会通过这样重写转换为上下文函数字面量：
+
 ```scala
   (x_1: T1, ..., x_n: Tn) ?=> E
 ```
-where the names `x_1`, ..., `x_n` are arbitrary. This expansion is performed
-before the expression `E` is typechecked, which means that `x_1`, ..., `x_n`
-are available as givens in `E`.
 
-Like their types, context function literals are written using `?=>` as the arrow between parameters and results. They differ from normal function literals in that their types are context function types.
+其中名称 `x_1`、...、`x_n` 是任意的。这个扩展在表达式 `E` 被类型检测后执行，这意味着 `x_1`、...、`x_n` 可以在 `E` 中 作为 given 值使用。
 
-For example, continuing with the previous definitions,
+与它们的类型一样，上下文函数字面量使用 `?=>` 作为参数和结果之间的箭头。这不同于普通的函数字面量，因为它们的类型是上下文函数类型。
+
+例如，继续前面的定义：
 ```scala
   def g(arg: Executable[Int]) = ...
 
@@ -50,11 +52,10 @@ For example, continuing with the previous definitions,
   g((ctx: ExecutionContext) ?=> f(3)(using ctx)) // is left as it is
 ```
 
-### Example: Builder Pattern
+## 示例：Builder 模式
 
-Context function types have considerable expressive power. For
-instance, here is how they can support the "builder pattern", where
-the aim is to construct tables like this:
+上下文函数类型拥有相当强大的表达能力。例如，下面是如何使用它实现“Builder 模式”的示例，其目的是用于构建这样的表：
+
 ```scala
   table {
      row {
@@ -67,8 +68,9 @@ the aim is to construct tables like this:
      }
   }
 ```
-The idea is to define classes for `Table` and `Row` that allow the
-addition of elements via `add`:
+
+其想法是为 `Table` 和 `Row` 定义类，并允许通过 `add` 添加元素：
+
 ```scala
   class Table:
      val rows = new ArrayBuffer[Row]
@@ -82,9 +84,9 @@ addition of elements via `add`:
 
   case class Cell(elem: String)
 ```
-Then, the `table`, `row` and `cell` constructor methods can be defined
-with context function types as parameters to avoid the plumbing boilerplate
-that would otherwise be necessary.
+
+然后可以使用上下文函数类型作为参数来定义 `table`、`row` 和 `cell` 工厂方法，以避免使用 plumbing boilerplate。
+
 ```scala
   def table(init: Table ?=> Unit) =
      given t: Table = Table()
@@ -99,7 +101,9 @@ that would otherwise be necessary.
   def cell(str: String)(using r: Row) =
      r.add(new Cell(str))
 ```
-With that setup, the table construction code above compiles and expands to:
+
+通过该设置，上面的构建表代码被编译并扩展为：
+
 ```scala
   table { ($t: Table) ?=>
 
@@ -114,9 +118,11 @@ With that setup, the table construction code above compiles and expands to:
     }(using $t)
   }
 ```
-### Example: Postconditions
 
-As a larger example, here is a way to define constructs for checking arbitrary postconditions using an extension method `ensuring` so that the checked result can be referred to simply by `result`. The example combines opaque type aliases, context function types, and extension methods to provide a zero-overhead abstraction.
+## 示例：Postconditions
+
+这里是一个更大的例子，使用一个扩展方法 `ensuring` 定义用于检查任意后置条件的结构，
+检查的结果可以方便的使用 `result` 引用。该示例结合了不透明类型别名、上下文函数类型和扩展方法提供零开销抽象。
 
 ```scala
 object PostConditions:
@@ -133,15 +139,11 @@ import PostConditions.{ensuring, result}
 
 val s = List(1, 2, 3).sum.ensuring(result == 6)
 ```
-**Explanations**: We use a context function type `WrappedResult[T] ?=> Boolean`
-as the type of the condition of `ensuring`. An argument to `ensuring` such as
-`(result == 6)` will therefore have a given of type `WrappedResult[T]` in
-scope to pass along to the `result` method. `WrappedResult` is a fresh type, to make sure
-that we do not get unwanted givens in scope (this is good practice in all cases
-where context parameters are involved). Since `WrappedResult` is an opaque type alias, its
-values need not be boxed, and since `ensuring` is added as an extension method, its argument
-does not need boxing either. Hence, the implementation of `ensuring` is as about as efficient
-as the best possible code one could write by hand:
+
+**解释**：我们使用上下文函数类型 `WrappedResult[T] ?=> Boolean` 作为 `ensuring` 的条件的类型。
+因此 `(result == 6)` 这样的 `ensuring` 的参数在作用域中将有一个 `WrappedResult[T]` 类型的 given 值传递给 `result` 方法。
+`WrappedResult` 是一种新类型，用于确保不会在作用域中捕获到不需要的 given 值（在涉及上下文参数的所有情况下，这都是一种很好的做法）。
+因为 `WrappedResult` 是一个不透明类型别名，所以它的值也不需要装箱。因此 `ensuring` 的实现与手工编写以下代码一样高效：
 
 ```scala
 val s =
@@ -149,9 +151,8 @@ val s =
    assert(result == 6)
    result
 ```
-### Reference
+## 参考
 
-For more information, see the [blog article](https://www.scala-lang.org/blog/2016/12/07/implicit-function-types.html),
-(which uses a different syntax that has been superseded).
+更多有关信息请参阅这篇[博客文章](https://www.scala-lang.org/blog/2016/12/07/implicit-function-types.html)（它使用了已经被取代的不同语法）。
 
-[More details](./context-functions-spec.md)
+[更多细节](./context-functions-spec.md){: .btn .btn-purple }
