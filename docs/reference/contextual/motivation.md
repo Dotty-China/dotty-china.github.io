@@ -6,18 +6,33 @@ grand_parent: 参考
 nav_order: 1
 ---
 
-### Critique of the Status Quo
+# {{ page.title }}
 
-Scala's implicits are its most distinguished feature. They are _the_ fundamental way to abstract over context. They represent a unified paradigm with a great variety of use cases, among them: implementing type classes, establishing context, dependency injection, expressing capabilities, computing new types and proving relationships between them.
+## 对现状的批判
 
-Following Haskell, Scala was the second popular language to have some form of implicits. Other languages have followed suit. E.g [Rust's traits](https://doc.rust-lang.org/rust-by-example/trait.html) or [Swift's protocol extensions](https://docs.swift.org/swift-book/LanguageGuide/Protocols.html#ID521). Design proposals are also on the table for Kotlin as [compile time dependency resolution](https://github.com/Kotlin/KEEP/blob/e863b25f8b3f2e9b9aaac361c6ee52be31453ee0/proposals/compile-time-dependency-resolution.md), for C# as [Shapes and Extensions](https://github.com/dotnet/csharplang/issues/164)
-or for F# as [Traits](https://github.com/MattWindsor91/visualfsharp/blob/hackathon-vs/examples/fsconcepts.md). Implicits are also a common feature of theorem provers such as [Coq](https://coq.inria.fr/refman/language/extensions/implicit-arguments.html) or [Agda](https://agda.readthedocs.io/en/latest/language/implicit-arguments.html).
+Scala 的隐式是它最具特色的特性。它们是对上下文进行抽象的基本方法。
+它们代表了一个统一的样式，有各式各样的用例，其中包括：
+实现 type class、建立上下文、依赖注入、expressing capabilities、计算新类型以及证明它们之间的关系。
 
-Even though these designs use widely different terminology, they are all variants of the core idea of _term inference_. Given a type, the compiler synthesizes a "canonical" term that has that type. Scala embodies the idea in a purer form than most other languages: An implicit parameter directly leads to an inferred argument term that could also be written down explicitly. By contrast, type class based designs are less direct since they hide term inference behind some form of type classification and do not offer the option of writing the inferred quantities (typically, dictionaries) explicitly.
+继 Haskell 之后，Scala 是第二个具有某种形式隐式的流行语言。其他语言也纷纷效仿。
+例如 [Rust 的 traits](https://doc.rust-lang.org/rust-by-example/trait.html)以及 
+[Swift 的 protocol extensions](https://docs.swift.org/swift-book/LanguageGuide/Protocols.html#ID521)。
+Kotlin 的 [编译时依赖解析](https://github.com/Kotlin/KEEP/blob/e863b25f8b3f2e9b9aaac361c6ee52be31453ee0/proposals/compile-time-dependency-resolution.md)、
+C# 的 [Shapes and Extensions](https://github.com/dotnet/csharplang/issues/164)、
+F# 的 [Trait](https://github.com/MattWindsor91/visualfsharp/blob/hackathon-vs/examples/fsconcepts.md) 等设计建议也在计划中。
+隐式也是 [Coq](https://coq.inria.fr/refman/language/extensions/implicit-arguments.html)、[Agda](https://agda.readthedocs.io/en/latest/language/implicit-arguments.html) 
+等定理证明器的一个共同特征。
 
-Given that term inference is where the industry is heading, and given that Scala has it in a very pure form, how come implicits are not more popular? In fact, it's fair to say that implicits are at the same time Scala's most distinguished and most controversial feature. I believe this is due to a number of aspects that together make implicits harder to learn than necessary and also make it harder to prevent abuses.
+尽管这些设计使用了完全不同的术语，但它们都是 term inference 核心思想的变体。给定一个类型，
+编译器合成一个具有该类型的“canonical” term。Scala 以比大多数语言更纯粹的形式体现了这一思想：
+隐式参数直接引发推断参数，也可以显式写出。相比之下，基于 type class 的设计则不这么直接，
+因为它们把 term inference 隐藏在某种形式的 type classification 背后，
+并且不提供显式提供推断值（通常是 dictionaries）的选择。
 
-Particular criticisms are:
+既然 term inference 是行业发展方向，既然 Scala 以一种非常纯粹的方式拥有它，那么为什么它没有更受欢迎呢？
+事实上，隐式同时是 Scala 最突出也是最有争议的特点。我认为很多方面的共同作用使得隐式更难学习且更难防止其滥用。
+
+批评的细节是：
 
 1. Being very powerful, implicits are easily over-used and mis-used. This observation holds in almost all cases when we talk about _implicit conversions_, which, even though conceptually different, share the same syntax with other implicit definitions. For instance, regarding the two definitions
 
@@ -48,18 +63,19 @@ Historically, many of these shortcomings come from the way implicits were gradua
 
 Existing Scala programmers by and large have gotten used to the status quo and see little need for change. But for newcomers this status quo presents a big hurdle. I believe if we want to overcome that hurdle, we should take a step back and allow ourselves to consider a radically new design.
 
-### The New Design
+## 新的设计
 
-The following pages introduce a redesign of contextual abstractions in Scala. They introduce four fundamental changes:
+下面的页面将介绍 Scala 中上下文抽象的重新设计。它们带来了四个基本变化：
+ 
+ 1. [Given 实例](./givens.md)是定义可以合成的基本 term 的新方法。它们取代了隐式定义。
+    该提议的核心原则是不把 `implicit` 修饰符和大量特性混合，而用一种方法定义可以为类型合成的 term。
 
- 1. [Given Instances](./givens.md) are a new way to define basic terms that can be synthesized.  They replace implicit definitions. The core principle of the proposal is that, rather than mixing the `implicit` modifier with a large number of features, we have a single way to define terms that can be synthesized for types.
+ 2. [Using 子句](./using-clauses.md)是隐式参数以及传递对应参数的新语法。它明确的对其形参和实参，解决了许多语言上的缺陷。
+    它还允许我们在第一个定义中有多个 `using` 子句。
 
- 2. [Using Clauses](./using-clauses.md) are a new syntax for implicit _parameters_ and their _arguments_. It unambiguously aligns parameters and arguments, solving a number of language warts. It also allows us to have several `using` clauses in a definition.
+ 3. [“Given”导入](./given-imports.md)是一类新的 import 选择器，专门导入 given 而不导入其他内容。
 
- 3. ["Given" Imports](./given-imports.md) are a new class of import selectors that specifically import
-    givens and nothing else.
-
- 4. [Implicit Conversions](./conversions.md) are now expressed as given instances of a standard `Conversion` class. All other forms of implicit conversions will be phased out.
+ 4. [隐式转换](./conversions.md)现在表示为标准 `Conversion` 类的 given 实例。其他形式的隐式转换都被淘汰。
 
 This section also contains pages describing other language features that are related to context abstraction. These are:
 
