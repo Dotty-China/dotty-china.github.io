@@ -1,50 +1,53 @@
 ---
 layout: default
-title: Implicit Conversions
+title: 隐式转换
 parent: 上下文抽象
 grand_parent: 参考
 nav_order: 11
 ---
 
-Implicit conversions are defined by given instances of the `scala.Conversion` class.
-This class is defined in package `scala` as follows:
+# {{ page.title }}
+
+隐式转换（Implicit Conversion）由类 `scala.Conversion` 的 given 实例定义。
+该类在包 `scala` 中的定义如下：
+
 ```scala
 abstract class Conversion[-T, +U] extends (T => U):
    def apply (x: T): U
 ```
-For example, here is an implicit conversion from `String` to `Token`:
+例如，下面是从 `String` 到 `Token` 的隐式转换：
+
 ```scala
 given Conversion[String, Token] with
    def apply(str: String): Token = new KeyWord(str)
 ```
-Using an alias this can be expressed more concisely as:
+
+使用别名可以更简洁的表示为：
+
 ```scala
 given Conversion[String, Token] = new KeyWord(_)
 ```
-An implicit conversion is applied automatically by the compiler in three situations:
 
-1. If an expression `e` has type `T`, and `T` does not conform to the expression's expected type `S`.
-2. In a selection `e.m` with `e` of type `T`, but `T` defines no member `m`.
-3. In an application `e.m(args)` with `e` of type `T`, if `T` does define
-   some member(s) named `m`, but none of these members can be applied to the arguments `args`.
+在以下三种情况下，编译器会自动应用隐式转换：
 
-In the first case, the compiler looks for a given `scala.Conversion` instance that maps
-an argument of type `T` to type `S`. In the second and third
-case, it looks for a given `scala.Conversion` instance that maps an argument of type `T`
-to a type that defines a member `m` which can be applied to `args` if present.
-If such an instance `C` is found, the expression `e` is replaced by `C.apply(e)`.
+1. 如果表达式 `e` 具有类型 `T`，且 `T` 不符合表达式的预期类型 `S`。
+2. 在选择 `e.m` 中，`e` 的类型为 `T`，但 `T` 没有定义成员 `m`。
+3. 在应用 `e.m(args)` 中，`e` 的类型为 `T`，`T` 定义了一些名为 `m` 的成员，但这些成员都不能应用于参数 `args`。
 
-## Examples
+在第一种情况下，编译器查找将类型 `T` 映射至类型 `S` 的 `scala.Conversion` given 实例。
+在第二和第三种情况下，编译器查找 `scala.Conversion` 的 given 实例，该实例将类型 `T` 
+映射至定义了成员 `m`，（在 `args` 存在时）并且 `m` 可以应用于 `args`。如果找到了这样的实例 `C`，则表达式 `e` 被替换为 `C.apply(e)`。
 
-1. The `Predef` package contains "auto-boxing" conversions that map
-primitive number types to subclasses of `java.lang.Number`. For instance, the
-conversion from `Int` to `java.lang.Integer` can be defined as follows:
+## 示例
+
+1. `Predef` 包含“自动装箱”转换，把基本数值类型映射到 `java.lang.Number` 的子类型。
+   例如，从 `Int` 到 `java.lang.Integer` 的转换可以这样定义：
    ```scala
    given int2Integer: Conversion[Int, java.lang.Integer] =
       java.lang.Integer.valueOf(_)
    ```
-
-2. The "magnet" pattern is sometimes used to express many variants of a method. Instead of defining overloaded versions of the method, one can also let the method take one or more arguments of specially defined "magnet" types, into which various argument types can be converted. Example:
+2. “magnet”模式有时用于表示一个方法的多个变体。除了定义方法的重载版本，还可以让方法接受一个或多个特殊定义的“magnet”类型的参数，
+   各种参数类型可以转换为这些参数类型。例如：
    ```scala
    object Completions:
 
@@ -75,4 +78,5 @@ conversion from `Int` to `java.lang.Integer` can be defined as follows:
 
    end Completions
    ```
-This setup is more complicated than simple overloading of `complete`, but it can still be useful if normal overloading is not available (as in the case above, since we cannot have two overloaded methods that take `Future[...]` arguments), or if normal overloading would lead to a combinatorial explosion of variants.
+   这些步骤比简单地重载 `complete` 复杂，但如果正常重载不可用（如上面的情况，因为我们不能有两个重载方法接受 `Future[...]` 参数），
+   或者正常重载会导致重载组合数量爆炸，那么这种模式也是有用的。
