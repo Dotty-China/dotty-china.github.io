@@ -60,16 +60,14 @@ x min 3
 <extension> infix def min(x: Number)(y: Number): Number = ...
 ```
 
-Note the swap of the two parameters `x` and `xs` when translating
-the right-associative operator `+:` to an extension method. This is analogous
-to the implementation of right binding operators as normal methods. The Scala
-compiler preprocesses an infix operation `x +: xs` to `xs.+:(x)`, so the extension
-method ends up being applied to the sequence as first argument (in other words, the
-two swaps cancel each other out). See [here for details](./right-associative-extension-methods.md).
+注意，在把右关联操作符 `+:` 翻译为扩展方法时，会交换两个参数 `x` 和 `xs`。
+这类似于把右绑定操作符实现为普通方法。Scala 编译器把中缀操作符 `x +: xs` 
+预处理为 `xs.+:(x)`，因此扩展方法最终把这个序列作为第一个参数（in other words, the
+two swaps cancel each other out）。详情[请参见这里](./right-associative-extension-methods.md)。
 
-## Generic Extensions
+## 泛型扩展
 
-It is also possible to extend generic types by adding type parameters to an extension. For instance:
+也可以通过添加类型参数来扩展泛型类型。例如：
 
 ```scala
 extension [T](xs: List[T])
@@ -79,46 +77,42 @@ extension [T: Numeric](x: T)
    def + (y: T): T = summon[Numeric[T]].plus(x, y)
 ```
 
-Type parameters on extensions can also be combined with type parameters on the methods
-themselves:
+`extension` 上的泛型参数也可以与方法本身上的类型参数组合使用：
 
 ```scala
 extension [T](xs: List[T])
    def sumBy[U: Numeric](f: T => U): U = ...
 ```
 
-Type arguments matching method type parameters are passed as usual:
+与方法类型参数匹配的类型参数可以普通地传递：
 
 ```scala
 List("a", "bb", "ccc").sumBy[Int](_.length)
 ```
 
-By contrast, type arguments matching type parameters following `extension` can be passed
-only if the method is referenced as a non-extension method:
+相比之下，仅当方法作为非扩展方法使用时，才能传递与 `extension` 后的类型参数匹配的类型参数：
 
 ```scala
 sumBy[String](List("a", "bb", "ccc"))(_.length)
 ```
 
-Or, when passing both type arguments:
+或者，同时传递两个泛型参数：
 
 ```scala
 sumBy[String](List("a", "bb", "ccc"))[Int](_.length)
 ```
 
-Extensions can also take using clauses. For instance, the `+` extension above could equivalently be written with a using clause:
+扩展也可以接受 using 子句。例如，上面的 `+` 扩展也可以使用 using 子句等价的表示为：
 
 ```scala
 extension [T](x: T)(using n: Numeric[T])
    def + (y: T): T = n.plus(x, y)
 ```
 
-## Collective Extensions
+## 聚合扩展
 
-Sometimes, one wants to define several extension methods that share the same
-left-hand parameter type. In this case one can "pull out" the common parameters into
-a single extension and enclose all methods in braces or an indented region.
-Example:
+有时需要定义几个共享同一左侧参数类型的扩展方法。这种情况下，可以把公共参数“拉出”到单个扩展中，
+并把所有方法括在大括号或者缩进区域中。例如：
 
 ```scala
 extension (ss: Seq[String])
@@ -130,7 +124,7 @@ extension (ss: Seq[String])
    def longestString: String = longestStrings.head
 ```
 
-The same can be written with braces as follows (note that indented regions can still be used inside braces):
+也可以使用大括号这样写（注意缩进区域仍可以在大括号内使用）：
 
 ```scala
 extension (ss: Seq[String]) {
@@ -144,11 +138,9 @@ extension (ss: Seq[String]) {
 }
 ```
 
-Note the right-hand side of `longestString`: it calls `longestStrings` directly, implicitly
-assuming the common extended value `ss` as receiver.
+注意 `longestString` 的右侧：它直接调用了 `longestStrings`，隐式的假设公共扩展值 `ss` 作为接收者。
 
-Collective extensions like these are a shorthand for individual extensions
-where each method is defined separately. For instance, the first extension above expands to:
+这样的聚合扩展是单独扩展的简写，每个方法都是单独定义的。例如，上面的扩展会被展开为：
 
 ```scala
 extension (ss: Seq[String])
@@ -160,7 +152,7 @@ extension (ss: Seq[String])
    def longestString: String = ss.longestStrings.head
 ```
 
-Collective extensions also can take type parameters and have using clauses. Example:
+聚合扩展还可以接受类型参数，并可以具有 using 子句。例如：
 
 ```scala
 extension [T](xs: List[T])(using Ordering[T])
@@ -170,21 +162,17 @@ extension [T](xs: List[T])(using Ordering[T])
       xs.zipWithIndex.collect { case (x, i) if x <= limit => i }
 ```
 
-## Translation of Calls to Extension Methods
+## 对扩展方法调用的翻译
 
-To convert a reference to an extension method, the compiler has to know about the extension
-method. We say in this case that the extension method is _applicable_ at the point of reference.
-There are four possible ways for an extension method to be applicable:
+要把一个引用转换为扩展方法，编译器需要了解扩展方法。在这种情况下，我们称扩展方法*适用于*这个引用点。
+扩展方法有四种可能的适用方式：
 
- 1. The extension method is visible under a simple name, by being defined or inherited or imported in a scope enclosing the reference.
- 2. The extension method is a member of some given
-    instance that is visible at the point of the reference.
- 3. The reference is of the form `r.m` and the extension method
-    is defined in the implicit scope of the type of `r`.
- 4. The reference is of the form `r.m` and the extension method
-    is defined in some given instance in the implicit scope of the type of `r`.
+ 1. 扩展方法通过定义、继承或导入的方式，在引用的封闭作用域中简单名称可见。
+ 2. 扩展方法是引用点处某个可见的 given 实例的成员。
+ 3. 引用的形式是 `r.m`，并且扩展方法定义在 `r` 的类型的隐式作用域中。
+ 4. 引用的形式是 `r.m`，并且扩展方法定义在 `r` 的类型的隐式作用域中的某个 given 实例中。
 
-Here is an example for the first rule:
+这里是第一条规则的一个例子：
 
 ```scala
 trait IntOps:
@@ -211,7 +199,7 @@ trait SafeDiv:
          case _ => None
 ```
 
-By the second rule, an extension method can be made available by defining a given instance containing it, like this:
+根据第二条规则，可以通过定义包含扩展方法的 given 实例来提供扩展方法，就像这样：
 
 ```scala
 given ops1: IntOps with {}  // brings safeMod into scope
@@ -219,7 +207,8 @@ given ops1: IntOps with {}  // brings safeMod into scope
 1.safeMod(2)
 ```
 
-By the third and fourth rule, an extension method is available if it is in the implicit scope of the receiver type or in a given instance in that scope. Example:
+根据第三和第四条规则，如果扩展方法位于接收器类型的隐式作用域中，或位于该范围中的 given 实例内，
+则扩展方法可用。例如：
 
 ```scala
 class List[T]:
@@ -243,23 +232,23 @@ List(List(1, 2), List(3, 4)).flatten
 List(1, 2) < List(3)
 ```
 
-The precise rules for resolving a selection to an extension method are as follows.
+将选择解析为扩展方法的精确规则如下。
 
-Assume a selection `e.m[Ts]` where `m` is not a member of `e`, where the type arguments `[Ts]` are optional, and where `T` is the expected type.
-The following two rewritings are tried in order:
+假设有一个选择 `e.m[Ts]`，`m` 不是 `e` 的成员，类型参数 `[Ts]` 是可选的，并且 `T` 是预期类型。
+按照顺序尝试以下两种重写：
+ 
+ 1. 选择被重写为 `m[Ts](e)`。
+ 2. 如果第一个重写没有使用预期类型 `T` 进行类型检查，并且某个符合条件的对象 `o` 中存在扩展方法 `m`，
+    选择被重写为 `o.m[Ts](e)`。当 `o` 满足**以下条件之一**时，`o` 是*符合条件*的：
+    
+    - `o` 是 `T` 的隐式作用域的构成部分。
+    - `o` 是应用点处可见的 given 实例。
+    - `o` 是 `T` 隐式作用域中的 given 实例。
 
- 1. The selection is rewritten to `m[Ts](e)`.
- 2. If the first rewriting does not typecheck with expected type `T`,
-    and there is an extension method `m` in some eligible object `o`, the selection is rewritten to `o.m[Ts](e)`. An object `o` is _eligible_ if
+    第二种重写触发时，编译器也尝试从 `T` 隐式转换为包含 `m` 的类型。如果有多于一种重写方式，则会产生歧义错误结果。
 
-    - `o` forms part of the implicit scope of `T`, or
-    - `o` is a given instance that is visible at the point of the application, or
-    - `o` is a given instance in the implicit scope of `T`.
-
-    This second rewriting is attempted at the time where the compiler also tries an implicit conversion
-    from `T` to a type containing `m`. If there is more than one way of rewriting, an ambiguity error results.
-
-An extension method can also be referenced using a simple identifier without a preceding expression. If an identifier `g` appears in the body of an extension method `f` and refers to an extension method `g` that is defined in the same collective extension
+扩展方法也可以在没有 preceding 表达式的情况下使用简单标识符引用。如果一个标识符 `g` 出现在扩展方法 `f` 的函数体中，
+并且引用在同一个聚合扩展中的扩展方法 `g`
 
 ```scala
 extension (x: T)
@@ -267,7 +256,7 @@ extension (x: T)
    def g ...
 ```
 
-the identifier is rewritten to `x.g`. This is also the case if `f` and `g` are the same method. Example:
+则标识符被重写为 `x.g`。如果 `f` 和 `g` 是同一个方法，也遵循这个规则。例如：
 
 ```scala
 extension (s: String)
@@ -276,7 +265,7 @@ extension (s: String)
       else n
 ```
 
-The recursive call `position(ch, n + 1)` expands to `s.position(ch, n + 1)` in this case. The whole extension method rewrites to
+这种情况下，递归调用 `position(ch, n + 1)` 被展开为 `s.position(ch, n + 1)`。整个扩展方法被重写为
 
 ```scala
 def position(s: String)(ch: Char, n: Int): Int =
@@ -286,8 +275,7 @@ def position(s: String)(ch: Char, n: Int): Int =
 
 ## 语法
 
-Here are the syntax changes for extension methods and collective extensions relative
-to the [current syntax](../syntax.md).
+下面是扩展方法与聚合扩展相对于[当前语法](../syntax.md)的语法更改。
 
 ```ebnf
 BlockStat         ::=  ... | Extension
@@ -299,12 +287,10 @@ ExtMethods        ::=  ExtMethod | [nl] <<< ExtMethod {semi ExtMethod} >>>
 ExtMethod         ::=  {Annotation [nl]} {Modifier} ‘def’ DefDef
 ```
 
-In the above the notation `<<< ts >>>` in the production rule `ExtMethods` is defined as follows :
+上述 production 规则中的记号 `<<< ts >>>` 定义如下：
 
 ```
 <<< ts >>>        ::=  ‘{’ ts ‘}’ | indent ts outdent
 ```
-
-`extension` is a soft keyword. It is recognized as a keyword only if it appears
-at the start of a statement and is followed by `[` or `(`. In all other cases
-it is treated as an identifier.
+`extension` 是一个软关键字。只有出现在语句开头，并且其后紧接 `[` 或 `(` 时才会被识别为关键字。
+其他的情况下都会被视为标识符。
