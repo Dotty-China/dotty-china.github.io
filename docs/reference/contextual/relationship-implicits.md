@@ -6,33 +6,35 @@ grand_parent: 参考
 nav_order: 13
 ---
 
-Many, but not all, of the new contextual abstraction features in Scala 3 can be mapped to Scala 2's implicits. This page gives a rundown on the relationships between new and old features.
+# {{ page.title }}
 
-## Simulating Scala 3 Contextual Abstraction Concepts with Scala 2 Implicits
+Scala 3 中的很多（但不是所有）新上下文抽象特性可以映射到 Scala 2 的隐式。
+本页简要介绍新旧功能之间的关系。
 
-### Given Instances
+## 用 Scala 2 隐式模拟 Scala 3 上下文抽象的概念
 
-Given instances can be mapped to combinations of implicit objects, classes and implicit methods.
+### Given 实例
 
- 1. Given instances without parameters are mapped to implicit objects. For instance,
+Given 实例可以映射到隐式对象、类与方法的组合。
+
+ 1. 没有参数的 given 实例映射到隐式对象。例如
 
     ```scala
     given intOrd: Ord[Int] with { ... }
     ```
 
-    maps to
+    映射到
 
     ```scala
     implicit object intOrd extends Ord[Int] { ... }
     ```
-
- 2. Parameterized givens are mapped to combinations of classes and implicit methods. For instance,
+ 
+ 2. 参数化 given 映射到类与隐式方法的组合。例如
 
     ```scala
     given listOrd[T](using ord: Ord[T]): Ord[List[T]] with { ... }
     ```
-
-    maps to
+    映射到
 
     ```scala
     class listOrd[T](implicit ord: Ord[T]) extends Ord[List[T]] { ... }
@@ -40,11 +42,10 @@ Given instances can be mapped to combinations of implicit objects, classes and i
       new listOrd[T]
     ```
 
- 3. Alias givens map to implicit methods or implicit lazy vals. If an alias has neither type nor context parameters,
-    it is treated as a lazy val, unless the right-hand side is a simple reference, in which case we can use a forwarder to
-    that reference without caching it.
+ 3. 别名 given 映射到隐式方法或者隐式 lazy val。如果别名既没有类型参数也没有上下文参数，
+    除非右侧是简单引用，我们转发到该引用而不缓存它，否则它会被视为 lazy val。
 
-Examples:
+例如
 
 ```scala
 given global: ExecutionContext = new ForkJoinContext()
@@ -53,14 +54,14 @@ val ctx: Context
 given Context = ctx
 ```
 
-would map to
+被映射到
 
 ```scala
 final implicit lazy val global: ExecutionContext = new ForkJoinContext()
 final implicit def given_Context = ctx
 ```
 
-### Anonymous Given Instances
+### 匿名 Given 实例
 
 Anonymous given instances get compiler synthesized names, which are generated in a reproducible way from the implemented type(s). For example, if the names of the `IntOrd` and `ListOrd` givens above were left out, the following names would be synthesized instead:
 
@@ -78,7 +79,7 @@ The synthesized type names are formed from
 Tuples are treated as transparent, i.e. a type `F[(X, Y)]` would get the synthesized name
 `F_X_Y`. Directly implemented function types `A => B` are represented as `A_to_B`. Function types used as arguments to other type constructors are represented as `Function`.
 
-### Using Clauses
+### Using 子句
 
 Using clauses correspond largely to Scala 2's implicit parameter clauses. E.g.
 
@@ -103,7 +104,7 @@ The difference between `summon` (or `the`) and `implicitly` is
 that `summon` can return a more precise type than the type that was
 asked for.
 
-### Context Bounds
+### 上下文界定
 
 Context bounds are the same in both language versions. They expand to the respective forms of implicit parameters.
 
@@ -111,7 +112,7 @@ Context bounds are the same in both language versions. They expand to the respec
 in a normal argument list. Once old-style implicits are deprecated, context bounds
 will map to using clauses instead.
 
-### Extension Methods
+### 扩展方法
 
 Extension methods have no direct counterpart in Scala 2, but they can be simulated with implicit classes. For instance, the extension method
 
@@ -130,21 +131,21 @@ implicit class CircleDecorator(c: Circle) extends AnyVal {
 
 Abstract extension methods in traits that are implemented in given instances have no direct counterpart in Scala 2. The only way to simulate these is to make implicit classes available through imports. The Simulacrum macro library can automate this process in some cases.
 
-### Type Class Derivation
+### Type Class 推导
 
 Type class derivation has no direct counterpart in the Scala 2 language. Comparable functionality can be achieved by macro-based libraries such as [Shapeless](https://github.com/milessabin/shapeless), [Magnolia](https://propensive.com/opensource/magnolia), or [scalaz-deriving](https://github.com/scalaz/scalaz-deriving).
 
-### Context Function Types
+### 上下文函数类型
 
 Context function types have no analogue in Scala 2.
 
-### Implicit By-Name Parameters
+### 隐式按名参数
 
 Implicit by-name parameters are not supported in Scala 2, but can be emulated to some degree by the `Lazy` type in Shapeless.
 
-## Simulating Scala 2 Implicits in Scala 3
+## 在 Scala 3 中模拟 Scala 2 隐式
 
-### Implicit Conversions
+### 隐式转换
 
 Implicit conversion methods in Scala 2 can be expressed as given instances of the `scala.Conversion` class in Scala 3. For instance, instead of
 
@@ -165,11 +166,11 @@ or
 given stringToToken: Conversion[String, Token] = KeyWord(_)
 ```
 
-### Implicit Classes
+### 隐式类
 
 Implicit classes in Scala 2 are often used to define extension methods, which are directly supported in Scala 3. Other uses of implicit classes can be simulated by a pair of a regular class and a given `Conversion` instance.
 
-### Implicit Values
+### 隐式值
 
 Implicit `val` definitions in Scala 2 can be expressed in Scala 3 using a regular `val` definition and an alias given.
 For instance, Scala 2's
@@ -185,7 +186,7 @@ lazy val pos: Position = tree.sourcePos
 given Position = pos
 ```
 
-### Abstract Implicits
+### 抽象隐式
 
 An abstract implicit `val` or `def` in Scala 2 can be expressed in Scala 3 using a regular abstract definition and an alias given. For instance, Scala 2's
 
@@ -200,7 +201,7 @@ def symDecorator: SymDecorator
 given SymDecorator = symDecorator
 ```
 
-## Implementation Status and Timeline
+## 实施状态和时间表
 
 The Scala 3 implementation implements both Scala 2's implicits and the new abstractions. In fact, support for Scala 2's implicits is an essential part of the common language subset between 2.13 and Scala 3.
 Migration to the new abstractions will be supported by making automatic rewritings available.

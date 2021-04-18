@@ -4,7 +4,7 @@ title: Context Functions - 更多细节
 nav_exclude: true
 ---
 
-## Syntax
+## 语法
 
 ```
 Type              ::=  ...
@@ -16,7 +16,7 @@ Expr              ::=  ...
 Context function types associate to the right, e.g.
 `S ?=> T ?=> U` is the same as `S ?=> (T ?=> U)`.
 
-## Implementation
+## 实现
 
 Context function types are shorthands for class types that define `apply`
 methods with context parameters. Specifically, the `N`-ary function type
@@ -68,12 +68,12 @@ insertion of `scala.Function0` around expressions in by-name argument position.
 Context function types generalize to `N > 22` in the same way that function types do, see [the corresponding
 documentation](../dropped-features/limit22.md).
 
-## Examples
+## 示例
 
 See the section on Expressiveness from [Simplicitly: foundations and
 applications of implicit function
 types](https://dl.acm.org/citation.cfm?id=3158130).
 
-### Type Checking
+### 类型检查
 
 After desugaring no additional typing rules are required for context function types.
