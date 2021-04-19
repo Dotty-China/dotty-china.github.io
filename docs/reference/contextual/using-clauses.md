@@ -8,53 +8,50 @@ nav_order: 3
 
 # {{ page.title }}
 
-Functional programming tends to express most dependencies as simple function parameterization.
-This is clean and powerful, but it sometimes leads to functions that take many parameters where the same value is passed over and over again in long call chains to many
-functions. Context parameters can help here since they enable the compiler to synthesize
-repetitive arguments instead of the programmer having to write them explicitly.
+函数式编程倾向于将大多数依赖关系表示为简单的函数参数化。这是干净而强大的，
+但有时会让函数接受很多参数，在长调用链中一次又一次传递相同的值给很多函数。
+上下文参数在这里很有用，它们能让编译器合成重复的参数，而不要求程序员显式编写它们。
 
-For example, with the [given instances](./givens.md) defined previously,
-a `max` function that works for any arguments for which an ordering exists can be defined as follows:
+例如，与前面说明过的 [given 实例](./givens.md)协同，适用于任何可排序参数的 `max` 函数可以这样定义：
 
 ```scala
 def max[T](x: T, y: T)(using ord: Ord[T]): T =
    if ord.compare(x, y) < 0 then y else x
 ```
 
-Here, `ord` is a _context parameter_ introduced with a `using` clause.
-The `max` function can be applied as follows:
+这里 `ord` 是由 `using` 子句引入的*上下文参数*。`max` 函数可以这样应用：
 
 ```scala
 max(2, 3)(using intOrd)
 ```
 
-The `(using intOrd)` part passes `intOrd` as an argument for the `ord` parameter. But the point of context parameters is that this argument can also be left out (and it usually is). So the following applications are equally valid:
+`(using intOrd)` 部分把 `intOrd` 作为形参 `ord` 的实参传递。但是上下文参数的关键点在于调用时参数可以省略（通常是这样）。
+因此，下面的应用同样有效：
 
 ```scala
 max(2, 3)
 max(List(1, 2, 3), Nil)
 ```
 
-## Anonymous Context Parameters
+## 匿名上下文参数
 
-In many situations, the name of a context parameter need not be
-mentioned explicitly at all, since it is used only in synthesized arguments for
-other context parameters. In that case one can avoid defining a parameter name
-and just provide its type. Example:
+在很多情况下，上下文参数的名称完全不需要显式写出，因为它只用于合成其他上下文参数的实参。
+这种情况下，可以避免写出参数名，只需要写出它的类型。例如：
 
 ```scala
 def maximum[T](xs: List[T])(using Ord[T]): T =
    xs.reduceLeft(max)
 ```
 
-`maximum` takes a context parameter of type `Ord` only to pass it on as an
-inferred argument to `max`. The name of the parameter is left out.
+`maximum` 接受一个 `Ord` 类型的上下文参数，只把它作为推断出的参数传递给 `max`。
+该参数的名称被忽略。
 
-Generally, context parameters may be defined either as a full parameter list `(p_1: T_1, ..., p_n: T_n)` or just as a sequence of types `T_1, ..., T_n`. Vararg parameters are not supported in `using` clauses.
+通常来说，上下文参数可以定义为一个完整的参数列表 `(p_1: T_1, ..., p_n: T_n)`，
+也可以定义为一串类型序列 `T_1, ..., T_n`。Using 子句中不支持可变参数。
 
-## Inferring Complex Arguments
+## 推断复杂参数
 
-Here are two other methods that have a context parameter of type `Ord[T]`:
+下面是另外两个具有 `Ord[T]` 类型的上下文参数的方法：
 
 ```scala
 def descending[T](using asc: Ord[T]): Ord[T] = new Ord[T]:
@@ -64,8 +61,8 @@ def minimum[T](xs: List[T])(using Ord[T]) =
    maximum(xs)(using descending)
 ```
 
-The `minimum` method's right-hand side passes `descending` as an explicit argument to `maximum(xs)`.
-With this setup, the following calls are all well-formed, and they all normalize to the last one:
+`minimum` 方法的右侧将 `descending` 作为显式参数传递给 `maximum(xs)`。
+With this setup，以下调用都是格式良好的，并都会被 normalize 到最后一种调用形式：
 
 ```scala
 minimum(xs)
@@ -74,15 +71,15 @@ maximum(xs)(using descending(using listOrd))
 maximum(xs)(using descending(using listOrd(using intOrd)))
 ```
 
-## Multiple `using` Clauses
+## 多个 `using` 子句
 
-There can be several `using` clauses in a definition and `using` clauses can be freely mixed with normal parameter clauses. Example:
+一个定义中可以有多个 `using` 子句，`using` 子句可以和普通参数子句自由混合。例如：
 
 ```scala
 def f(u: Universe)(using ctx: u.Context)(using s: ctx.Symbol, k: ctx.Kind) = ...
 ```
 
-Multiple `using` clauses are matched left-to-right in applications. Example:
+多个 `using` 子句在应用时从左向右批评。例如：
 
 ```scala
 object global extends Universe { type Context = ... }
@@ -91,7 +88,8 @@ given sym : ctx.Symbol
 given kind: ctx.Kind
 
 ```
-Then the following calls are all valid (and normalize to the last one)
+
+那么以下调用都是有效的（并 normalize 到最后一种调用形式）。
 
 ```scala
 f(global)
@@ -99,27 +97,26 @@ f(global)(using ctx)
 f(global)(using ctx)(using sym, kind)
 ```
 
-But `f(global)(using sym, kind)` would give a type error.
+但是 `f(global)(using sym, kind)` 会产生一个类型错误。
 
+## 召唤实例
 
-## Summoning Instances
-
-The method `summon` in `Predef` returns the given of a specific type. For example,
-the given instance for `Ord[List[Int]]` is produced by
+`Predef` 中的方法 `summon` 返回指定类型的 given 值。例如，`Ord[List[Int]]` 类型的 given 实例可以这样生成：
 
 ```scala
 summon[Ord[List[Int]]]  // reduces to listOrd(using intOrd)
 ```
 
-The `summon` method is simply defined as the (non-widening) identity function over a context parameter.
+`summon` 方法简单地定义为上下文参数上的 identity 函数（non-widening）。
 
 ```scala
 def summon[T](using x: T): x.type = x
 ```
 
-## Syntax
+## 语法
 
-Here is the new syntax of parameters and arguments seen as a delta from the [standard context free syntax of Scala 3](../syntax.md). `using` is a soft keyword, recognized only at the start of a parameter or argument list. It can be used as a normal identifier everywhere else.
+下面是 [Scala 3 标准上下文无关语法](../syntax.md)中形参和实参的新语法。`using` 是一个软关键字，
+只会在形参或实参列表的开头被识别。它可以在其他地方被用作普通标识符。
 
 ```
 ClsParamClause      ::=  ... | UsingClsParamClause
