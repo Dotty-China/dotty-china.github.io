@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Universal Apply Methods
+title: 统一应用函数
 parent: 其他新特性
 grand_parent: 参考
 nav_order: 3
