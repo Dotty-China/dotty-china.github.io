@@ -1,12 +1,14 @@
 ---
 layout: default
-title: Export Clauses
+title: Export 子句
 parent: 其他新特性
 grand_parent: 参考
 nav_order: 4
 ---
 
-An export clause defines aliases for selected members of an object. Example:
+# {{ page.title }}
+
+Export 子句为选中的对象成员定义别名。例如：
 
 ```scala
 class BitMap
@@ -31,7 +33,7 @@ class Copier:
    def status: List[String] = printUnit.status ++ scanUnit.status
 ```
 
-The two `export` clauses define the following _export aliases_ in class `Copier`:
+这两个 `export` 子句在类 `Copier` 中定义了以下的*导出别名*：
 
 ```scala
 final def scan(): BitMap            = scanUnit.scan()
@@ -39,14 +41,14 @@ final def print(bits: BitMap): Unit = printUnit.print(bits)
 final type PrinterType              = printUnit.PrinterType
 ```
 
-They can be accessed inside `Copier` as well as from outside:
+它们既可以在 `Copier` 内部访问，也可以从外部访问：
 
 ```scala
 val copier = new Copier
 copier.print(copier.scan())
 ```
 
-An export clause has the same format as an import clause. Its general form is:
+`export` 子句的格式与 `import` 子句的格式类似。其一般形式为：
 
 ```scala
 export path . { sel_1, ..., sel_n }
