@@ -6,7 +6,9 @@ grand_parent: 参考
 nav_order: 5
 ---
 
-Opaque types aliases provide type abstraction without any overhead. Example:
+# {{ page.title }}
+
+不透明类型别名提供了零开销类型抽象。例如：
 
 ```scala
 object MyMath:
@@ -33,15 +35,15 @@ object MyMath:
 end MyMath
 ```
 
-This introduces `Logarithm` as a new abstract type, which is implemented as `Double`.
-The fact that `Logarithm` is the same as `Double` is only known in the scope where
-`Logarithm` is defined which in the above example corresponds to the object `MyMath`.
-Or in other words, within the scope it is treated as type alias, but this is opaque to the outside world
-where in consequence `Logarithm` is seen as an abstract type and has nothing to do with `Double`.
+这引入了 `Logarithm` 作为一种新的抽象类型，它被实现为 `Double`。
+`Logarithm` 与 `Double` 相同的事实仅在定义 `Logarithm` 的作用域中才知道，
+在上面的示例中该作用域为对象 `MyMath` 内部。换句话说，在作用域内它被视为类型别名，
+但在外界这是不透明的，因此 `Logarithm` 被视为抽象类型，与 `Double` 无关。
 
-The public API of `Logarithm` consists of the `apply` and `safe` methods defined in the companion object.
-They convert from `Double`s to `Logarithm` values. Moreover, an operation `toDouble` that converts the other way, and operations `+` and `*` are defined as extension methods on `Logarithm` values.
-The following operations would be valid because they use functionality implemented in the `MyMath` object.
+`Logarithm` 的公共 API 由定义在伴生对象中的 `apply` 和 `safe` 方法组成。
+它们把值从 `Double` 转换到 `Logarithm`。此外，`toDouble` 操作符以另一种方式进行转换，
+以及操作符 `+` 和 `*` 被定义为 `Logarithm` 值的扩展方法。
+以下操作将是有效的，因为它们使用 `MyMath` 对象中实现的功能。
 
 ```scala
 import MyMath.Logarithm
@@ -52,7 +54,7 @@ val l3 = l * l2
 val l4 = l + l2
 ```
 
-But the following operations would lead to type errors:
+但以下操作将导致类型错误：
 
 ```scala
 val d: Double = l       // error: found: Logarithm, required: Double
@@ -61,9 +63,9 @@ l * 2                   // error: found: Int(2), required: Logarithm
 l / l2                  // error: `/` is not a member of Logarithm
 ```
 
-### Bounds For Opaque Type Aliases
+## 不透明类型别名的界定
 
-Opaque type aliases can also come with bounds. Example:
+不透明类型别名也可以带有界定。例如：
 
 ```scala
 object Access:
@@ -90,27 +92,24 @@ object Access:
 end Access
 ```
 
-The `Access` object defines three opaque type aliases:
+`Access` 对象定义了三个不透明类型别名：
 
-- `Permission`, representing a single permission,
-- `Permissions`, representing a set of permissions with the meaning "all of these permissions granted",
-- `PermissionChoice`, representing a set of permissions with the meaning "at least one of these permissions granted".
+- `Permission`，表示单个权限。
+- `Permissions`，表示一组权限，含义是“授予其中所有权限”。
+- `PermissionChoice`，表示一组权限，含义是“至少授予其中之一权限”。
 
-Outside the `Access` object, values of type `Permissions` may be combined using the `&` operator,
-where `x & y` means "all permissions in `x` *and* in `y` granted".
-Values of type `PermissionChoice` may be combined using the `|` operator,
-where `x | y` means "a permission in `x` *or* in `y` granted".
+在 `Access` 对象外，`Permissions` 类型的值可以使用 `&` 操作符组合，
+其中 `x & y` 表示“授予 `x` *和* `y` 中的权限”。
+`PermissionChoice` 类型的值可使用 `|` 操作符组合，
+其中 `x | y` 表示“授予 `x` *或* `y` 中的权限”。
 
-Note that inside the `Access` object, the `&` and `|` operators always resolve to the corresponding methods of `Int`,
-because members always take precedence over extension methods.
-Because of that, the `|` extension method in `Access` does not cause infinite recursion.
-Also, the definition of `ReadWrite` must use `|`,
-even though an equivalent definition outside `Access` would use `&`.
+注意，在 `Access` 对象内部，`&` 和 `|` 操作符总是被解析为 `Int` 的相应方法，
+因为成员方法总是优先于扩展方法。因此 `Access` 中的 `|` 扩展方法不会导致无限递归。
+此外，`ReadWrite` 的定义必须使用 `|`，即使在 `Access` 外部的等效定义使用 `&`。
 
-All three opaque type aliases have the same underlying representation type `Int`. The
-`Permission` type has an upper bound `Permissions & PermissionChoice`. This makes
-it known outside the `Access` object that `Permission` is a subtype of the other
-two types.  Hence, the following usage scenario type-checks.
+三个不透明类型别名都具有相同的基础表示类型 `Int`。`Permission` 类型具有上限 `Permissions & PermissionChoice`。
+这使得在 `Access` 对象外部知道 `Permission` 是另外两个类型的子类型。
+因此下面的使用场景能通过类型检查。
 
 ```scala
 object User:
@@ -133,14 +132,16 @@ object User:
 end User
 ```
 
-On the other hand, the call `roItem.rights.isOneOf(ReadWrite)` would give a type error
-since `Permissions` and `PermissionChoice` are different, unrelated types outside `Access`.
+另一方面，调用 `roItem.rights.isOneOf(ReadWrite)` 会产生一个类型错误，
+因为在 `Access` 外，`Permissions` 和 `PermissionChoice` 是不同的、不相关的类型。
 
 
-### Opaque Type Members on Classes
-While typically, opaque types are used together with objects to hide implementation details of a module, they can also be used with classes.
+## 类的不透明类型成员
 
-For example, we can redefine the above example of Logarithms as a class.
+通常不透明类型与对象一起使用，目的是隐藏模块的实现细节，但它也可以和类一起使用。
+
+例如，我们可以把上面示例中的 `Logarithms` 重新定义为一个类：
+
 ```scala
 class Logarithms:
 
@@ -154,7 +155,8 @@ class Logarithms:
    def mul(x: Logarithm, y: Logarithm) = x + y
 ```
 
-Opaque type members of different instances are treated as different:
+不同实例的不透明类型成员被视为不同的：
+
 ```scala
 val l1 = new Logarithms
 val l2 = new Logarithms
@@ -164,6 +166,6 @@ val z = l2(3.1)
 l1.mul(x, y) // type checks
 l1.mul(x, z) // error: found l2.Logarithm, required l1.Logarithm
 ```
-In general, one can think of an opaque type as being only transparent in the scope of `private[this]`.
+一般来说，可以认为不透明类型仅在 `private[this]` 作用域内是透明的。
 
-[More details](opaques-details.md)
+[更多细节](opaques-details.md){: .btn .btn-purple }
