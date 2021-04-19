@@ -34,34 +34,54 @@ F# 的 [Trait](https://github.com/MattWindsor91/visualfsharp/blob/hackathon-vs/e
 
 批评的细节是：
 
-1. Being very powerful, implicits are easily over-used and mis-used. This observation holds in almost all cases when we talk about _implicit conversions_, which, even though conceptually different, share the same syntax with other implicit definitions. For instance, regarding the two definitions
+ 1. 隐式的功能很强大，很容易被滥用和误用。This observation holds in almost all cases when we talk about _implicit conversions_，尽管隐式转换在概念上不同，但它与其他隐式定义共享相同的语法，
+    例如，关于这两个定义：
 
     ```scala
     implicit def i1(implicit x: T): C[T] = ...
     implicit def i2(x: T): C[T] = ...
     ```
+    
+    第一个是条件隐式*值*，第二个是隐式*转换*。条件隐式值是表达 type class 的基础，whereas most applications of implicit conversions have turned out to be of dubious value。
+    问题是，很多语言的新手都是从定义隐式转换开始的，因为隐式转换很容易理解，而且看起来很强大便捷。
+    Scala 3 把定义在其他地方的类型之间的“undisciplined”隐式的定义与应用置于一个 language flag 之下。
+    这是阻止隐式转换的滥用的有效步骤。但问题依然存在，在语法上隐式转换和隐式值看起来太相似了。
+ 
+ 2. 另一个普遍的滥用是过度依赖隐式导入。这常常会导致难以理解的类型错误，这些错误随着正确的导入魔咒消失，只留下挫败感。
+    相反，很难看到程序使用了哪个隐式，因为隐式可以隐藏在一长串导入中的任何地方。 
 
-   the first of these is a conditional implicit _value_, the second an implicit _conversion_. Conditional implicit values are a cornerstone for expressing type classes, whereas most applications of implicit conversions have turned out to be of dubious value. The problem is that many newcomers to the language start with defining implicit conversions since they are easy to understand and seem powerful and convenient. Scala 3 will put under a language flag both definitions and applications of "undisciplined" implicit conversions between types defined elsewhere. This is a useful step to push back against overuse of implicit conversions. But the problem remains that syntactically, conversions and values just look too similar for comfort.
+ 3. 隐式定义的语法太少。它仅由一个修饰符 `implicit` 构成，这个修饰符能够附加到大量语言结构上。
+    对于新手而言，这样做的一个问题是，它传递的是机制而不是意图。
+    例如，一个 type class 实例在无条件限制时是一个隐式对象或 val，有条件限制时是一个隐式 def，其隐式参数引用某个类。
+    这精确的描述了隐式定义会被翻译为什么——只需要去掉隐式修饰符。但对定义目的的提示时相当间接的，很容易被误读，正如上文中 `i1` 和 `i2` 的定义那样。
 
- 2. Another widespread abuse is over-reliance on implicit imports. This often leads to inscrutable type errors that go away with the right import incantation, leaving a feeling of frustration. Conversely, it is hard to see what implicits a program uses since implicits can hide anywhere in a long list of imports.
-
- 3. The syntax of implicit definitions is too minimal. It consists of a single modifier, `implicit`, that can be attached to a large number of language constructs. A problem with this for newcomers is that it conveys mechanism instead of intent. For instance, a type class instance is an implicit object or val if unconditional and an implicit def with implicit parameters referring to some class if conditional. This describes precisely what the implicit definitions translate to -- just drop the `implicit` modifier, and that's it! But the cues that define intent are rather indirect and can be easily misread, as demonstrated by the definitions of `i1` and `i2` above.
-
- 4. The syntax of implicit parameters also has shortcomings. While implicit _parameters_ are designated specifically, arguments are not. Passing an argument to an implicit parameter looks like a regular application `f(arg)`. This is problematic because it means there can be confusion regarding what parameter gets instantiated in a call. For instance, in
-
+ 4. 隐式参数的语法也有缺点。虽然隐式参数的*形参*是明确指定的，但*实参*不是。把实际参数作为隐式参数传递的语法语法看起来类似常规应用 `f(args)`。
+    这是有问题的，因为这意味着在调用时具体要传递哪个参数有可能会混淆。例如，对于这个定义
+    
     ```scala
     def currentMap(implicit ctx: Context): Map[String, Int]
     ```
 
-    one cannot write `currentMap("abc")` since the string `"abc"` is taken as explicit argument to the implicit `ctx` parameter. One has to write `currentMap.apply("abc")` instead, which is awkward and irregular. For the same reason, a method definition can only have one implicit parameter section and it must always come last. This restriction not only reduces orthogonality, but also prevents some useful program constructs, such as a method with a regular parameter whose type depends on an implicit value. Finally, it's also a bit annoying that implicit parameters must have a name, even though in many cases that name is never referenced.
+    不能使用 `currentMap("abc")`，因为字符串 `"abc"` 会作为隐式参数 `ctx` 传递。用户必须写成 `currentMap.apply("abc")` 作为替代，
+    这不方便也不规则。出于同样的原因，一个方法定义只能有一个隐式参数部分，并且始终位于最后。这种限制不仅减少了 orthogonality，
+    而且还阻止了一些有用的程序构造，例如带有一个普通参数的方法，其类型依赖于隐式值。
+    最后，隐式参数必须有一个名称也会造成一些烦恼，很多情况下这个名称从未被引用。
 
- 5. Implicits pose challenges for tooling. The set of available implicits depends on context, so command completion has to take context into account. This is feasible in an IDE but tools like [Scaladoc](https://docs.scala-lang.org/overviews/scaladoc/overview.html) that are based on static web pages can only provide an approximation. Another problem is that failed implicit searches often give very unspecific error messages, in particular if some deeply recursive implicit search has failed. Note that the Scala 3 compiler has already made a lot of progress in the error diagnostics area. If a recursive search fails some levels down, it shows what was constructed and what is missing. Also, it suggests imports that can bring missing implicits in scope.
+ 5. 隐式对各种工具提出了挑战。可用的隐式取决于上下文，因此命令补全必须考虑上下文。
+    这在 IDE 中是可行的，但 Scaladoc 这样基于静态网页的工具只能提供 approximation。
+    另一个问题是，隐式搜索失败通常会给出很不具体的错误消息，特别是一些深度递归的隐式搜索。
+    注意 Scala 3 编译器已经在错误诊断领域取得了很大进展。如果递归搜索在某些层级失败，
+    它将显式结构的内容和缺少的内容。此外，它还可以会提出能够将缺失隐式值带入作用域的 import 建议。
 
-None of the shortcomings is fatal, after all implicits are very widely used, and many libraries and applications rely on them. But together, they make code using implicits a lot more cumbersome and less clear than it could be.
+这是缺点都不是致命的，毕竟隐式的运用非常广泛，很多库和程序都依赖它们。
+但是它们一起使得使用隐式的代码变得更麻烦、更不清晰。
 
-Historically, many of these shortcomings come from the way implicits were gradually "discovered" in Scala. Scala originally had only implicit conversions with the intended use case of "extending" a class or trait after it was defined, i.e. what is expressed by implicit classes in later versions of Scala. Implicit parameters and instance definitions came later in 2006 and we picked similar syntax since it seemed convenient. For the same reason, no effort was made to distinguish implicit imports or arguments from normal ones.
+从历史上来看，这些缺点很多都来自于在 Scala 中逐渐“发现”的方式。Scala 最初只有隐式转换，其预期用法是在定义类和 trait 后“扩展”它们。
+隐式参数和实例定义在 2006 年后出现，我们选择了类似的语法，因为它看起来很方便。出于同样的原因，
+我们没有努力区分隐式导入和隐式传参与对应的非隐式用法。
 
-Existing Scala programmers by and large have gotten used to the status quo and see little need for change. But for newcomers this status quo presents a big hurdle. I believe if we want to overcome that hurdle, we should take a step back and allow ourselves to consider a radically new design.
+现有的 Scala 程序员基本习惯了现状，认为没有什么需要改变的。但是对于新用户来说，这种现状是一大障碍。
+我相信，如果我们想克服这个障碍，我们应该后退一步，考虑一个全新的设计。
 
 ## 新的设计
 
