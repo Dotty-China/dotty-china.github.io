@@ -6,7 +6,9 @@ grand_parent: 参考
 nav_order: 1
 ---
 
-Scala 3 allows traits to have parameters, just like classes have parameters.
+# {{ page.title }}
+
+Scala 3 允许 trait 拥有参数，就像类能拥有参数一样。
 
 ```scala
 trait Greeting(val name: String):
@@ -16,52 +18,48 @@ class C extends Greeting("Bob"):
    println(msg)
 ```
 
-Arguments to a trait are evaluated immediately before the trait is initialized.
+传递给 trait 的参数在 trait 初始化之前立即计算。
 
-One potential issue with trait parameters is how to prevent
-ambiguities. For instance, you might try to extend `Greeting` twice,
-with different parameters.
+trait 参数的一个潜在问题是如何防止歧义。例如，您可以使用不同参数继承 `Greeting` 两次。
 
 ```scala
 class D extends C, Greeting("Bill") // error: parameter passed twice
 ```
 
-Should this print "Bob" or "Bill"? In fact this program is illegal,
-because it violates the second rule of the following for trait parameters:
+这会打印“Bob”还是“Bill”？事实上，此程序是非法的，因为它违背了以下 trait 规则中的第二条：
 
- 1. If a class `C` extends a parameterized trait `T`, and its superclass does not, `C` _must_ pass arguments to `T`.
+ 1. 如果 `C` 继承了一个参数化 trait `T`，而它的超类没有，则 `C` *必须*传递参数给 `T`。
+ 
+ 2. 如果 `C` 继承了一个参数化 trait `T`，而它的超类也继承了，则 `C` *不能*传递参数给 `T`。
 
- 2. If a class `C` extends a parameterized trait `T`, and its superclass does as well, `C` _must not_  pass arguments to `T`.
+ 3. trait 不能传递参数给父 trait。
 
- 3. Traits must never pass arguments to parent traits.
 
-Here's a trait extending the parameterized trait `Greeting`.
+这里有一个 trait 继承了参数化 trait `Greeting`。
 
 ```scala
 trait FormalGreeting extends Greeting:
    override def msg = s"How do you do, $name"
 ```
-As is required, no arguments are passed to `Greeting`. However, this poses an issue
-when defining a class that extends `FormalGreeting`:
+
+根据规则的需求，这里不向 `Greeting` 传递参数。但是，在定义继承 `FormalGreeting` 的类时，
+这会带来一个问题：
 
 ```scala
 class E extends FormalGreeting // error: missing arguments for `Greeting`.
 ```
 
-The correct way to write `E` is to extend both `Greeting` and
-`FormalGreeting` (in either order):
+编写 `E` 的正确方法是同时继承 `Greeting` 和 `FormalGreeting`（按任意顺序）：
 
 ```scala
 class E extends Greeting("Bob"), FormalGreeting
 ```
 
-### Traits With Context Parameters
+### 具有上下文参数的 trait
 
-This "explicit extension required" rule is relaxed if the missing trait contains only
-[context parameters](../contextual/using-clauses). In that case the trait reference is
-implicitly inserted as an additional parent with inferred arguments. For instance,
-here's a variant of greetings where the addressee is a context parameter of type
-`ImpliedName`:
+如果 trait 只包含[上下文参数](../contextual/using-clauses)，则这个“需要显式继承”的规则被放宽。
+这种情况下，the trait reference is implicitly inserted as an additional parent with inferred arguments。
+例如，下面是 `Greeting` 的一个变体，其中 addressee 是 `ImpliedName` 类型的上下文参数：
 
 ```scala
 case class ImpliedName(name: String):
@@ -76,15 +74,17 @@ trait ImpliedFormalGreeting extends ImpliedGreeting:
 class F(using iname: ImpliedName) extends ImpliedFormalGreeting
 ```
 
-The definition of `F` in the last line is implicitly expanded to
+最后一行中的定义 `F` 被隐式展开为
+
 ```scala
 class F(using iname: ImpliedName) extends
    Object,
    ImpliedGreeting(using iname),
    ImpliedFormalGreeting(using iname)
 ```
-Note the inserted reference to the super trait `ImpliedGreeting`, which was not mentioned explicitly.
 
-## Reference
+注意，这里插入了对超 trait `ImpliedGreeting` 的引用，即使并未显式提及它。
 
-For more information, see [Scala SIP 25](http://docs.scala-lang.org/sips/pending/trait-parameters.html).
+## 参考
+
+更多细节请参考 [Scala SIP 25](http://docs.scala-lang.org/sips/pending/trait-parameters.html)。
