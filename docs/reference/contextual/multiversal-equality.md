@@ -6,15 +6,13 @@ grand_parent: 参考
 nav_order: 9
 ---
 
-Previously, Scala had universal equality: Two values of any types
-could be compared with each other with `==` and `!=`. This came from
-the fact that `==` and `!=` are implemented in terms of Java's
-`equals` method, which can also compare values of any two reference
-types.
+# {{ page.title }}
 
-Universal equality is convenient. But it is also dangerous since it
-undermines type safety. For instance, let's assume one is left after some refactoring
-with an erroneous program where a value `y` has type `S` instead of the correct type `T`.
+以前，Scala 具有普遍的相等性：任意类型的两个值都能用 `==` 和 `!=` 进行比较。
+这是因为 `==` 和 `!=` 是用 Java 的 `equals` 方法实现的，它可以比较任意两个引用类型的值。
+
+Universal equality 是方便的。但是它也很危险，因为破坏了类型安全性。
+例如，让我们假设这是一段重构了错误的程序后留下的代码，其中值 `y` 的类型为 `S`，而不是正确的类型 `T`。
 
 ```scala
 val x = ... // of type T
@@ -22,33 +20,28 @@ val y = ... // of type S, but should be T
 x == y      // typechecks, will always yield false
 ```
 
-If `y` gets compared to other values of type `T`,
-the program will still typecheck, since values of all types can be compared with each other.
-But it will probably give unexpected results and fail at runtime.
+如果 `y` 与 `T` 类型的其他值进行比较，程序仍然能通过类型检查，因为所有类型的值之间都可以互相比较。
+但是它可能会产生意想不到的结果，并在运行时失败。
 
-Multiversal equality is an opt-in way to make universal equality safer.
-It uses a binary type class [`scala.CanEqual`](https://github.com/lampepfl/dotty/blob/master/library/src/scala/CanEqual.scala)
-to indicate that values of two given types can be compared with each other.
-The example above would not typecheck if `S` or `T` was a class
-that derives `CanEqual`, e.g.
+Multiversal equality 是一种选择性加入的，让 universal equality 更安全的方式。
+它使用二元 type class [`scala.CanEqual`](https://github.com/lampepfl/dotty/blob/master/library/src/scala/CanEqual.scala) 
+表示两个给定类型的值之间可以互相比较。如果 `S` 或 `T` 是这样一个推导了 `CanEqual` 的类，
+则上面的示例不会通过类型检查：
 
 ```scala
 class T derives CanEqual
 ```
 
-Alternatively, one can also provide a `CanEqual` given instance directly, like this:
+或者也可以直接提供一个 `CanEqual` 的 given 实例，例如：
 
 ```scala
 given CanEqual[T, T] = CanEqual.derived
 ```
 
-This definition effectively says that values of type `T` can (only) be
-compared to other values of type `T` when using `==` or `!=`. The definition
-affects type checking but it has no significance for runtime
-behavior, since `==` always maps to `equals` and `!=` always maps to
-the negation of `equals`. The right-hand side `CanEqual.derived` of the definition
-is a value that has any `CanEqual` instance as its type. Here is the definition of class
-`CanEqual` and its companion object:
+这个定义实际上说明了当使用 `==` 或 `!=` 时，类型 `T` 的值（仅）可以与其他类型 `T` 的值进行比较。
+该定义会影响类型检查，但对运行时行为没有影响，因为 `==` 和 `!=` 总是映射到对 `equals` 方法的调用。
+定义右侧的 `CanEqual.derived` 是一个值，能够作为任意类型 `CanEqual` 类型的实例使用。
+下面是 `CanEqual` 类与其伴生对象的定义：
 
 ```scala
 package scala
@@ -61,9 +54,8 @@ object CanEqual:
    object derived extends CanEqual[Any, Any]
 ```
 
-One can have several `CanEqual` given instances for a type. For example, the four
-definitions below make values of type `A` and type `B` comparable with
-each other, but not comparable to anything else:
+一个类型可以有多个 `CanEqual` given 实例。例如，下面的四个定义使得类型 `A` 与类型 `B` 之间可以互相比较，
+但不能与其他任何值进行比较：
 
 ```scala
 given CanEqual[A, A] = CanEqual.derived
@@ -72,49 +64,46 @@ given CanEqual[A, B] = CanEqual.derived
 given CanEqual[B, A] = CanEqual.derived
 ```
 
-The [`scala.CanEqual`](https://github.com/lampepfl/dotty/blob/master/library/src/scala/CanEqual.scala)
-object defines a number of `CanEqual` given instances that together
-define a rule book for what standard types can be compared (more details below).
+[`scala.CanEqual`](https://github.com/lampepfl/dotty/blob/master/library/src/scala/CanEqual.scala) 
+对象中定义了很多 `CanEqual` 的 given 实例，它们一起定义了哪些标准类型可以比较的规则（更多细节如下）。
 
-There is also a "fallback" instance named `canEqualAny` that allows comparisons
-over all types that do not themselves have a `CanEqual` given.  `canEqualAny` is defined as follows:
+还有一个名为 `canEqualAny` 的“回退”实例，它允许对所有本身没有 `CanEqual` given 实例的类型之间进行比较。
+`canEqualAny` 的定义如下：
 
 ```scala
 def canEqualAny[L, R]: CanEqual[L, R] = CanEqual.derived
 ```
 
-Even though `canEqualAny` is not declared as `given`, the compiler will still
-construct an `canEqualAny` instance as answer to an implicit search for the
-type `CanEqual[L, R]`, unless `L` or `R` have `CanEqual` instances
-defined on them, or the language feature `strictEquality` is enabled.
+即使 `canEqualAny` 没有声明为 `given`，编译器仍然会构造一个 `canEqualAny` 实例作为对 
+`CanEqual[L, R]` 类型进行隐式搜索的结果，除非在 `L` 或 `R` 上定义了 `CanEqual` 实例，
+或者启用了语言特性 `strictEquality`。
 
-The primary motivation for having `canEqualAny` is backwards compatibility.
-If this is of no concern, one can disable `canEqualAny` by enabling the language
-feature `strictEquality`. As for all language features this can be either
-done with an import
+提供 `canEqualAny` 的主要动机是为了向后兼容。如果这不重要，可以通过启用语言特性 `strictEquality` 禁用 `canEqualAny`。
+就像所有语言特性一样，可以使用 import 
 
 ```scala
 import scala.language.strictEquality
 ```
-or with a command line option `-language:strictEquality`.
 
-## Deriving CanEqual Instances
+或使用命令行参数 `-language:strictEquality` 启用。
 
-Instead of defining `CanEqual` instances directly, it is often more convenient to derive them. Example:
+## 推导 CanEqual 实例
+
+与直接定义 `CanEqual` 实例不同，推导这些实例通常更方便。例如：
 
 ```scala
 class Box[T](x: T) derives CanEqual
 ```
 
-By the usual rules of [type class derivation](./derivation.md),
-this generates the following `CanEqual` instance in the companion object of `Box`:
+根据 [type class 推导](./derivation.md) 的通用规则，这将在 `Box` 的伴生对象中生成以下 `CanEqual` 实例：
 
 ```scala
 given [T, U](using CanEqual[T, U]): CanEqual[Box[T], Box[U]] =
    CanEqual.derived
 ```
 
-That is, two boxes are comparable with `==` or `!=` if their elements are. Examples:
+也就是说，如果两个 `Box` 类型的元素类型之间可以比较，
+则对应的实例之间也可以用 `==` 或· `!=` 进行比较。例如：
 
 ```scala
 new Box(1) == new Box(1L)   // ok since there is an instance for `CanEqual[Int, Long]`
@@ -122,9 +111,9 @@ new Box(1) == new Box("a")  // error: can't compare
 new Box(1) == 1             // error: can't compare
 ```
 
-## Precise Rules for Equality Checking
+## 相等性检查的精确规则
 
-The precise rules for equality checking are as follows.
+相等性检查的精确规则如下。
 
 If the `strictEquality` feature is enabled then
 a comparison using `x == y` or `x != y` between values `x: T` and `y: U`
@@ -145,7 +134,7 @@ Explanations:
  - a type `T` has a _reflexive_ `CanEqual` instance if the implicit search for `CanEqual[T, T]`
    succeeds.
 
-## Predefined CanEqual Instances
+## 预定义的 CanEqual 实例
 
 The `CanEqual` object defines instances for comparing
  - the primitive types `Byte`, `Short`, `Char`, `Int`, `Long`, `Float`, `Double`, `Boolean`,  and `Unit`,
@@ -166,7 +155,7 @@ Instances are defined so that every one of these types has a _reflexive_ `CanEqu
    need not be the same.
  - Any subtype of `AnyRef` can be compared with `Null` (and _vice versa_).
 
-## Why Two Type Parameters?
+## 为什么有两个类型参数？
 
 One particular feature of the `CanEqual` type is that it takes _two_ type parameters, representing the types of the two items to be compared. By contrast, conventional
 implementations of an equality type class take only a single type parameter which represents the common type of _both_ operands.
