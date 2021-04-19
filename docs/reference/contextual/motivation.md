@@ -97,16 +97,16 @@ F# 的 [Trait](https://github.com/MattWindsor91/visualfsharp/blob/hackathon-vs/e
 
  4. [隐式转换](./conversions.md)现在表示为标准 `Conversion` 类的 given 实例。其他形式的隐式转换都被淘汰。
 
-This section also contains pages describing other language features that are related to context abstraction. These are:
+这部分还包含了描述与上下文抽象相关的其他语言特性的页面。这些是：
 
- - [Context Bounds](./context-bounds.md), which carry over unchanged.
- - [Extension Methods](./extension-methods.md) replace implicit classes in a way that integrates better with type classes.
- - [Implementing Type Classes](type-classes.md) demonstrates how some common type classes can be implemented using the new constructs.
- - [Type Class Derivation](./derivation.md) introduces constructs to automatically derive type class instances for ADTs.
- - [Multiversal Equality](./multiversal-equality.md) introduces a special type class to support type safe equality.
- - [Context Functions](./context-functions.md) provide a way to abstract over context parameters.
- - [By-Name Context Parameters](./by-name-context-parameters.md) are an essential tool to define recursive synthesized values without looping.
- - [Relationship with Scala 2 Implicits](./relationship-implicits.md) discusses the relationship between old-style implicits and new-style givens and how to migrate from one to the other.
+ - [上下文界定](./context-bounds.md)，这部分保持不变。
+ - [扩展方法](./extension-methods.md)以能更好地与 type class 集成的方式替换隐式类。
+ - [实现 Type Class](type-classes.md) 演示了如何使用新结构实现一些通用 type class。
+ - [Type Class 推导](./derivation.md)引入了自动推导 ADT 的 type class 实例的结构。
+ - [Multiversal Equality](./multiversal-equality.md) 引入了一个特殊的 type class 支持类型安全的相等性判断。
+ - [上下文函数](./context-functions.md)提供了一种抽象上下文参数的方式。
+ - [按名上下文参数](./by-name-context-parameters.md)是定义递归合成值而不循环的基本工具。
+ - [与 Scala 2 隐式之间的关系](./relationship-implicits.md)讨论了旧式隐式和新式隐式之间的关系，以及如何从一种隐式迁移到另一种。
 
 Overall, the new design achieves a better separation of term inference from the rest of the language: There is a single way to define givens instead of a multitude of forms all taking an `implicit` modifier. There is a single way to introduce implicit parameters and arguments instead of conflating implicit with normal arguments. There is a separate way to import givens that does not allow them to hide in a sea of normal imports. And there is a single way to define an implicit conversion which is clearly marked as such and does not require special syntax.
 
