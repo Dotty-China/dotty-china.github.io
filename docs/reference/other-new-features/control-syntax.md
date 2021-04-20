@@ -6,9 +6,11 @@ grand_parent: 参考
 nav_order: 12
 ---
 
-Scala 3 has a new "quiet" syntax for control expressions that does not rely on
-enclosing the condition in parentheses, and also allows to drop parentheses or braces
-around the generators of a `for`-expression. Examples:
+# {{ page.title }}
+
+Scala 3 为控制表达式提供了一种新的“安静的”语法，它不需要将条件括在小括号中，
+同时允许 `for` 表达式的生成器周围不放置小括号或大括号。例如： 
+
 ```scala
 if x < 0 then
    "negative"
@@ -34,16 +36,16 @@ try body
 catch case ex: IOException => handle
 ```
 
-The rules in detail are:
+具体规则如下：
 
- - The condition of an `if`-expression can be written without enclosing parentheses if it is followed by a `then`.
- - The condition of a `while`-loop can be written without enclosing parentheses if it is followed by a `do`.
- - The enumerators of a `for`-expression can be written without enclosing parentheses or braces if they are followed by a `yield` or `do`.
- - A `do` in a `for`-expression expresses a `for`-loop.
- - A `catch` can be followed by a single case on the same line.
-   If there are multiple cases, these have to appear within braces (just like in Scala 2)
-   or an indented block.
-### Rewrites
+ - 如果 `if` 表达式条件后紧跟一个 `then`，则可以不用为其条件添加括号。
+ - 如果 `while` 循环条件后紧跟一个 `do`，则可以不用为其条件添加括号。
+ - 如果 `for` 表达式的 enumerator 后紧跟 `yiele` 或 `do`，则可以不用为其 enumerator 添加括号。
+ - `for` 表达式中的 `do` 表示 `for` 循环。
+ - 在同一行中，`case` 后可以有一个单独的 `case`。如果有多个 case，它们必须出现在大括号内（就像 Scala 2 一样）或缩进块中。
 
-The Scala 3 compiler can rewrite source code from old syntax to new syntax and back.
-When invoked with options `-rewrite -new-syntax` it will rewrite from old to new syntax, dropping parentheses and braces in conditions and enumerators. When invoked with options `-rewrite -old-syntax` it will rewrite in the reverse direction, inserting parentheses and braces as needed.
+## 改写
+
+Scala 3 编译器可以把源代码中的旧语法改写为新语法，或从新语法改写为旧语法。
+当使用选项 `-rewrite -new-syntax` 调用时，编译器把旧语法改写为新语法，删除条件和 enumerator 周围的大括号和小括号。 
+当使用选项 `-rewrite -old-syntax` 调用时，编译器把新语法改写为旧语法，在需要时插入大括号或小括号。
