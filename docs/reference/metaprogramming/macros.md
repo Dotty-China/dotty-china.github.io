@@ -6,6 +6,8 @@ grand_parent: 参考
 nav_order: 3
 ---
 
+# {{ page.title }}
+
 > When developing macros enable `-Xcheck-macros` scalac option flag to have extra runtime checks.
 
 ## Macros: Quotes and Splices
