@@ -6,11 +6,12 @@ grand_parent: 参考
 nav_order: 10
 ---
 
-A new annotation `@threadUnsafe` can be used on a field which defines
-a `lazy val`. When this annotation is used, the initialization of the
-`lazy val` will use a faster mechanism which is not thread-safe.
+# `@threadUnsafe` 注解
 
-### Example
+新的注解 `@threadUnsafe` 可以用在 `lazy val` 属性上。使用此注解时，
+`lazy val` 会使用更快，但不是线程安全的机制进行初始化。
+
+## 示例
 
 ```scala
 import scala.annotation.threadUnsafe
