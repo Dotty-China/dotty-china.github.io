@@ -6,7 +6,9 @@ grand_parent: 参考
 nav_order: 15
 ---
 
-Scala 3 implements experimental safe initialization check, which can be enabled by the compiler option `-Ysafe-init`.
+# {{ page.title }}
+
+Scala 3 实现了实现性质的安全初始化检查，可以通过编译器选项 `-Ysafe-init` 启用。
 
 ## A Quick Glance
 

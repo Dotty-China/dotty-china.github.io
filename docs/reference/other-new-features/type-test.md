@@ -1,14 +1,14 @@
 ---
 layout: default
-title: TypeTest
+title: 类型测试
 parent: 其他新特性
 grand_parent: 参考
 nav_order: 16
 ---
 
-## TypeTest
+# {{ page.title }}
 
-When pattern matching there are two situations where a runtime type test must be performed.
+在模式匹配时，有两种情况必须执行运行时类型测试。
 The first case is an explicit type test using the ascription pattern notation.
 
 ```scala
