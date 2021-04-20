@@ -6,48 +6,48 @@ grand_parent: 参考
 nav_order: 14
 ---
 
-Explicit nulls is an opt-in feature that modifies the Scala type system, which makes reference types
-(anything that extends `AnyRef`) _non-nullable_.
+# {{ page.title }}
 
-This means the following code will no longer typecheck:
+显式 null 是一个 opt-in 特性，它修改了 Scala 的类型系统，使引用类型（继承自 `AnyRef`）*不可为 null*。
+
+这意味着以下代码将不再能通过类型检查：
 
 ```scala
 val x: String = null // error: found `Null`, but required `String`
 ```
 
-Instead, to mark a type as nullable we use a [union type](../new-types/union-types.md)
+作为替代，当要标记类型为可空时，需要使用[并集类型](../new-types/union-types.md)：
 
 ```scala
 val x: String | Null = null // ok
 ```
 
-A nullable type could have null value during runtime; hence, it is not safe to select a member without checking its nullity.
+可空类型运行时可能具有 `null` 作为其值；因此，在不检查是否为 `null` 时选择其成员时不安全的。
 
 ```scala
 x.trim // error: trim is not member of String | Null
 ```
 
-Explicit nulls are enabled via a `-Yexplicit-nulls` flag.
+显式 null 特性通过标志 `-Yexplicit-nulls` 启用。
 
-Read on for details.
 
-## New Type Hierarchy
+## 新的类型层次结构
 
-When explicit nulls are enabled, the type hierarchy changes so that `Null` is only a subtype of
-`Any`, as opposed to every reference type, which means `null` is no longer a value of `AnyRef` and its subtypes.
+启用显式 null 时，类型层次结构会发生变化，类型 `Null` 仅是 `Any` 的子类型，
+而不再是每个引用类型的子类型，这意味着 `null` 不再是 `AnyRef` 及其子类型的值。
 
-This is the new type hierarchy:
+这是新的类型层次结构：
 
-!["Type Hierarchy for Explicit Nulls"](../../../images/explicit-nulls/explicit-nulls-type-hierarchy.png)
+![“显式 null 的类型层次结构”](https://z3.ax1x.com/2021/04/20/cHRjyj.png)
 
-After erasure, `Null` remains a subtype of all reference types (as forced by the JVM).
+擦除后 `Null` 依然是所有引用类型的子类型（由 JVM 强制要求）。
 
-## Working with `Null`
+## 使用 `Null`
 
-To make working with nullable values easier, we propose adding a few utilities to the standard library.
-So far, we have found the following useful:
+为了便于使用可空值，我们建议向标准库中添加一些便捷工具。
+到目前位置，我们发现以下几点非常有用：
 
-- An extension method `.nn` to "cast away" nullability
+- 一个扩展方法 `.nn`“抛弃”可空性
 
   ```scala
    extension [T](x: T | Null)
@@ -56,16 +56,16 @@ So far, we have found the following useful:
        x.asInstanceOf[T]
   ```
 
-  This means that given `x: String | Null`, `x.nn` has type `String`, so we can call all the
-  usual methods on it. Of course, `x.nn` will throw a NPE if `x` is `null`.
+  这意味着给定 `x: String | Null`，`x.nn` 的类型为 `String`，所以我们可以在上面调用它的所有常用方法。
+  当然，当 `x` 为 `null` 时会抛出一个 NPE。
 
-  Don't use `.nn` on mutable variables directly, because it may introduce an unknown type into the type of the variable.
+  不要再可变变量上使用 `.nn`，因为它可能会在变量的类型中引入未知类型。
 
-- An `unsafeNulls` language feature.
+- 一个 `unsafeNulls` 语言特性。
 
-  When imported, `T | Null` can be used as `T`, similar to regular Scala (without explicit nulls).
+  当导入它时，`T | Null` 可以作为 `T` 使用，类似于常规的 Scala（无显式 null）。
 
-  See [UnsafeNulls](#unsafenulls) section for more details.
+  参见 [UnsafeNulls](#unsafenulls) 部分查看更多详情。
 
 ## Unsoundness
 
@@ -108,7 +108,7 @@ y == x          // ok
 (x: Any) == null            // ok
 ```
 
-## Java Interoperability
+## Java 兼容性
 
 The Scala compiler can load Java classes in two ways: from source or from bytecode. In either case,
 when a Java class is loaded, we "patch" the type of its members to reflect that Java types
