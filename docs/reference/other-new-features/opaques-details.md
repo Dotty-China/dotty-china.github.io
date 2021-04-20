@@ -4,7 +4,7 @@ title: "不透明类型别名 - 更多细节"
 nav_exclude: true
 ---
 
-### Syntax
+## 语法
 
 ```
 Modifier          ::=  ...
@@ -16,7 +16,7 @@ Modifier          ::=  ...
 Opaque type aliases must be members of classes, traits, or objects, or they are defined
 at the top-level. They cannot be defined in local blocks.
 
-### Type Checking
+## Type Checking
 
 The general form of a (monomorphic) opaque type alias is
 
@@ -51,7 +51,7 @@ object o:
 def id(x: o.T): o.T = x
 ```
 
-### Type Parameters of Opaque Types
+## Type Parameters of Opaque Types
 
 Opaque type aliases can have a single type parameter list. The following aliases
 are well-formed
@@ -65,7 +65,7 @@ opaque type BadF[T] = [U] =>> (T, U)
 opaque type BadG = [T] =>> [U] => (T, U)
 ```
 
-### Translation of Equality
+## Translation of Equality
 
 Comparing two values of opaque type with `==` or `!=` normally uses universal equality,
 unless another overloaded `==` or `!=` operator is defined for the type. To avoid
@@ -80,7 +80,7 @@ defined on the underlying type. For instance,
   x == y    // uses Int equality for the comparison.
 ```
 
-### Top-level Opaque Types
+## Top-level Opaque Types
 
 An opaque type alias on the top-level is transparent in all other top-level definitions in the sourcefile where it appears, but is opaque in nested
 objects and classes and in all other source files. Example:
@@ -107,7 +107,7 @@ object obj:
 The opaque type alias `A` is transparent in its scope, which includes the definition of `x`, but not the definitions of `obj` and `y`.
 
 
-### Relationship to SIP 35
+## Relationship to SIP 35
 
 Opaque types in Scala 3 are an evolution from what is described in
 [Scala SIP 35](https://docs.scala-lang.org/sips/opaque-types.html).
