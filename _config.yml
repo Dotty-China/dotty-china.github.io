@@ -80,4 +80,3 @@ exclude:
   - git-push.bat
   - jekyll-build.sh
   - README.md
-  - docs/reference/metaprogramming/simple-smp.md

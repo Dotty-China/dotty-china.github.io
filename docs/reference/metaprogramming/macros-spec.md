@@ -4,8 +4,6 @@ title: "宏规范"
 nav_exclude: true
 ---
 
-# {{ page.title }}
-
 ## Implementation
 
 ### Syntax
