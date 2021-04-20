@@ -6,14 +6,15 @@ grand_parent: 参考
 nav_order: 7
 ---
 
-Say you have a list of pairs
+# {{ page.title }}
+
+假设有这样一个二元元组的列表：
 
 ```scala
 val xs: List[(Int, Int)]
 ```
 
-and you want to map `xs` to a list of `Int`s so that each pair of numbers is mapped to
-their sum. Previously, the best way to do this was with a pattern-matching decomposition:
+当你想要把 `xs` 映射成一个 `Int` 列表，每一对数字都映射到它们的和。以前，最好的方法是使用模式匹配解构：
 
 ```scala
 xs map {
@@ -21,8 +22,8 @@ xs map {
 }
 ```
 
-While correct, this is also inconvenient and confusing, since the `case`
-suggests that the pattern match could fail. As a shorter and clearer alternative Scala 3 now allows
+虽然这是正确的，但也不方便且令人困惑，因为 `case` 表示模式匹配可能会失败。
+Scala 3 现在允许这种写法作为一个更短且更清晰的替代方案：
 
 ```scala
 xs.map {
@@ -30,19 +31,18 @@ xs.map {
 }
 ```
 
-or, equivalently:
+或者，也可以写成：
 
 ```scala
 xs.map(_ + _)
 ```
 
-Generally, a function value with `n > 1` parameters is converted to a
-pattern-matching closure using `case` if the expected type is a unary
-function type of the form `((T_1, ..., T_n)) => U`.
+一般地，如果期望的类型是一元函数类型 `((T_1, ..., T_n)) => U`，
+则使用 `case` 把有 `n > 1` 个参数的函数值转换为模式匹配闭包。
 
-## Reference
+## 参考
 
-For more information see:
+更多详情请参见：
 
-* [More details](./parameter-untupling-spec.md)
-* [Issue #897](https://github.com/lampepfl/dotty/issues/897).
+* [更多详情](./parameter-untupling-spec.md)页面，或者
+* [Issue #897](https://github.com/lampepfl/dotty/issues/897)。
