@@ -1,8 +1,10 @@
 ---
 layout: default
-title: "宏标准"
+title: "宏规范"
 nav_exclude: true
 ---
+
+# {{ page.title }}
 
 ## Implementation
 

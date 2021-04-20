@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "TASTy Inspection"
+title: "TASTy 检查"
 parent: 元编程
 grand_parent: 参考
 nav_order: 6
