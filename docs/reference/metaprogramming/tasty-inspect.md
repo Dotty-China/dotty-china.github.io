@@ -6,6 +6,8 @@ grand_parent: 参考
 nav_order: 6
 ---
 
+# {{ page.title }}
+
 ```scala
 libraryDependencies += "org.scala-lang" %% "scala3-tasty-inspector" % scalaVersion.value
 ```

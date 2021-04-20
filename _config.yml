@@ -82,4 +82,3 @@ exclude:
   - README.md
   - docs/reference/metaprogramming/macros-spec.md
   - docs/reference/metaprogramming/simple-smp.md
-  - docs/reference/metaprogramming/tasty-inspect.md
