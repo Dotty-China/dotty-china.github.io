@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "The Meta-theory of Symmetric Metaprogramming"
+title: "对称元编程的元理论"
 nav_exclude: true
 ---
 
