@@ -30,38 +30,36 @@ VecOps.append(vec1, vec2)
 
 ## 细节
 
- 1. `@targetName` is defined in package `scala.annotation`. It takes a single argument
-    of type `String`. That string is called the _external name_ of the definition
-    that's annotated.
+ 1. `@targetName` 定义在包 `scala.annotation` 中。它接受一个 `String` 类型的参数。
+    该字符串称为被注释定义的*外部名称（External Name）*。
 
- 2. A `@targetName` annotation can be given for all kinds of definitions.
+ 2. 可以为任意种类的定义提供 `@targetName` 注解。
 
- 3. The name given in a `@targetName` annotation must be a legal name
-    for the defined entities on the host platform.
+ 3. `@targetName` 注解中给定的名称必须是宿主平台上实体的合法名称。
 
- 4. It is recommended that definitions with symbolic names have a `@targetName` annotation. This will establish an alternate name that is easier to search for and
- will avoid cryptic encodings in runtime diagnostics.
+ 4. 建议使用符号作为名称的定义带有 `@targetName` 注解。这将设立一个更易于搜索的备用名称，
+    并且避免运行时诊断时出现晦涩的编码。
 
- 5. Definitions with names in backticks that are not legal host platform names
-    should also have a `@targetName` annotation.
+ 5. 名称在宿主平台不合法的定义也应该带有 `@targetName` 注解。
 
 ## 与覆盖的关系
 
-`@targetName` annotations are significant for matching two method definitions to decide whether they conflict or override each other. Two method definitions match if they have the same name, signature, and erased name. Here,
+`@targetName` 注解对于匹配两个方法定义以确定它们是否冲突或者重写另一个非常重要。
+如果两个方法定义具有相同的名称、签名以及擦除后的名称，则它们相匹配。在这里，
 
-- The _signature_ of a definition consists of the names of the erased types of all (value-) parameters and the method's result type.
-- The _erased name_ of a method definition is its target name if a `@targetName`
-  annotation is given and its defined name otherwise.
+- 定义的*签名*由所有（值）参数类型与返回值类型的擦除名称组成。
+- 方法定义的*擦除后名称（Erased Name）*在具有 `@targetName` 注解时为其外部名称，否则为定义的名称。
 
-This means that `@targetName` annotations can be used to disambiguate two method definitions that would otherwise clash. For instance.
+这意味着 `@targetName` 注解可以用来消除两个方法定义之间的歧义。例如：
 
 ```scala
 def f(x: => String): Int = x.length
 def f(x: => Int): Int = x + 1  // error: double definition
 ```
 
-The two definitions above clash since their erased parameter types are both `Function0`, which is the type of the translation of a by-name-parameter. Hence
-they have the same names and signatures. But we can avoid the clash by adding a `@targetName` annotation to either method or to both of them. Example:
+上面的两个定义冲突，因为它们擦除后的参数类型都是由按名参数翻译而来的 `Function0`。
+因此它们拥有相同的名称和签名。但我们可以为它们中至少一个添加 `@targetName` 注解来避免冲突。
+例如：
 
 ```scala
 @targetName("f_string")
@@ -69,10 +67,10 @@ def f(x: => String): Int = x.length
 def f(x: => Int): Int = x + 1  // OK
 ```
 
-This will produce methods `f_string` and `f` in the generated code.
+这将在生成的代码中提供方法 `f_string` 和 `f`。
 
-However, `@targetName` annotations are not allowed to break overriding relationships
-between two definitions that have otherwise the same names and types. So the following would be in error:
+但是，`@targetName` 注解不允许打破具有相同名称和类型的两个定义之间的重写关系。
+所以下面的代码是错误的：
 
 ```scala
 import annotation.targetName
@@ -82,7 +80,7 @@ class B extends A:
    @targetName("g") def f(): Int = 2
 ```
 
-The compiler reports here:
+编译器会在此报告：
 
 ```
 -- Error: test.scala:6:23 ------------------------------------------------------
@@ -93,14 +91,12 @@ The compiler reports here:
   |  annotation since the overridden member hasn't one either
 ```
 
-The relevant overriding rules can be summarized as follows:
+相关的重写规则可以概括如下：
 
-- Two members can override each other if their names and signatures are the same,
-  and they either have the same erased names or the same types.
-- If two members override, then both their erased names and their types must be the same.
+- 如果两个成员的名称和签名相同，并且它们具有相同的擦除后名称或相同的类型，则可以互相重写。
+- 如果两个成员之间存在重写关系，则他们的擦除后名称和类型必须相同。
 
-As usual, any overriding relationship in the generated code must also
-be present in the original code. So the following example would also be in error:
+通常来说，生成代码中的所有重写关系也必须存在于原始代码中。所以下面的示例也会发生错误：
 
 ```scala
 import annotation.targetName
@@ -110,8 +106,8 @@ class B extends A:
    @targetName("f") def g(): Int = 2
 ```
 
-Here, the original methods `g` and `f` do not override each other since they have
-different names. But once we switch to target names, there is a clash that is reported by the compiler:
+在这里，原始方法 `g` 和 `f` 之间没有重写关系，因为它们具有相同的名称。
+但是当切换到目标名称后，编译器就会报告冲突；
 
 ```
 -- [E120] Naming Error: test.scala:4:6 -----------------------------------------

@@ -4,6 +4,8 @@ title: "对称元编程的元理论"
 nav_exclude: true
 ---
 
+（TODO: 修复构建）
+
 This note presents a simplified variant of
 [principled metaprogramming](./macros.md)
 and sketches its soundness proof. The variant treats only dialogues
