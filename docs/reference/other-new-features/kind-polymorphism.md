@@ -6,23 +6,27 @@ grand_parent: 参考
 nav_order: 8
 ---
 
-Normally type parameters in Scala are partitioned into _kinds_. First-level types are types of values. Higher-kinded types are type constructors
-such as `List` or `Map`. The kind of a type is indicated by the top type of which it is a subtype. Normal types are subtypes of `Any`,
-covariant single argument type constructors such as `List` are subtypes of `[+X] =>> Any`, and the `Map` type constructor is
-a subtype of `[X, +Y] =>> Any`.
+# {{ page.title }}
 
-A type can be used only as prescribed by its kind. Subtypes of `Any` cannot be applied to type arguments whereas subtypes of `[X] =>> Any`
-_must_ be applied to a type argument, unless they are passed to type parameters of the same kind.
+Scala 中的类型参数通常被划为不同的 *kind*。第一级类型是值的类型。高阶类型是类似 `List` 和 `Map` 这样的类型构造器。
 
-Sometimes we would like to have type parameters that can have more than one kind, for instance to define an implicit
-value that works for parameters of any kind. This is now possible through a form of (_subtype_) kind polymorphism.
-Kind polymorphism relies on the special type `scala.AnyKind` that can be used as an upper bound of a type.
+
+The kind of a type is indicated by the top type of which it is a subtype. 
+常规类型是 `Any` 的子类型，像 `List` 这样带有单个协变参数的类型构造器是 `[+X] =>> Any` 的子类型，
+像 `Map` 这样的类型构造器是 `[X, +Y] =>> Any` 的子类型。
+
+一个类型只能按照其 kind 被使用。`Any` 的子类型不能接受类型参数，而 `[X] =>> Any` 的子类型*必须*应用于类型参数，
+除非传递给同一个 kind 的类型参数。
+
+有时我们希望类型参数能有多种 kind，例如定义一个适用于任何 kind 参数的隐式值。
+现在这可以通过使用一种形式的（*子类型*）kind 多态实现。
+Kind 多态（Kind Polymorphism）依赖于特殊类型 `scala.AnyKind`，它可以作为类型的上界使用。
 
 ```scala
 def f[T <: AnyKind] = ...
 ```
 
-The actual type arguments of `f` can then be types of arbitrary kinds. So the following would all be legal:
+`f` 的实际类型参数可以是任意 kind 的类型。所以以下写法都是合法的：
 
 ```scala
 f[Int]
@@ -31,19 +35,20 @@ f[Map]
 f[[X] =>> String]
 ```
 
-We call type parameters and abstract types with an `AnyKind` upper bound _any-kinded types_.
-Since the actual kind of an any-kinded type is unknown, its usage must be heavily restricted: An any-kinded type
-can be neither the type of a value, nor can it be instantiated with type parameters. So about the only
-thing one can do with an any-kinded type is to pass it to another any-kinded type argument.
+我们称类型上界为 `AnyKind` 的类型参数和抽象类型为*any-kinded 类型*。
+由于 any-kinded 类型的 kind 位置，因此必须严格限制其使用：
+any-kinded 类型既不能为值的类型，nor can it be instantiated with type parameters。
+所以 any-kinded 类型唯一能做的就是把它作为实参传递给另一个 any-kinded 类型的形参。
 Nevertheless, this is enough to achieve some interesting generalizations that work across kinds, typically
 through advanced uses of implicits.
 
 (todo: insert good concise example)
 
-Some technical details: `AnyKind` is a synthesized class just like `Any`, but without any members. It extends no other class.
-It is declared `abstract` and `final`, so it can be neither instantiated nor extended.
+一些技术细节：`AnyKind` 和 `Any` 一样是一个合成出的类，但没有任何成员。它不继承其他类。
+它被声明为 `abstract` 和 `final` 的，所以它不能被继承也不能实例化。
 
-`AnyKind` plays a special role in Scala's subtype system: It is a supertype of all other types no matter what their kind is. It is also assumed to be kind-compatible with all other types. Furthermore, `AnyKind` is treated as a higher-kinded type (so it cannot be used as a type of values), but at the same time it has no type parameters (so it cannot be instantiated).
+`AnyKind` 在 Scala 的子类型系统中扮演着特殊的角色：它是所有类型的超类型，而无论这些类型是什么 kind。
+它也假定为于其他类型 kind 兼容。此外，`AnyKind` 被视为高阶类型（因此不能用作值的类型），
+但它也没有类型参数（因此不能实例化）。
 
-**Note**: This feature is considered experimental but stable and it can be disabled under compiler flag
-(i.e. `-Yno-kind-polymorphism`).
+**注意**：这个特性被认为是实验性质的，但已经很稳定。可以通过编译器参数 `-Yno-kind-polymorphism` 禁用此功能。
