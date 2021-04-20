@@ -6,6 +6,8 @@ grand_parent: 参考
 nav_order: 1
 ---
 
+# {{ page.title }}
+
 The following pages introduce the redesign of metaprogramming in Scala. They
 introduce the following fundamental facilities:
 

@@ -6,6 +6,8 @@ grand_parent: 参考
 nav_order: 2
 ---
 
+# {{ page.title }}
+
 ## Inline Definitions
 
 `inline` is a new [soft modifier](../soft-modifier.md) that guarantees that a
