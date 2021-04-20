@@ -6,7 +6,9 @@ grand_parent: 参考
 nav_order: 11
 ---
 
-A `@targetName` annotation on a definition defines an alternate name for the implementation of that definition. Example:
+# `@targetName` 注解
+
+定义上的 `@targetName` 注解定义了该实现的候补名称。例如：
 
 ```scala
 import scala.annotation.targetName
@@ -17,15 +19,16 @@ object VecOps:
       def ++= [T] (ys: Vec[T]): Vec[T] = ...
 ```
 
-Here, the `++=` operation is implemented (in Byte code or native code) under the name `append`. The implementation name affects the code that is generated, and is the name under which code from other languages can call the method. For instance, `++=` could be invoked from Java like this:
+这里 `++=` 操作符使用 `append` 名称实现（在字节码或本机代码中）。实现名称影响生成的代码，
+并且其他语言的代码可以使用这个名称调用该方法。例如，这个 `++=` 可以在 Java 中像这样调用：
 
 ```java
 VecOps.append(vec1, vec2)
 ```
 
-The `@targetName` annotation has no bearing on Scala usages. Any application of that method in Scala has to use `++=`, not `append`.
+`@targetName` 注解与在 Scala 中的用法无关。Scala 中的对该函数的调用只能使用 `++=`，而不是 `append`。
 
-### Details
+## 细节
 
  1. `@targetName` is defined in package `scala.annotation`. It takes a single argument
     of type `String`. That string is called the _external name_ of the definition
@@ -42,7 +45,7 @@ The `@targetName` annotation has no bearing on Scala usages. Any application of 
  5. Definitions with names in backticks that are not legal host platform names
     should also have a `@targetName` annotation.
 
-### Relationship with Overriding
+## 与覆盖的关系
 
 `@targetName` annotations are significant for matching two method definitions to decide whether they conflict or override each other. Two method definitions match if they have the same name, signature, and erased name. Here,
 

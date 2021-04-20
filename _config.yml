@@ -80,4 +80,10 @@ exclude:
   - git-push.bat
   - jekyll-build.sh
   - README.md
-  - docs/reference/metaprogramming/
+  - docs/reference/metaprogramming/macros-spec.md
+  - docs/reference/metaprogramming/reflection.md
+  - docs/reference/metaprogramming/staging.md
+  - docs/reference/metaprogramming/inline.md
+  - docs/reference/metaprogramming/macros.md
+  - docs/reference/metaprogramming/simple-smp.md
+  - docs/reference/metaprogramming/tasty-inspect.md
