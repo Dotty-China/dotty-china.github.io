@@ -28,67 +28,62 @@ val z: BigDecimal = 110_222_799_799.99
 
 数字字面量的语法与之前相同，但是没有预设置的大小限制。
 
-## Meaning of Numeric Literals
+## 数字字面量的含义
 
-The meaning of a numeric literal is determined as follows:
+数字字面量的含义确定如下：
 
-- If the literal ends with `l` or `L`, it is a `Long` integer (and must fit in its legal range).
-- If the literal ends with `f` or `F`, it is a single precision floating point number of type `Float`.
-- If the literal ends with `d` or `D`, it is a double precision floating point number of type `Double`.
+- 如果字面量以 `l` 或 `L` 结尾，则它是一个 `Long` 整数（必须处于其合法范围内）。
+- 如果字面量以 `f` 或 `F` 结尾，则它是一个 `Float` 类型的单精度浮点数。
+- 如果字面量以 `d` 或 `D` 结尾，则它是一个 `Double` 类型的双精度浮点数。
 
-In each of these cases the conversion to a number is exactly as in Scala 2 or in Java. If a numeric literal does _not_ end in one of these suffixes, its meaning is determined by the expected type:
+在上述情况中，对数字的转换都与在 Scala 2 和在 Java 中完全一致。
+如果数字字面量*不*以这些后缀结尾，则其含义由预期类型决定：
 
-1. If the expected type is `Int`, `Long`, `Float`, or `Double`, the literal is
-   treated as a standard literal of that type.
-2. If the expected type is a fully defined type `T` that has a given instance of type
-   `scala.util.FromDigits[T]`, the literal is converted to a value of type `T` by passing it as an argument to
-   the `fromDigits` method of that instance (more details below).
-3. Otherwise, the literal is treated as a `Double` literal (if it has a decimal point or an
-   exponent), or as an `Int` literal (if not). (This last possibility is again as in Scala 2 or Java.)
+1. 如果预期类型为 `Int`、`Long`、`Float` 或 `Double`，则该字面量被视为该类型的标准字面量。
+2. 如果预期类型是完全定义的类型 `T`，它具有 `scala.util.FromDigits[T]` 类型的 given 实例，
+   则通过将该字面量作为参数传递给该实例的 `fromDigits` 方法（更多详情参见下文）将其值转换为 `T` 类型。
+3. 其他情况下，如果该字面量有小数点或指数，则它被视为 `Double` 字面量，否则它会被视为 `Int` 字面量。
+   （这种情况与在 Scala 2 中以及 Java 中相同）
 
-With these rules, the definition
+根据这些规则，这个定义
 
 ```scala
 val x: Long = -10_000_000_000
 ```
 
-is legal by rule (1), since the expected type is `Long`. The definitions
+根据规则 (1) 是合法的，因为预期类型是 `Long`。这个定义
 
 ```scala
 val y: BigInt = 0x123_abc_789_def_345_678_901
 val z: BigDecimal = 111222333444.55
 ```
 
-are legal by rule (2), since both `BigInt` and `BigDecimal` have `FromDigits` instances
-(which implement the `FromDigits` subclasses `FromDigits.WithRadix` and `FromDigits.Decimal`, respectively).
-On the other hand,
+根据规则 (2) 是合法的，因为 `BigInt` 和 `BigDecimal` 都有 `FromDigits` 实例
+（分别实现了 `FromDigits` 的子类 `FromDigits.WithRadix` 和 `FromDigits.Decimal`）。
+另一方面，对于这个定义：
 
 ```scala
 val x = -10_000_000_000
 ```
 
-gives a type error, since without an expected type `-10_000_000_000` is treated by rule (3) as an `Int` literal, but it is too large for that type.
+将会产生一个类型错误，因为这个字面量没有预期类型，根据规则 (3) 它应该为 `Int` 字面量，
+但 `-10_000_000_000` 的值超过了 `Int` 的范围。
 
-## The FromDigits Trait
+## `FromDigits` Trait
 
-To allow numeric literals, a type simply has to define a `given` instance of the
-`scala.util.FromDigits` type class, or one of its subclasses. `FromDigits` is defined
-as follows:
+一个类型需要允许数字字面量，只需要定义 `scala.util.FromDigits` type class 或其子类之一的 `given` 实例。
+`FromDigits` 的定义如下：
 
 ```scala
 trait FromDigits[T]:
    def fromDigits(digits: String): T
 ```
 
-Implementations of the `fromDigits` convert strings of digits to the values of the
-implementation type `T`.
-The `digits` string consists of digits between `0` and `9`, possibly preceded by a
-sign ("+" or "-"). Number separator characters `_` are filtered out before
-the string is passed to `fromDigits`.
+`fromDigits` 的实现将数字字符串转换为 `T` 类型的值。
+`digits` 字符串由 `0` 至 `9` 之间的数字组成，前面可能有一个符号（`+` 或 `-`）。
+在把数字字面量传递给 `fromDigits` 之前，字面量中的 `_` 分隔符会被过滤掉。
 
-The companion object `FromDigits` also defines subclasses of `FromDigits` for
-whole numbers with a given radix, for numbers with a decimal point, and for
-numbers that can have both a decimal point and an exponent:
+`FromDigits` 的伴生对象还为具有给定进制、带有小数点以及同时有小数点和指数的数字定义了 `FromDigits` 的子类。
 
 ```scala
 object FromDigits:
@@ -112,11 +107,10 @@ object FromDigits:
    trait Floating[T] extends Decimal[T]
 ```
 
-A user-defined number type can implement one of those, which signals to the compiler
-that hexadecimal numbers, decimal points, or exponents are also accepted in literals
-for this type.
+用户定义的数字类型可以实现它们中的一个，这会向编译器发出信号，
+表示此类型也接受十六进制、带小数点的或带指数的字面量。
 
-## Error Handling
+## 错误处理
 
 `FromDigits` implementations can signal errors by throwing exceptions of some subtype
 of `FromDigitsException`. `FromDigitsException` is defined with three subclasses in the
@@ -130,7 +124,7 @@ class NumberTooSmall (msg: String = "number too small")         extends FromDigi
 class MalformedNumber(msg: String = "malformed number literal") extends FromDigitsException(msg)
 ```
 
-## Example
+## 示例
 
 As a fully worked out example, here is an implementation of a new numeric class, `BigFloat`, that accepts numeric literals. `BigFloat` is defined in terms of a `BigInt` mantissa and an `Int` exponent:
 
@@ -187,7 +181,7 @@ assumed that only valid arguments are passed. For calls coming from the compiler
 that assumption is valid, since the compiler will first check whether a numeric
 literal has the correct format before it gets passed on to a conversion method.
 
-## Compile-Time Errors
+## 编译时报错
 
 With the setup of the previous section, a literal like
 
