@@ -6,13 +6,16 @@ grand_parent: 参考
 nav_order: 1
 ---
 
-**Note**: This feature is not yet part of the Scala 3 language definition. It can be made available by a language import:
+# {{ page.title }}
+
+**注意**：这个特性还不是 Scala 3 语言定义的一部分。可以通过 language import 启用：
 
 ```scala
 import scala.language.experimental.genericNumberLiterals
 ```
 
-In Scala 2, numeric literals were confined to the primitive numeric types `Int`, `Long`, `Float`, and `Double`. Scala 3 allows to write numeric literals also for user-defined types. Example:
+在 Scala 2 中，数字字面量被限制为基本数字类型 `Int`、`Long`、`Float` 和 `Double`。
+Scala 3 允许为用户自定义的类型编写数字字面量。例如：
 
 ```scala
 val x: Long = -10_000_000_000
@@ -23,10 +26,9 @@ val z: BigDecimal = 110_222_799_799.99
    case 123_456_789_012_345_678_901 =>
 ```
 
-The syntax of numeric literals is the same as before, except there are no pre-set limits
-how large they can be.
+数字字面量的语法与之前相同，但是没有预设置的大小限制。
 
-### Meaning of Numeric Literals
+## Meaning of Numeric Literals
 
 The meaning of a numeric literal is determined as follows:
 
@@ -67,7 +69,7 @@ val x = -10_000_000_000
 
 gives a type error, since without an expected type `-10_000_000_000` is treated by rule (3) as an `Int` literal, but it is too large for that type.
 
-### The FromDigits Trait
+## The FromDigits Trait
 
 To allow numeric literals, a type simply has to define a `given` instance of the
 `scala.util.FromDigits` type class, or one of its subclasses. `FromDigits` is defined
@@ -114,7 +116,7 @@ A user-defined number type can implement one of those, which signals to the comp
 that hexadecimal numbers, decimal points, or exponents are also accepted in literals
 for this type.
 
-### Error Handling
+## Error Handling
 
 `FromDigits` implementations can signal errors by throwing exceptions of some subtype
 of `FromDigitsException`. `FromDigitsException` is defined with three subclasses in the
@@ -128,7 +130,7 @@ class NumberTooSmall (msg: String = "number too small")         extends FromDigi
 class MalformedNumber(msg: String = "malformed number literal") extends FromDigitsException(msg)
 ```
 
-### Example
+## Example
 
 As a fully worked out example, here is an implementation of a new numeric class, `BigFloat`, that accepts numeric literals. `BigFloat` is defined in terms of a `BigInt` mantissa and an `Int` exponent:
 
@@ -185,7 +187,7 @@ assumed that only valid arguments are passed. For calls coming from the compiler
 that assumption is valid, since the compiler will first check whether a numeric
 literal has the correct format before it gets passed on to a conversion method.
 
-### Compile-Time Errors
+## Compile-Time Errors
 
 With the setup of the previous section, a literal like
 
