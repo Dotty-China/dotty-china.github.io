@@ -36,7 +36,7 @@ IntelliJ 有自己的语义化特性实现，因此它不适用 Metals 或者 [L
 要将项目导入 IntelliJ 有两种方式：
 
 - 使用内置的导入 sbt 构建功能
-= 使用 IntelliJ 对 [Build Server Protocol (BSP)](https://www.jetbrains.com/help/idea/bsp-support.html) 的支持
+- 使用 IntelliJ 对 [Build Server Protocol (BSP)](https://www.jetbrains.com/help/idea/bsp-support.html) 的支持
 
 
 ### 导入 sbt 构建

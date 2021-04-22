@@ -4,4 +4,5 @@ _site
 .jekyll-metadata
 Gemfile.lock
 vendor
-.vscode
+/.vscode/
+/.metals/
