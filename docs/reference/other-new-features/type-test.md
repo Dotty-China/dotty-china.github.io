@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 类型测试
+title: TypeTest
 parent: 其他新特性
 grand_parent: 参考
 nav_order: 16
@@ -9,14 +9,14 @@ nav_order: 16
 # {{ page.title }}
 
 在模式匹配时，有两种情况必须执行运行时类型测试。
-The first case is an explicit type test using the ascription pattern notation.
+第一种情况是使用 ascription pattern 符号的显式类型测试。
 
 ```scala
 (x: X) match
    case y: Y =>
 ```
 
-The second case is when an extractor takes an argument that is not a subtype of the scrutinee type.
+第二种情况是提取器接受的参数不是 scrutinee 类型的子类型。
 
 ```scala
 (x: X) match
@@ -26,10 +26,10 @@ object Y:
    def unapply(x: Y): Some[Int] = ...
 ```
 
-In both cases, a class test will be performed at runtime.
-But when the type test is on an abstract type (type parameter or type member), the test cannot be performed because the type is erased at runtime.
+在这两种情况下，类型测试都会在运行时执行。但在抽象类型（类型参数或类型成员）上无法执行类型测试，
+因为类型在运行时被擦除。
 
-A `TypeTest` can be provided to make this test possible.
+可以通过提供 `TypeTest` 使得该测试可以进行。
 
 ```scala
 package scala.reflect

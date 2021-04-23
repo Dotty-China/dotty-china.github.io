@@ -6,35 +6,28 @@ grand_parent: 参考
 nav_order: 2
 ---
 
-## Motivation
+# {{ page.title }}
 
-Some usecases, such as modelling database access, are more awkward in
-statically typed languages than in dynamically typed languages: With
-dynamically typed languages, it's quite natural to model a row as a
-record or object, and to select entries with simple dot notation (e.g.
-`row.columnName`).
+## 动机
 
-Achieving the same experience in statically typed
-language requires defining a class for every possible row arising from
-database manipulation (including rows arising from joins and
-projections) and setting up a scheme to map between a row and the
-class representing it.
+一些用例中，比如说建模数据库访问，静态类型语言比动态类型语言相对来说更加不方便：
+在动态类型语言种可以很自然地将行建模为 record 或对象，并可以简单地使用 `.` 选择条目
+（例如 `row.columnName`）。
 
-This requires a large amount of boilerplate, which leads developers to
+要在静态类型语言中实现相同的体验，要为每个数据库操作（包括 join 和 projection）的可能产生的行定义一个类，
+并设定一个 scheme 在行和表示行的类之间进行映射。
+
+这需要大量的 boilerplate，which leads developers to
 trade the advantages of static typing for simpler schemes where colum
 names are represented as strings and passed to other operators (e.g.
-`row.select("columnName")`). This approach forgoes the advantages of
-static typing, and is still not as natural as the dynamically typed
-version.
+`row.select("columnName")`). 这个方式放弃了静态类型的优点，并仍不如动态类型的版本自然。
 
-Structural types help in situations where we would like to support
-simple dot notation in dynamic contexts without losing the advantages
-of static typing. They allow developers to use dot notation and
-configure how fields and methods should be resolved.
+如果我们希望在动态上下文中支持简单的 `.` 表示法，又不想要放弃静态类型的优势，
+这种情况下结构类型很有帮助。它们允许开发人员使用 `.` 表示法并配置解析字段和方法的方式。
 
-## Example
+## 示例
 
-Here's an example of a structural type `Person`:
+这里是结构类型 `Person` 的一个示例：
 
 ```scala
   class Record(elems: (String, Any)*) extends Selectable:
@@ -44,43 +37,44 @@ Here's an example of a structural type `Person`:
   type Person = Record { val name: String; val age: Int }
  ```
  
-The type `Person` adds a _refinement_ to its parent type `Record` that defines the two fields `name` and `age`. We say the refinement is _structural_ since  `name` and `age` are not defined in the parent type. But they exist nevertheless as members of class `Person`. For instance, the following
-program would print  "Emma is 42 years old.":
+类型 `Person` 向父类型 `Record` 添加了一个 *refinement*，定义了两个字段 `name` 和 `age`。
+我们称 refinement 是*结构化的*，因为父类型中没有定义 `name` 和 `age`。但它们仍作为类 `Person` 的成员而存在。
+例如，下面的程序将打印 `Emma is 42 years old.`。
 
 ```scala
   val person = Record("name" -> "Emma", "age" -> 42).asInstanceOf[Person]
   println(s"${person.name} is ${person.age} years old.")
 ```
 
-The parent type `Record` in this example is a generic class that can represent arbitrary records in its `elems` argument. This argument is a
-sequence of pairs of labels of type `String` and values of type `Any`.
-When we create a `Person` as a `Record` we have to assert with a typecast
-that the record defines the right fields of the right types. `Record`
-itself is too weakly typed so the compiler cannot know this without
-help from the user. In practice, the connection between a structural type
-and its underlying generic representation would most likely be done by
-a database layer, and therefore would not be a concern of the end user.
+本例中的父类型 `Record` 是一个泛化类，可以通过 `elems` 参数表示任意 record。
+此参数是 `String` 类型的标签与 `Any` 类型的值组成的 pair 的序列。
+当我们创建一个 `Person` 作为 `Record` 时，我们必须使用类型强制转换进行断言
+这个 record 定义了正确类型的正确字段。`Record` 本身过于弱类型，
+因此编译器无法在没有用户帮助的情况下知道这一点。实际上，
+结构类型与其底层的泛化表示之间的连接很可能是由数据库层完成的，
+所以最终用户不必担心。
 
-`Record` extends the marker trait `scala.Selectable` and defines
-a method `selectDynamic`, which maps a field name to its value.
-Selecting a structural type member is done by calling this method.
-The `person.name` and `person.age` selections are translated by
-the Scala compiler to:
+`Record` 继承了标记 trait `scala.Selectable`，并定义了一个方法 `selectDynamic` 
+用于将字段名映射到值。通过调用该方法选择结构类型的成员。
+`person.name` 和 `person.age` 会被 Scala 编译器翻译为：
 
 ```scala
   person.selectDynamic("name").asInstanceOf[String]
   person.selectDynamic("age").asInstanceOf[Int]
 ```
 
-Besides `selectDynamic`, a `Selectable` class sometimes also defines a method `applyDynamic`. This can then be used to translate function calls of structural members. So, if `a` is an instance of `Selectable`, a structural call like `a.f(b, c)` would translate to
+除了 `selectDynamic`，一个 `Selectable` 类有时还定义 `applyDynamic` 方法。
+它可以用于转换结构类型成员上的方法调用。
+如果 `a` 是 `Selectable` 的一个实例，那么像 `a.f(b, c)` 这样的结构化调用会被翻译为
 
 ```scala
   a.applyDynamic("f")(b, c)
 ```
 
-## Using Java Reflection
+## 使用 Java 反射
 
-Structural types can also be accessed using [Java reflection](https://www.oracle.com/technical-resources/articles/java/javareflection.html). Example:
+结构类型也可以使用 [Java 反射](https://www.oracle.com/technical-resources/articles/java/javareflection.html)访问。
+例如：
 
 ```scala
   type Closeable = { def close(): Unit }
@@ -92,8 +86,12 @@ Structural types can also be accessed using [Java reflection](https://www.oracle
     def close(): Unit
 ```
 
-Here, we define a structural type `Closeable` that defines a `close` method. There are various classes that have `close` methods, we just list `FileInputStream` and `Channel` as two examples. It would be easiest if the two classes shared a common interface that factors out the `close` method. But such factorings are often not possible if different libraries are combined in one application. Yet, we can still have methods that work on
-all classes with a `close` method by using the `Closeable` type. For instance,
+在这里，我们定义了一个结构类型 `Closeable`，其中定义了一个方法 `close`。
+很多类都有 `close` 方法，我们只列出 `FileInputStream` 和 `Channel` 作为两个例子。
+如果两个类共享同一个分解了 `close` 方法的公共接口，那么是最简单的。
+但如果不同的库组合在一个程序中，这种分解往往是不可能的。然而，通过使用 `Closeable` 类型，
+我们依然可以让 `close` 方法在所有类上工作。
+例如：
 
 ```scala
   import scala.reflect.Selectable.reflectiveSelectable
@@ -102,39 +100,40 @@ all classes with a `close` method by using the `Closeable` type. For instance,
     try op(f) finally f.close()
 ```
 
-The call `f.close()` has to use Java reflection to identify and call the `close` method in the receiver `f`. This needs to be enabled by an import
-of `reflectiveSelectable` shown above. What happens "under the hood" is then the following:
+调用 `f.close()` 使用 Java 反射来标识和调用接收器 `f` 中的 `close` 方法。
+这需要通过导入如上所示的 `reflectiveSelectable` 来启用。
+“under the hood”发生的情况如下：
 
- - The import makes available an implicit conversion that turns any type into a
-   `Selectable`. `f` is wrapped in this conversion.
+ - 这个导入使得隐式转换可用，能够将任意类型转换为 `Selectable`。`f` 在这个转换中被包装。
 
- - The compiler then transforms the `close` call on the wrapped `f`
-   to an `applyDynamic` call. The end result is:
+ - 编译器将包装后的 `f` 上的 `close` 调用转换为对 `applyDynamic` 的调用。最终结果是：
 
    ```scala
      reflectiveSelectable(f).applyDynamic("close")()
    ```
- - The implementation of `applyDynamic` in `reflectiveSelectable`'s result
-uses Java reflection to find and call a method `close` with zero parameters in the value referenced by `f` at runtime.
 
-Structural calls like this tend to be much slower than normal method calls. The mandatory import of `reflectiveSelectable` serves as a signpost that something inefficient is going on.
+ - `applyDynamic` 在 `reflectiveSelectable` 中的实现是使用 Java 反射在运行时
+    查找并调用接收器 `f` 中的无参 `close`。
 
-**Note:** In Scala 2, Java reflection is the only mechanism available for structural types and it is automatically enabled without needing the
-`reflectiveSelectable` conversion. However, to warn against inefficient
+像这样的结构化调用往往比普通方法调用慢很多。强制要求导入 `reflectiveSelectable` 充当了一个“路标”，
+表示正在发生一些低效的事情。
+
+**注意**：在 Scala 2 中，Java 反射是唯一可用于结构类型的机制，它是自动启用的，
+不需要导入 `reflectiveSelectable` 转换。 However, to warn against inefficient
 dispatch, Scala 2 requires a language import `import scala.language.reflectiveCalls`.
 
-Before resorting to structural calls with Java reflection one should consider alternatives. For instance, sometimes a more a modular _and_ efficient architecture can be obtained using type classes.
+在使用 Java 反射进行结构化调用之前应该先考虑其他方法。
+例如，有些时候使用 type class 可以得到更模块化*和*更高效的结构体系。
 
-## Extensibility
+## 可扩展性
 
-New instances of `Selectable` can be defined to support means of
-access other than Java reflection, which would enable usages such as
-the database access example given at the beginning of this document.
+可以定义新的 `Selectable` 实例支持 Java 反射以外的访问方式，
+这将支持本文开头给出的数据库访问示例之类的用法。
 
-## Local Selectable Instances
+## 局部 `Selectable` 实例
 
-Local and anonymous classes that extend `Selectable` get more refined types
-than other classes. Here is an example:
+继承 `Selectable` 的局部匿名类可以得到比其他类更精确的类型。
+这是一个例子：
 
 ```scala
 trait Vehicle extends reflect.Selectable:
@@ -147,8 +146,9 @@ val i3 = new Vehicle: // i3: Vehicle { val range: Int }
 i3.range
 ```
 
-The type of `i3` in this example is `Vehicle { val range: Int }`. Hence,
-`i3.range` is well-formed. Since the base class `Vehicle` does not define a `range` field or method, we need structural dispatch to access the `range` field of the anonymous class that initializes `id3`. Structural dispatch
+本例中的 `i3` 类型为 `Vehicle { val range: Int }`。因此，`i3.range` 是 well-formed 的。
+因为基类 `Vehicle` 中没有定义 `range` 字段或方法，
+we need structural dispatch to access the `range` field of the anonymous class that initializes `id3`. Structural dispatch
 is implemented by the base trait `reflect.Selectable` of `Vehicle`, which
 defines the necessary `selectDynamic` member.
 

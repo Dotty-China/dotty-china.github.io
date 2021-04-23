@@ -12,11 +12,11 @@ Scala 3 实现了实现性质的安全初始化检查，可以通过编译器选
 
 ## A Quick Glance
 
-To get a feel of how it works, we first show several examples below.
+为了了解它的工作原理，我们先在下面展示几个示例。
 
 ### Parent-Child Interaction
 
-Given the following code snippet:
+给定以下代码段：
 
 ``` scala
 abstract class AbstractFile:
@@ -28,7 +28,7 @@ class RemoteFile(url: String) extends AbstractFile:
    def name: String = localFile
 ```
 
-The checker will report:
+检查器会报告：
 
 ``` scala
 -- Warning: tests/init/neg/AbstractFile.scala:7:4 ------------------------------
@@ -41,7 +41,7 @@ The checker will report:
 
 ### Inner-Outer Interaction
 
-Given the code below:
+给定以下代码段：
 
 ``` scala
 object Trees:
@@ -51,7 +51,7 @@ object Trees:
    private var counter = 0  // error
 ```
 
-The checker will report:
+检查器会报告：
 
 ``` scala
 -- Warning: tests/init/neg/trees.scala:5:14 ------------------------------------
@@ -65,7 +65,7 @@ The checker will report:
 
 ### Functions
 
-Given the code below:
+给定以下代码段：
 
 ``` scala
 abstract class Parent:
@@ -78,7 +78,7 @@ class Child extends Parent:
    def message: String = b
 ```
 
-The checker reports:
+检查器会报告：
 
 ``` scala
 -- Warning: tests/init/neg/features-high-order.scala:7:6 -----------------------
@@ -89,9 +89,9 @@ The checker reports:
   |   -> val f: () => String = () => this.message	[ features-high-order.scala:2 ]
   |    -> def message: String = b	                [ features-high-order.scala:8 ]
 ```
-## Design Goals
+## 设计目标
 
-We establish the following design goals:
+我们确立了以下设计目标：
 
 - __Sound__: checking always terminates, and is sound for common and reasonable usage (over-approximation)
 - __Expressive__: support common and reasonable initialization patterns
