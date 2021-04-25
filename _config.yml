@@ -33,7 +33,7 @@ search_enabled: false
 aux_links:
   "官方网站":
     - "https://dotty.epfl.ch/"
-  "改进翻译":
+  "GitHub 仓库":
     - "https://github.com/Dotty-China/dotty-china.github.io"
   "捐赠支持":
     - "https://donate.glavo.site/"
