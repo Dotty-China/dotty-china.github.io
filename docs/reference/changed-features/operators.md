@@ -6,15 +6,18 @@ grand_parent: 参考
 nav_order: 3
 ---
 
-The rules for infix operators have changed in some parts:
+# {{ page.title }}
 
-First, an alphanumeric method can be used as an infix operator only if its definition carries an `infix` modifier. Second, it is recommended (but not enforced) to
-augment definitions of symbolic operators with [`@targetName` annotations](../other-new-features/targetName.md). Finally,
-a syntax change allows infix operators to be written on the left in a multi-line expression.
+中缀操作符规则的某些部分发生了变化：
 
-## The `infix` Modifier
+首先，方法名由字母和数字组成的方法只有在定义时带有 `infix` 修饰符才能作为中缀操作符使用。
+其次，建议（但不强制）使用 [`@targetName` 注解](../other-new-features/targetName.md)
+补充符号操作符的定义。
+最后，语法更改后允许在跨行表达式中的最左侧书写中缀操作符。
 
-An `infix` modifier on a method definition allows using the method as an infix operation. Example:
+## `infix` 修饰符
+
+方法上的 `infix` 修饰符允许将方法作为中缀操作符使用。例如：
 
 ```scala
 import scala.annotation.targetName
@@ -45,36 +48,40 @@ s1 `*` s2           // also OK, but unusual
 s1.*(s2)            // also OK, but unusual
 ```
 
-Infix operations involving alphanumeric operators are deprecated, unless
-one of the following conditions holds:
+对于字母数字操作符使用中缀语法调用被弃用镁光，
+除非满足以下条件之一：
 
- - the operator definition carries an `infix` modifier, or
- - the operator was compiled with Scala 2, or
- - the operator is followed by an opening brace.
+- 操作符定义带有 `infix` 修饰符。
+- 操作符方法由 Scala 2 编译。
+- 操作符后紧跟一个左大括号。
 
-An alphanumeric operator is an operator consisting entirely of letters, digits, the `$` and `_` characters, or
-any Unicode character `c` for which `java.lang.Character.isIdentifierPart(c)` returns `true`.
 
-Infix operations involving symbolic operators are always allowed, so `infix` is redundant for methods with symbolic names.
+字母数字操作符名称完全由字母、数字、`$`、`_` 以及其他满足调用 `java.lang.Character.isIdentifierPart(c)` 
+返回 `true` 的 Unicode 字符 `c` 组成。
 
-The `infix` modifier can also be given to a type:
+使用中缀调用语法调用符号操作符总是被允许，因此带有符号名称的方法上的 `infix` 修饰符是多余的。
+
+`infix` 修饰符也可以指定给一个类型：
 
 ```scala
 infix type or[X, Y]
 val x: String or Int = ...
 ```
 
-### Motivation
+### 动机
 
-The purpose of the `infix` modifier is to achieve consistency across a code base in how a method or type is applied. The idea is that the author of a method decides whether that method should be applied as an infix operator or in a regular application. Use sites then implement that decision consistently.
+`infix` 修饰符的设计目的是保持 code base 中应用方法或类型时的一致性。
+其想法是方法的作者应该决定该方法应该作为中缀操作符使用，还是应该通过常规应用语法应用。
+Use sites then implement that decision consistently.
 
-### Details
+### 细节
 
- 1. `infix` is a soft modifier. It is treated as a normal identifier except when in modifier position.
+ 1. `infix` 是一个软修饰符。在修饰符位以外的地方它被视为一个普通的标识符。
 
- 2. If a method overrides another, their infix annotations must agree. Either both are annotated with `infix`, or none of them are.
+ 2. 如果一个方法重写另一个方法，它们的 `infix` 标注必须保持一致。要么两者都使用 `infix` 标注，
+    要么都不标注。
 
- 3. `infix` modifiers can be given to method definitions. The first non-receiver parameter list of an `infix` method must define exactly one parameter. Examples:
+ 3. `infix` 修饰符可以赋予给方法定义。中缀方法的第一个非接收器参数列表必须有且仅有一个参数。例如：
 
     ```scala
     infix def op1(x: S): R             // ok
@@ -86,33 +93,34 @@ The purpose of the `infix` modifier is to achieve consistency across a code base
        infix def op5(y1: B, y2: B): R  // error: two parameters
     ```
 
- 4. `infix` modifiers can also be given to type, trait or class definitions that have exactly two type parameters. An infix type like
-
+ 4. `infix` 修饰符也可以赋予给有且仅有两个类型参数的类型、trait 或类定义。这样的中缀类型
+    
     ```scala
     infix type op[X, Y]
     ```
 
-    can be applied using infix syntax, i.e. `A op B`.
+    可以使用 `infix` 语法应用，也就是 `A op B`。
 
- 5. To smooth migration to Scala 3.0, alphanumeric operators will only be deprecated from Scala 3.1 onwards,
-or if the `-source future` option is given in Dotty/Scala 3.
+ 5. 为了平滑地迁移至 Scala 3.0，字母数字操作符在 Scala 3.1 或 Scala 3.0 中使用 `-source future` 
+    时才会被弃用。
 
-## The `@targetName` Annotation
+## `@targetName` 注解
 
-It is recommended that definitions of symbolic operators carry a [`@targetName` annotation](../other-new-features/targetName.md) that provides an encoding of the operator with an alphanumeric name. This has several benefits:
+推荐符号操作符定义时带有 [`@targetName` 注解](../other-new-features/targetName.md)，
+使用字母数字名称对操作符进行编码。这有几个好处：
 
- - It helps interoperability between Scala and other languages. One can call
-   a Scala-defined symbolic operator from another language using its target name,
-   which avoids having to remember the low-level encoding of the symbolic name.
- - It helps legibility of stacktraces and other runtime diagnostics, where the
-   user-defined alphanumeric name will be shown instead of the low-level encoding.
- - It serves as a documentation tool by providing an alternative regular name
-   as an alias of a symbolic operator. This makes the definition also easier
-   to find in a search.
+ - 这有助于提高 Scala 与其他语言之间的互操作性。其他语言调用 Scala 中定义的符号操作符时可以使用 target 名称，
+   这样就不需要记住符号名称的低级编码。
 
-## Syntax Change
+ - 这有助于改善 stacktrace 以及其他运行时诊断的可读性，这些工具中将使用用户定义的字母数字名称，
+   而不是符号的低级编码。
 
-Infix operators can now appear at the start of lines in a multi-line expression. Examples:
+ - 它为文档工具提供了一个常规名称作为符号操作符的别名。
+   这也使得定义更容易通过搜索找到。
+
+## 语法变更
+
+中缀操作符现在可以出现在跨行表达式中行的开头。例如：
 
 ```scala
 val str = "hello"
@@ -126,34 +134,33 @@ def condition =
    || xs.isEmpty
 ```
 
-Previously, those expressions would have been rejected, since the compiler's semicolon inference
-would have treated the continuations `++ " world"` or `|| xs.isEmpty` as separate statements.
+以前这些表达式会被拒绝，因为编译器的分号推导会把延续部分的 
+`++ " world"` 和 `|| xs.isEmpty` 作为单独的语句处理。
 
-To make this syntax work, the rules are modified to not infer semicolons in front of leading infix operators.
-A _leading infix operator_ is
- - a symbolic identifier such as `+`, or `approx_==`, or an identifier in backticks,
- - that starts a new line,
+为了让这种语法能够正常使用，规则被修改为不在前导中缀操作符之前推断分号。
+*前导中缀操作符（Leading Infix Operator）*是
+ - 符号标识符，类似 `+`、`approx_==` 以及反引号中的标识符，
+ - 它开始了新的一行，
  - that precedes a token on the same or the next line that can start an expression,
  - and that is immediately followed by at least one whitespace character.
 
-Example:
+例如：
 
 ```scala
     freezing
   | boiling
 ```
 
-This is recognized as a single infix operation. Compare with:
+这被认为是一个单独的中缀操作符。与这段代码相比：
 
 ```scala
     freezing
   !boiling
 ```
 
-This is seen as two statements, `freezing` and `!boiling`. The difference is that only the operator in the first example
-is followed by a space.
+这会被视为两条语句，`freezing` 和 `!boiling`。不同之处在于第一个例子中的操作符后紧跟着空格。
 
-Another example:
+另一个例子：
 
 ```scala
   println("hello")
@@ -161,5 +168,5 @@ Another example:
   ??? match { case 0 => 1 }
 ```
 
-This code is recognized as three different statements. `???` is syntactically a symbolic identifier, but
-neither of its occurrences is followed by a space and a token that can start an expression.
+这段代码被视作三个不同的语句。`???` 在语法上是一个符号操作符，但它出现的时候其后不会紧跟一个空格
+以及一个可以用于开始表达式的 token。
