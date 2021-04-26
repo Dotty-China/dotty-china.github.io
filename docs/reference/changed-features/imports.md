@@ -1,21 +1,24 @@
 ---
 layout: default
-title: Imports
+title: 导入
 parent: 其他变化的特性
 grand_parent: 参考
 nav_order: 5
 ---
 
-The syntax of wildcard and renaming imports (and exports) has changed.
+# {{ page.title }}
 
-## Wildcard Imports
+通配符和重命名导入（以及导出）的语法已修改。
 
-Wildcard imports are now expressed with `*` instead of underscore. Example:
+## 通配符导入
+
+通配符导入现在使用 `*` 而不是下划线表示。例如：
+
 ```scala
 import scala.annotation.*  // imports everything in the annotation package
 ```
 
-If you want to import a member named `*` specifically, you can use backticks around it.
+如果要导入名为 `*` 的成员，可以在使用反引号括起其名称。
 
 ```scala
 object A:
@@ -29,7 +32,7 @@ object C:
   import A.*     // imports everything in A
 ```
 
-## Renaming Imports
+## 重命名导入
 
 To rename or exclude an import, we now use `as` instead of `=>`. A single renaming import no longer needs to be enclosed in braces. Examples:
 
@@ -40,13 +43,12 @@ import scala.annotation as ann
 import java as j
 ```
 
-### Migration
+## 迁移
 
-To support cross-building, Scala 3.0 supports the old import syntax with `_` for wildcards and `=>` for renamings in addition to the new one. The old syntax
-will be dropped in a future versions. Automatic rewritings from old to new syntax
-are offered under settings `-source 3.1-migration -rewrite`.
+为了支持 cross-building，Scala 3 除了支持新的导入语法外，也支持旧式导入语法（`_` 作为通配符，`=>` 表示重命名）。
+旧式语法将在未来被删除。选项 `-source 3.1-migration -rewrite` 下提供了从旧式语法到新式语法的自动重写。
 
-### Syntax
+## 语法
 
 ```
 Import            ::=  ‘import’ ImportExpr {‘,’ ImportExpr}
