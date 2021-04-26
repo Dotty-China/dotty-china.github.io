@@ -6,6 +6,8 @@ grand_parent: 参考
 nav_order: 8
 ---
 
+## {{ page.title }}
+
 This section describes changes to the implicit resolution that apply both to the new `given`s and to the old-style `implicit`s in Scala 3.
 Implicit resolution uses a new algorithm which caches implicit results
 more aggressively for performance. There are also some changes that
