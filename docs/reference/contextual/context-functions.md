@@ -72,15 +72,17 @@ type Executable[T] = ExecutionContext ?=> T
 其想法是为 `Table` 和 `Row` 定义类，并允许通过 `add` 添加元素：
 
 ```scala
-  class Table:
+  class Table {
      val rows = new ArrayBuffer[Row]
      def add(r: Row): Unit = rows += r
      override def toString = rows.mkString("Table(", ", ", ")")
+  }
 
-  class Row:
+  class Row {
      val cells = new ArrayBuffer[Cell]
      def add(c: Cell): Unit = cells += c
      override def toString = cells.mkString("Row(", ", ", ")")
+  }
 
   case class Cell(elem: String)
 ```
@@ -88,15 +90,17 @@ type Executable[T] = ExecutionContext ?=> T
 然后可以使用上下文函数类型作为参数来定义 `table`、`row` 和 `cell` 工厂方法，以避免使用 plumbing boilerplate。
 
 ```scala
-  def table(init: Table ?=> Unit) =
+  def table(init: Table ?=> Unit) = {
      given t: Table = Table()
      init
      t
+  }
 
-  def row(init: Row ?=> Unit)(using t: Table) =
+  def row(init: Row ?=> Unit)(using t: Table) = {
      given r: Row = Row()
      init
      t.add(r)
+  }
 
   def cell(str: String)(using r: Row) =
      r.add(new Cell(str))
@@ -125,7 +129,7 @@ type Executable[T] = ExecutionContext ?=> T
 检查的结果可以方便的使用 `result` 引用。该示例结合了不透明类型别名、上下文函数类型和扩展方法提供零开销抽象。
 
 ```scala
-object PostConditions:
+object PostConditions {
    opaque type WrappedResult[T] = T
 
    def result[T](using r: WrappedResult[T]): T = r
@@ -134,7 +138,7 @@ object PostConditions:
       def ensuring(condition: WrappedResult[T] ?=> Boolean): T =
          assert(condition(using x))
          x
-end PostConditions
+}
 import PostConditions.{ensuring, result}
 
 val s = List(1, 2, 3).sum.ensuring(result == 6)
@@ -146,10 +150,11 @@ val s = List(1, 2, 3).sum.ensuring(result == 6)
 因为 `WrappedResult` 是一个不透明类型别名，所以它的值也不需要装箱。因此 `ensuring` 的实现与手工编写以下代码一样高效：
 
 ```scala
-val s =
+val s = {
    val result = List(1, 2, 3).sum
    assert(result == 6)
    result
+}
 ```
 ## 参考
 

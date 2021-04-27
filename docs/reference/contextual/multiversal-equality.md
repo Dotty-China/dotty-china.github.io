@@ -164,9 +164,10 @@ we are dealing with a refinement of pre-existing, universal equality. It is best
 
 Say you want to come up with a safe version of the `contains` method on `List[T]`. The original definition of `contains` in the standard library was:
 ```scala
-class List[+T]:
+class List[+T] {
    ...
    def contains(x: Any): Boolean
+}
 ```
 That uses universal equality in an unsafe way since it permits arguments of any type to be compared with the list's elements. The "obvious" alternative definition
 ```scala

@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 导入 Given
+title: Given 导入
 parent: 上下文抽象
 grand_parent: 参考
 nav_order: 5
@@ -11,24 +11,27 @@ nav_order: 5
 import 通配符选择器的一个特殊形式用于导入 given 实例。例如：
 
 ```scala
-object A:
+object A {
    class TC
    given tc: TC = ???
    def f(using TC) = ???
+}
 
-object B:
+object B {
    import A.*
    import A.given
    ...
+}
 ```
 
 在上面的代码中，对象 `B` 中的 `import A.*` 子句导入 `A` *除了* given 实例 `tc` 的所有成员。
 而第二个导入 `import A.given` 只导入 given 实例。两个 import 子句也可以合并为一个：
 
 ```scala
-object B:
+object B {
    import A.{given, *}
    ...
+}
 ```
 
 一般来说，一个普通的通配符选择器 `_` 将除了 given 和扩展外的所有定义带入作用域，
@@ -57,11 +60,12 @@ import A.{given T1, ..., given Tn}
 导入参数化类型的所有 given 实例由通配符参数表示。例如，假设有这样一个对象
 
 ```scala
-object Instances:
+object Instances {
    given intOrd: Ordering[Int] = ...
    given listOrd[T: Ordering]: Ordering[List[T]] = ...
    given ec: ExecutionContext = ...
    given im: Monoid[Int] = ...
+}
 ```
 
 import 子句

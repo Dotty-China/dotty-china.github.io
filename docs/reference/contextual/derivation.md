@@ -13,9 +13,10 @@ Type class 推导是为满足某些简单条件的 type class 自动生成 given
 常见的例子有 `Eq`、`Ordering` 和 `Show`。例如，给定以下 ADT `Tree`：
 
 ```scala
-enum Tree[T] derives Eq, Ordering, Show:
+enum Tree[T] derives Eq, Ordering, Show {
    case Branch(left: Tree[T], right: Tree[T])
    case Leaf(elem: T)
+}
 ```
 
 `derives` 子句自动在 `Tree` 的伴生对象中生成了 type class `Eq`、`Ordering` 和 `Show` 的 given 实例：
@@ -42,7 +43,7 @@ Type class `Mirror` 的实例在类型级别提供有关组件和类型标签的
 以允许更高级别的库提供全面的推导支持。
 
 ```scala
-sealed trait Mirror:
+sealed trait Mirror {
 
    /** the type being mirrored */
    type MirroredType
@@ -58,25 +59,27 @@ sealed trait Mirror:
 
    /** The names of the elements of the type */
    type MirroredElemLabels <: Tuple
+}
 
-object Mirror:
+object Mirror {
 
    /** The Mirror for a product type */
-   trait Product extends Mirror:
+   trait Product extends Mirror {
 
       /** Create a new instance of type `T` with elements
        *  taken from product `p`.
        */
       def fromProduct(p: scala.Product): MirroredMonoType
+   }
 
-   trait Sum extends Mirror:
+   trait Sum extends Mirror {
 
       /** The ordinal number of the case class of `x`.
        *  For enums, `ordinal(x) == x.ordinal`
        */
       def ordinal(x: MirroredMonoType): Int
-
-end Mirror
+   }
+}
 ```
 
 Product 类型（例如 case 类和对象，以及枚举的 case）具有为 `Mirror.Product` 子类型的镜像。
@@ -86,7 +89,7 @@ Sum type（例如子类型只有 product 类型的 sealed 类或 trait，以及�
 
 ```scala
 // Mirror for Tree
-new Mirror.Sum:
+new Mirror.Sum {
    type MirroredType = Tree
    type MirroredElemTypes[T] = (Branch[T], Leaf[T])
    type MirroredMonoType = Tree[_]
@@ -96,9 +99,9 @@ new Mirror.Sum:
    def ordinal(x: MirroredMonoType): Int = x match
       case _: Branch[_] => 0
       case _: Leaf[_] => 1
-
+}
 // Mirror for Branch
-new Mirror.Product:
+new Mirror.Product {
    type MirroredType = Branch
    type MirroredElemTypes[T] = (Tree[T], Tree[T])
    type MirroredMonoType = Branch[_]
@@ -107,9 +110,9 @@ new Mirror.Product:
 
    def fromProduct(p: Product): MirroredMonoType =
       new Branch(...)
-
+}
 // Mirror for Leaf
-new Mirror.Product:
+new Mirror.Product {
    type MirroredType = Leaf
    type MirroredElemTypes[T] = Tuple1[T]
    type MirroredMonoType = Leaf[_]
@@ -118,6 +121,7 @@ new Mirror.Product:
 
    def fromProduct(p: Product): MirroredMonoType =
       new Leaf(...)
+}
 ```
 
 请注意 `Mirror` 类型的以下属性：
@@ -165,19 +169,22 @@ type-level constructs in Scala 3: inline methods, inline matches, and implicit s
 `Eq` type class,
 
 ```scala
-trait Eq[T]:
+trait Eq[T] {
    def eqv(x: T, y: T): Boolean
+}
 ```
 
 we need to implement a method `Eq.derived` on the companion object of `Eq` that produces a given instance for `Eq[T]` given
 a `Mirror[T]`. Here is a possible implementation,
 
 ```scala
-inline given derived[T](using m: Mirror.Of[T]): Eq[T] =
+inline given derived[T](using m: Mirror.Of[T]): Eq[T] = {
    val elemInstances = summonAll[m.MirroredElemTypes]           // (1)
-   inline m match                                               // (2)
+   inline m match {                                             // (2)
       case s: Mirror.SumOf[T]     => eqSum(s, elemInstances)
       case p: Mirror.ProductOf[T] => eqProduct(p, elemInstances)
+   }
+}
 ```
 
 Note that `derived` is defined as an `inline` given. This means that the method will be expanded at
@@ -191,9 +198,10 @@ implementation of `summonAll` is `inline` and uses Scala 3's `summonInline` cons
 
 ```scala
 inline def summonAll[T <: Tuple]: List[Eq[_]] =
-   inline erasedValue[T] match
+   inline erasedValue[T] match {
       case _: EmptyTuple => Nil
       case _: (t *: ts) => summonInline[Eq[t]] :: summonAll[ts]
+   }
 ```
 
 with the instances for children in hand the `derived` method uses an `inline match` to dispatch to methods which can
@@ -207,22 +215,25 @@ instance for the appropriate ADT subtype using the auxiliary method `check` (4).
 
 ```scala
 def eqSum[T](s: Mirror.SumOf[T], elems: List[Eq[_]]): Eq[T] =
-   new Eq[T]:
-      def eqv(x: T, y: T): Boolean =
+   new Eq[T] {
+      def eqv(x: T, y: T): Boolean = {
          val ordx = s.ordinal(x)                            // (3)
          (s.ordinal(y) == ordx) && check(elems(ordx))(x, y) // (4)
+      }
+   }
 ```
 
 In the product case, `eqProduct` we test the runtime values of the arguments to `eqv` for equality as products based
 on the `Eq` instances for the fields of the data type (5),
 
 ```scala
-def eqProduct[T](p: Mirror.ProductOf[T], elems: List[Eq[_]]): Eq[T] =
-   new Eq[T]:
+def eqProduct[T](p: Mirror.ProductOf[T], elems: List[Eq[_]]): Eq[T] = 
+   new Eq[T] {
       def eqv(x: T, y: T): Boolean =
          iterator(x).zip(iterator(y)).zip(elems.iterator).forall {  // (5)
             case ((x, y), elem) => check(elem)(x, y)
          }
+   }
 ```
 
 Pulling this all together we have the following complete implementation,
@@ -236,12 +247,14 @@ inline def summonAll[T <: Tuple]: List[Eq[_]] =
       case _: EmptyTuple => Nil
       case _: (t *: ts) => summonInline[Eq[t]] :: summonAll[ts]
 
-trait Eq[T]:
+trait Eq[T] {
    def eqv(x: T, y: T): Boolean
+}
 
-object Eq:
-   given Eq[Int] with
+object Eq {
+   given Eq[Int] with {
       def eqv(x: Int, y: Int) = x == y
+   }
 
    def check(elem: Eq[_])(x: Any, y: Any): Boolean =
       elem.asInstanceOf[Eq[Any]].eqv(x, y)
@@ -249,39 +262,46 @@ object Eq:
    def iterator[T](p: T) = p.asInstanceOf[Product].productIterator
 
    def eqSum[T](s: Mirror.SumOf[T], elems: => List[Eq[_]]): Eq[T] =
-      new Eq[T]:
-         def eqv(x: T, y: T): Boolean =
+      new Eq[T] {
+         def eqv(x: T, y: T): Boolean = {
             val ordx = s.ordinal(x)
             (s.ordinal(y) == ordx) && check(elems(ordx))(x, y)
+         }
+      }
 
    def eqProduct[T](p: Mirror.ProductOf[T], elems: => List[Eq[_]]): Eq[T] =
-      new Eq[T]:
+      new Eq[T] {
          def eqv(x: T, y: T): Boolean =
             iterator(x).zip(iterator(y)).zip(elems.iterator).forall {
                case ((x, y), elem) => check(elem)(x, y)
             }
+      }
 
-   inline given derived[T](using m: Mirror.Of[T]): Eq[T] =
+   inline given derived[T](using m: Mirror.Of[T]): Eq[T] = {
       lazy val elemInstances = summonAll[m.MirroredElemTypes]
-      inline m match
+      inline m match {
          case s: Mirror.SumOf[T]     => eqSum(s, elemInstances)
          case p: Mirror.ProductOf[T] => eqProduct(p, elemInstances)
-end Eq
+      }
+   }
+}
 ```
 
 we can test this relative to a simple ADT like so,
 
 ```scala
-enum Opt[+T] derives Eq:
+enum Opt[+T] derives Eq {
    case Sm(t: T)
    case Nn
+}
 
-@main def test(): Unit =
+@main def test(): Unit = {
    import Opt.*
    val eqoi = summon[Eq[Opt[Int]]]
    assert(eqoi.eqv(Sm(23), Sm(23)))
    assert(!eqoi.eqv(Sm(23), Sm(13)))
    assert(!eqoi.eqv(Sm(23), Nn))
+}
 ```
 
 In this case the code that is generated by the inline expansion for the derived `Eq` instance for `Opt` looks like the
@@ -306,16 +326,18 @@ As a third example, using a higher level library such as Shapeless the type clas
 `derived` method as,
 
 ```scala
-given eqSum[A](using inst: => K0.CoproductInstances[Eq, A]): Eq[A] with
+given eqSum[A](using inst: => K0.CoproductInstances[Eq, A]): Eq[A] with {
    def eqv(x: A, y: A): Boolean = inst.fold2(x, y)(false)(
       [t] => (eqt: Eq[t], t0: t, t1: t) => eqt.eqv(t0, t1)
    )
+}
 
-given eqProduct[A](using inst: K0.ProductInstances[Eq, A]): Eq[A] with
+given eqProduct[A](using inst: K0.ProductInstances[Eq, A]): Eq[A] with {
    def eqv(x: A, y: A): Boolean = inst.foldLeft2(x, y)(true: Boolean)(
       [t] => (acc: Boolean, eqt: Eq[t], t0: t, t1: t) =>
          Complete(!eqt.eqv(t0, t1))(false)(true)
    )
+}
 
 inline def derived[A](using gen: K0.Generic[A]) as Eq[A] =
    gen.derive(eqSum, eqProduct)

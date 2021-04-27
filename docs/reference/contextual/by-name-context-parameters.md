@@ -11,15 +11,18 @@ nav_order: 12
 上下文参数可以按名声明，以避免 divergent inferred expansion。例如：
 
 ```scala
-trait Codec[T]:
+trait Codec[T] {
    def write(x: T): Unit
+}
 
 given intCodec: Codec[Int] = ???
 
-given optionCodec[T](using ev: => Codec[T]): Codec[Option[T]] with
-   def write(xo: Option[T]) = xo match
+given optionCodec[T](using ev: => Codec[T]): Codec[Option[T]] with {
+   def write(xo: Option[T]) = xo match {
       case Some(x) => ev.write(x)
       case None =>
+   }
+}
 
 val s = summon[Codec[Option[Int]]]
 

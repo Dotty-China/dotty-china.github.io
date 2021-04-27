@@ -12,24 +12,29 @@ Given 实例（或者简单称为 given）定义了某些类型的“经典”�
 例如：
 
 ```scala
-trait Ord[T]:
+trait Ord[T] {
    def compare(x: T, y: T): Int
    extension (x: T) def < (y: T) = compare(x, y) < 0
    extension (x: T) def > (y: T) = compare(x, y) > 0
+}
 
-given intOrd: Ord[Int] with
+given intOrd: Ord[Int] with {
    def compare(x: Int, y: Int) =
-      if x < y then -1 else if x > y then +1 else 0
+      if (x < y) -1 else if (x > y) +1 else 0
+}
 
-given listOrd[T](using ord: Ord[T]): Ord[List[T]] with
+given listOrd[T](using ord: Ord[T]): Ord[List[T]] with {
 
-   def compare(xs: List[T], ys: List[T]): Int = (xs, ys) match
+   def compare(xs: List[T], ys: List[T]): Int = (xs, ys) match {
       case (Nil, Nil) => 0
       case (Nil, _) => -1
       case (_, Nil) => +1
-      case (x :: xs1, y :: ys1) =>
+      case (x :: xs1, y :: ys1) => {
          val fst = ord.compare(x, y)
-         if fst != 0 then fst else compare(xs1, ys1)
+         if (fst != 0) fst else compare(xs1, ys1)
+      }
+   }
+}
 
 ```
 
@@ -43,10 +48,13 @@ given listOrd[T](using ord: Ord[T]): Ord[List[T]] with
 Given 的名称可以省略。所以最后一段的定义也可以这样表示：
 
 ```scala
-given Ord[Int] with
+given Ord[Int] with {
    ...
-given [T](using Ord[T]): Ord[List[T]] with
+}
+
+given [T](using Ord[T]): Ord[List[T]] with {
    ...
+}
 ```
 如果 given 缺少名称，编译器就会从实现的类型合成名称。
 
@@ -101,10 +109,13 @@ transparent inline given mkAnnotations[A, T]: Annotations[A, T] = ${
 Given 实例也可以在模式中出现。例如：
 
 ```scala
-for given Context <- applicationContexts do
+for (given Context <- applicationContexts) {
+   ...
+}
 
-pair match
+pair match {
    case (ctx @ given Context, y) => ...
+}
 ```
 
 在上面第一个片段中，通过在 `applicationContexts` 上枚举创建类 `Context` 的匿名 given 实例。
@@ -127,14 +138,16 @@ import scala.util.NotGiven
 trait Tagged[A]
 
 case class Foo[A](value: Boolean)
-object Foo:
+object Foo {
    given fooTagged[A](using Tagged[A]): Foo[A] = Foo(true)
    given fooNotTagged[A](using NotGiven[Tagged[A]]): Foo[A] = Foo(false)
+}
 
-@main def test(): Unit =
+@main def test(): Unit = {
    given Tagged[Int] with {}
    assert(summon[Foo[Int]].value) // fooTagged is found
    assert(!summon[Foo[String]].value) // fooNotTagged is found
+}
 ```
 
 ## Given 实例初始化

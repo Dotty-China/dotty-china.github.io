@@ -22,27 +22,31 @@ nav_order: 7
 这是 `Monoid` type class 的定义：
 
 ```scala
-trait SemiGroup[T]:
+trait SemiGroup[T] {
    extension (x: T) def combine (y: T): T
+}
 
-trait Monoid[T] extends SemiGroup[T]:
+trait Monoid[T] extends SemiGroup[T] {
    def unit: T
+}
 ```
 
 这个 `Monoid` type class 对于类型 `String` 的实现可以像下面这样：
 
 ```scala
-given Monoid[String] with
+given Monoid[String] with {
    extension (x: String) def combine (y: String): String = x.concat(y)
    def unit: String = ""
+}
 ```
 
 而对于类型 `Int` 可以这样：
 
 ```scala
-given Monoid[Int] with
+given Monoid[Int] with {
    extension (x: Int) def combine (y: Int): Int = x + y
    def unit: Int = 0
+}
 ```
 
 现在可以将这个 Monoid 在以下 `combineAll` 方法中用作*上下文边界*：
@@ -55,8 +59,9 @@ def combineAll[T: Monoid](xs: List[T]): T =
 为了摆脱 `summon[...]`，我们可以为 `Monoid` 定义如下所示的伴生对象：
 
 ```scala
-object Monoid:
+object Monoid {
    def apply[T](using m: Monoid[T]) = m
+}
 ```
 
 这允许以这种方式重写 `combineAll` 方法：
@@ -74,17 +79,19 @@ def combineAll[T: Monoid](xs: List[T]): T =
 因此我们把它写作 `F[_]`，暗示类型 `F` 接受另一个类型作为参数。因此，泛型 `Functor` 的定义可以写作：
 
 ```scala
-trait Functor[F[_]]:
+trait Functor[F[_]] {
    def map[A, B](x: F[A], f: A => B): F[B]
+}
 ```
 
 可以这样理解：“类型构造器 `F[_]` 的 `Functor` 表示通过应用类型 `A => B` 的函数能够将 `F[A]` 转换为 `F[B]` 的能力”。
 我们称这里的 `Functor` 定义为 *Type Class*。这样，我们就可以为类型 `List` 定义一个 `Functor` 实例：
 
 ```scala
-given Functor[List] with
+given Functor[List] with {
    def map[A, B](x: List[A], f: A => B): List[B] =
       x.map(f) // List already has a `map` method
+}
 ```
 
 当这个 `given` 实例在作用域中时，任何需要一个 `Functor` 的地方编译器都能接受 `List`。
@@ -108,18 +115,20 @@ assertTransformation(List("a1", "b1"), List("a", "b"), elt => s"${elt}1")
 让我们用扩展方法重新定义 `Functor` type class。
 
 ```scala
-trait Functor[F[_]]:
+trait Functor[F[_]] {
    extension [A](x: F[A])
       def map[B](f: A => B): F[B]
+}
 ```
 
 `List` 的 `Functor` 实例现在变为：
 
 ```scala
-given Functor[List] with
+given Functor[List] with {
    extension [A](xs: List[A])
       def map[B](f: A => B): List[B] =
          xs.map(f) // List already has a `map` method
+}
 
 ```
 
@@ -147,7 +156,7 @@ That's where `Monad` comes in. `F[_]` 类型的 `Monad` 是带有两个额外操
 下面就是这个定义在 Scala 3 中的翻译：
 
 ```scala
-trait Monad[F[_]] extends Functor[F]:
+trait Monad[F[_]] extends Functor[F] {
 
    /** The unit value for a monad */
    def pure[A](x: A): F[A]
@@ -159,7 +168,7 @@ trait Monad[F[_]] extends Functor[F]:
       /** The `map` operation can now be defined in terms of `flatMap` */
       def map[B](f: A => B) = x.flatMap(f.andThen(pure))
 
-end Monad
+}
 ```
 
 ### List
@@ -167,12 +176,13 @@ end Monad
 `List` 可以用下面的 `given` 实例转换为 monad：
 
 ```scala
-given listMonad: Monad[List] with
+given listMonad: Monad[List] with {
    def pure[A](x: A): List[A] =
       List(x)
    extension [A](xs: List[A])
       def flatMap[B](f: A => List[B]): List[B] =
          xs.flatMap(f) // rely on the existing `flatMap` method of `List`
+}
 ```
 
 因为 `Monad` 是 `Functor` 的子类型，所以 `List` 也是一个 functor。Functor 的 `map` 操作已经由 `Monad` trait 提供，
@@ -183,13 +193,15 @@ given listMonad: Monad[List] with
 `Option` 是另一种具有同类行为的类型：
 
 ```scala
-given optionMonad: Monad[Option] with
+given optionMonad: Monad[Option] with {
    def pure[A](x: A): Option[A] =
       Option(x)
    extension [A](xo: Option[A])
-      def flatMap[B](f: A => Option[B]): Option[B] = xo match
+      def flatMap[B](f: A => Option[B]): Option[B] = xo match {
          case Some(x) => f(x)
          case None => None
+      }
+}
 ```
 
 ### Reader
@@ -229,7 +241,7 @@ type ConfigDependent[Result] = Config => Result
 Monad 实例看起来像这样：
 
 ```scala
-given configDependentMonad: Monad[ConfigDependent] with
+given configDependentMonad: Monad[ConfigDependent] with {
 
    def pure[A](x: A): ConfigDependent[A] =
       config => x
@@ -238,7 +250,7 @@ given configDependentMonad: Monad[ConfigDependent] with
       def flatMap[B](f: A => ConfigDependent[B]): ConfigDependent[B] =
          config => f(x(config))(config)
 
-end configDependentMonad
+}
 ```
 
 可以使用 [type lambda](../new-types/type-lambdas.md) 定义 `ConfigDependent` 类型：
@@ -250,7 +262,7 @@ type ConfigDependent = [Result] =>> Config => Result
 使用此语法会让之前的 `configDependentMonad` 转换为：
 
 ```scala
-given configDependentMonad: Monad[[Result] =>> Config => Result] with
+given configDependentMonad: Monad[[Result] =>> Config => Result] with {
 
    def pure[A](x: A): Config => A =
       config => x
@@ -259,14 +271,14 @@ given configDependentMonad: Monad[[Result] =>> Config => Result] with
       def flatMap[B](f: A => Config => B): Config => B =
          config => f(x(config))(config)
 
-end configDependentMonad
+}
 ```
 
 我们很可能希望在 `Config` trait 之外的此类环境中使用这个模式。Reader monad 允许我们将 `Config` 抽象为类型*参数*，
 在以下定义中命名为 `Ctx`：
 
 ```scala
-given readerMonad[Ctx]: Monad[[X] =>> Ctx => X] with
+given readerMonad[Ctx]: Monad[[X] =>> Ctx => X] with {
 
    def pure[A](x: A): Ctx => A =
       ctx => x
@@ -275,7 +287,7 @@ given readerMonad[Ctx]: Monad[[X] =>> Ctx => X] with
       def flatMap[B](f: A => Ctx => B): Ctx => B =
          ctx => f(x(ctx))(ctx)
 
-end readerMonad
+}
 ```
 
 ## 总结

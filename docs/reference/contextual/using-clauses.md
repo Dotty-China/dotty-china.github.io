@@ -16,7 +16,7 @@ nav_order: 3
 
 ```scala
 def max[T](x: T, y: T)(using ord: Ord[T]): T =
-   if ord.compare(x, y) < 0 then y else x
+   if (ord.compare(x, y) < 0) y else x
 ```
 
 这里 `ord` 是由 `using` 子句引入的*上下文参数*。`max` 函数可以这样应用：
@@ -54,8 +54,9 @@ def maximum[T](xs: List[T])(using Ord[T]): T =
 下面是另外两个具有 `Ord[T]` 类型的上下文参数的方法：
 
 ```scala
-def descending[T](using asc: Ord[T]): Ord[T] = new Ord[T]:
+def descending[T](using asc: Ord[T]): Ord[T] = new Ord[T] {
    def compare(x: T, y: T) = asc.compare(y, x)
+}
 
 def minimum[T](xs: List[T])(using Ord[T]) =
    maximum(xs)(using descending)

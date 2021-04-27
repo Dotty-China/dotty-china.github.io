@@ -144,9 +144,10 @@ extension (ss: Seq[String]) {
 
 ```scala
 extension (ss: Seq[String])
-   def longestStrings: Seq[String] =
+   def longestStrings: Seq[String] = {
       val maxLength = ss.map(_.length).max
       ss.filter(_.length == maxLength)
+   }
 
 extension (ss: Seq[String])
    def longestString: String = ss.longestStrings.head
@@ -157,9 +158,10 @@ extension (ss: Seq[String])
 ```scala
 extension [T](xs: List[T])(using Ordering[T])
    def smallest(n: Int): List[T] = xs.sorted.take(n)
-   def smallestIndices(n: Int): List[Int] =
+   def smallestIndices(n: Int): List[Int] = {
       val limit = smallest(n).max
       xs.zipWithIndex.collect { case (x, i) if x <= limit => i }
+   }
 ```
 
 ## 对扩展方法调用的翻译
@@ -175,28 +177,34 @@ extension [T](xs: List[T])(using Ordering[T])
 这里是第一条规则的一个例子：
 
 ```scala
-trait IntOps:
+trait IntOps {
    extension (i: Int) def isZero: Boolean = i == 0
 
-   extension (i: Int) def safeMod(x: Int): Option[Int] =
+   extension (i: Int) def safeMod(x: Int): Option[Int] = {
       // extension method defined in same scope IntOps
-      if x.isZero then None
+      if (x.isZero) None
       else Some(i % x)
+   }
+}
 
-object IntOpsEx extends IntOps:
+object IntOpsEx extends IntOps {
    extension (i: Int) def safeDiv(x: Int): Option[Int] =
       // extension method brought into scope via inheritance from IntOps
-      if x.isZero then None
+      if (x.isZero) None
       else Some(i / x)
+}
 
-trait SafeDiv:
+trait SafeDiv {
    import IntOpsEx.* // brings safeDiv and safeMod into scope
 
-   extension (i: Int) def divide(d: Int): Option[(Int, Int)] =
+   extension (i: Int) def divide(d: Int): Option[(Int, Int)] = {
       // extension methods imported and thus in scope
-      (i.safeDiv(d), i.safeMod(d)) match
+      (i.safeDiv(d), i.safeMod(d)) match {
          case (Some(d), Some(r)) => Some((d, r))
          case _ => None
+      }
+   }
+}
 ```
 
 根据第二条规则，可以通过定义包含扩展方法的 given 实例来提供扩展方法，就像这样：
@@ -211,17 +219,19 @@ given ops1: IntOps with {}  // brings safeMod into scope
 则扩展方法可用。例如：
 
 ```scala
-class List[T]:
+class List[T] {
    ...
-object List:
+}
+object List {
    ...
    extension [T](xs: List[List[T]])
       def flatten: List[T] = xs.foldLeft(List.empty[T])(_ ++ _)
 
-   given [T: Ordering]: Ordering[List[T]] with
+   given [T: Ordering]: Ordering[List[T]] with {
       extension (xs: List[T])
          def < (ys: List[T]): Boolean = ...
-end List
+   }
+}
 
 // extension method available since it is in the implicit scope
 // of List[List[Int]]
@@ -251,9 +261,10 @@ List(1, 2) < List(3)
 并且引用在同一个聚合扩展中的扩展方法 `g`
 
 ```scala
-extension (x: T)
+extension (x: T) {
    def f ... = ... g ...
    def g ...
+}
 ```
 
 则标识符被重写为 `x.g`。如果 `f` 和 `g` 是同一个方法，也遵循这个规则。例如：

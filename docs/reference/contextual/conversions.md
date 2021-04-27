@@ -12,14 +12,16 @@ nav_order: 11
 该类在包 `scala` 中的定义如下：
 
 ```scala
-abstract class Conversion[-T, +U] extends (T => U):
+abstract class Conversion[-T, +U] extends (T => U) {
    def apply (x: T): U
+}
 ```
 例如，下面是从 `String` 到 `Token` 的隐式转换：
 
 ```scala
-given Conversion[String, Token] with
+given Conversion[String, Token] with {
    def apply(str: String): Token = new KeyWord(str)
+}
 ```
 
 使用别名可以更简洁的表示为：
@@ -49,15 +51,16 @@ given Conversion[String, Token] = new KeyWord(_)
 2. “magnet”模式有时用于表示一个方法的多个变体。除了定义方法的重载版本，还可以让方法接受一个或多个特殊定义的“magnet”类型的参数，
    各种参数类型可以转换为这些参数类型。例如：
    ```scala
-   object Completions:
+   object Completions {
 
       // The argument "magnet" type
-      enum CompletionArg:
+      enum CompletionArg {
          case Error(s: String)
          case Response(f: Future[HttpResponse])
          case Status(code: Future[StatusCode])
+      }
 
-      object CompletionArg:
+      object CompletionArg {
 
        // conversions defining the possible arguments to pass to `complete`
        // these always come with CompletionArg
@@ -68,15 +71,16 @@ given Conversion[String, Token] = new KeyWord(_)
          given fromString    : Conversion[String, CompletionArg]               = Error(_)
          given fromFuture    : Conversion[Future[HttpResponse], CompletionArg] = Response(_)
          given fromStatusCode: Conversion[Future[StatusCode], CompletionArg]   = Status(_)
-      end CompletionArg
+      }
       import CompletionArg.*
 
-      def complete[T](arg: CompletionArg) = arg match
+      def complete[T](arg: CompletionArg) = arg match {
          case Error(s) => ...
          case Response(f) => ...
          case Status(code) => ...
+      }
 
-   end Completions
+   }
    ```
    这些步骤比简单地重载 `complete` 复杂，但如果正常重载不可用（如上面的情况，因为我们不能有两个重载方法接受 `Future[...]` 参数），
    或者正常重载会导致重载组合数量爆炸，那么这种模式也是有用的。
