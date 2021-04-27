@@ -11,8 +11,9 @@ nav_order: 1
 枚举（Enumeration）用于定义包含一组命名值的类型。
 
 ```scala
-enum Color:
+enum Color {
    case Red, Green, Blue
+}
 ```
 
 这定义了一个新的 `sealed` 类 `Color`，以及三个值 `Color.Red`、`Color.Green` 和 `Color.Blue`。
@@ -23,10 +24,11 @@ enum Color:
 枚举可以是参数化的。
 
 ```scala
-enum Color(val rgb: Int):
+enum Color(val rgb: Int) {
    case Red   extends Color(0xFF0000)
    case Green extends Color(0x00FF00)
    case Blue  extends Color(0x0000FF)
+}
 ```
 
 如例所示，可以显式用 `extends` 子句确定参数值。
@@ -60,7 +62,7 @@ val res2: Color = Red
 您可以将自己的定义加入一个枚举中。例如：
 
 ```scala
-enum Planet(mass: Double, radius: Double):
+enum Planet(mass: Double, radius: Double) {
    private final val G = 6.67300E-11
    def surfaceGravity = G * mass / (radius * radius)
    def surfaceWeight(otherMass: Double) = otherMass * surfaceGravity
@@ -73,19 +75,21 @@ enum Planet(mass: Double, radius: Double):
    case Saturn  extends Planet(5.688e+26, 6.0268e7)
    case Uranus  extends Planet(8.686e+25, 2.5559e7)
    case Neptune extends Planet(1.024e+26, 2.4746e7)
-end Planet
+}
 ```
 
 也可以为枚举定义显式的伴生对象：
 
 ```scala
-object Planet:
-   def main(args: Array[String]) =
+object Planet {
+   def main(args: Array[String]) = {
       val earthWeight = args(0).toDouble
       val mass = earthWeight / Earth.surfaceGravity
-      for p <- values do
+      for(p <- values) {
          println(s"Your weight on $p is ${p.surfaceWeight(mass)}")
-end Planet
+      }
+   }
+}
 ```
 
 ### 枚举类的弃用
@@ -96,23 +100,23 @@ However you could still want to gracefully handle the removal of a case from you
 举例来说，假设枚举 `Planet` 开始有一个额外的 case：
 
 ```diff
- enum Planet(mass: Double, radius: Double):
+ enum Planet(mass: Double, radius: Double) {
     ...
     case Neptune extends Planet(1.024e+26, 2.4746e7)
 +   case Pluto   extends Planet(1.309e+22, 1.1883e3)
- end Planet
+ }
 ```
 现在我们想弃用 `Pluto` case。首先我们向 `Pluto` 添加 `scala.deprecated` 注解：
 
 ```diff
- enum Planet(mass: Double, radius: Double):
+ enum Planet(mass: Double, radius: Double) {
     ...
     case Neptune extends Planet(1.024e+26, 2.4746e7)
 -   case Pluto   extends Planet(1.309e+22, 1.1883e3)
 +
 +   @deprecated("refer to IAU definition of planet")
 +   case Pluto extends Planet(1.309e+22, 1.1883e3)
- end Planet
+ }
 ```
 
 在 `enum Planet` 和 `object Planet` 的词法范围以外，引用 `Planet.Pluto` 将产生一个弃用警告，但在这些词法范围内，
@@ -166,19 +170,21 @@ val res15: Int = -1
 package scala.reflect
 
 /** A base trait of all Scala enum definitions */
-transparent trait Enum extends Any, Product, Serializable:
+transparent trait Enum extends Any, Product, Serializable {
 
    /** A number uniquely identifying a case of an enum */
    def ordinal: Int
+}
 ```
 
 带有 `extends` 子句的枚举值被扩展为匿名类实例。例如，上面的 `Venus` 值定义类似这样：
 
 ```scala
-val Venus: Planet = new Planet(4.869E24, 6051800.0):
+val Venus: Planet = new Planet(4.869E24, 6051800.0) {
    def ordinal: Int = 1
    override def productPrefix: String = "Venus"
    override def toString: String = "Venus"
+}
 ```
 
 不带 `extends` 子句的枚举值都共享一个实现，这个实现可以使用一个接受一个 tag 和一个名称作为参数的私有方法实例化。

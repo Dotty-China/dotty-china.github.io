@@ -12,9 +12,10 @@ nav_order: 2
 及其广义版本（GADT）。下面是一个将 `Option` 类型表示为 ADT 的示例：
 
 ```scala
-enum Option[+T]:
+enum Option[+T] {
    case Some(x: T)
    case None
+}
 ```
 
 此示例介绍了一个 带有协变类型参数的 `Option` 枚举，它有两种 case，`Some` 和 `None`。
@@ -24,9 +25,10 @@ enum Option[+T]:
 上述示例中省略的 `extends` 子句也可以显式给出：
 
 ```scala
-enum Option[+T]:
+enum Option[+T] {
    case Some(x: T) extends Option[T]
    case None       extends Option[Nothing]
+}
 ```
 
 注意，值 `None` 的父类型被推断为 `Option[Nothing]`。通常，在编译器生成的 `extends` 子句中，
@@ -58,31 +60,31 @@ val res4: Option.Some[Int] = Some(3)
 和一个定义在它伴生对象中的 `Option(...)` 工厂方法：
 
 ```scala
-enum Option[+T]:
+enum Option[+T] {
    case Some(x: T)
    case None
 
    def isDefined: Boolean = this match
       case None => false
       case _    => true
+}
 
-object Option:
-
+object Option {
    def apply[T >: Null](x: T): Option[T] =
       if x == null then None else Some(x)
-
-end Option
+}
 ```
 
 枚举和 ADT 是两个不同的概念，但因为它们有相同的语法结构，因此可以简单地看作一个 spectrum 的两端，
 完全可以组成混合。例如，下面的代码给出了一个具有三个枚举值和一个参数化的接受 RGB 值的 case 组成的 `Color` 的实现。
 
 ```scala
-enum Color(val rgb: Int):
+enum Color(val rgb: Int) {
    case Red   extends Color(0xFF0000)
    case Green extends Color(0x00FF00)
    case Blue  extends Color(0x0000FF)
    case Mix(mix: Int) extends Color(mix)
+}
 ```
 
 ### Parameter Variance of Enums
@@ -95,8 +97,9 @@ The following `View` enum has a contravariant type parameter `T` and a single ca
 mapping a type `T` to itself:
 
 ```scala
-enum View[-T]:
+enum View[-T] {
    case Refl(f: T => T)
+}
 ```
 
 The definition of `Refl` is incorrect, as it uses contravariant type `T` in the covariant result position of a
@@ -113,8 +116,9 @@ function type, leading to the following error:
 Because `Refl` does not declare explicit parameters, it looks to the compiler like the following:
 
 ```scala
-enum View[-T]:
+enum View[-T] {
    case Refl[/*synthetic*/-T1](f: T1 => T1) extends View[T1]
+}
 ```
 
 The compiler has inferred for `Refl` the contravariant type parameter `T1`, following `T` in `View`.
@@ -122,9 +126,10 @@ We can now clearly see that `Refl` needs to declare its own non-variant type par
 and can remedy the error by the following change to `Refl`:
 
 ```diff
-enum View[-T]:
+enum View[-T] {
 -   case Refl(f: T => T)
 +   case Refl[R](f: R => R) extends View[R]
+}
 ```
 
 Above, type `R` is chosen as the parameter for `Refl` to highlight that it has a different meaning to
@@ -134,11 +139,13 @@ After some further changes, a more complete implementation of `View` can be give
 as the function type `T => U`:
 
 ```scala
-enum View[-T, +U] extends (T => U):
+enum View[-T, +U] extends (T => U) {
    case Refl[R](f: R => R) extends View[R, R]
 
-   final def apply(t: T): U = this match
+   final def apply(t: T): U = this match {
       case refl: Refl[r] => refl.f(t)
+   }
+}
 ```
 
 ### 枚举的语法
