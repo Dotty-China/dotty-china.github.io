@@ -6,16 +6,14 @@ grand_parent: 参考
 nav_order: 8
 ---
 
-## {{ page.title }}
+# {{ page.title }}
 
-This section describes changes to the implicit resolution that apply both to the new `given`s and to the old-style `implicit`s in Scala 3.
-Implicit resolution uses a new algorithm which caches implicit results
-more aggressively for performance. There are also some changes that
-affect implicits on the language level.
+本节介绍了对隐式解析规则的更高，该规则既适用于新的 `given`，也适用于 Scala 3 中的旧式 `implicit`。
+隐式解析采用了一种新算法，更积极地缓存隐式结果以改善性能。
+语言层面上也有一些变化影响了隐式。
 
-**1.** Types of implicit values and result types of implicit methods
-must be explicitly declared. Excepted are only values in local blocks
-where the type may still be inferred:
+**1.** 隐式方法的值和结果类型必须显式声明。只有局部块中的值仍可以推断类型：
+
 ```scala
   class C {
 
@@ -30,6 +28,7 @@ where the type may still be inferred:
      ...
   }
 ```
+
 **2.** Nesting is now taken into account for selecting an implicit. Consider for instance the following scenario:
 ```scala
   def f(implicit i: C) = {
