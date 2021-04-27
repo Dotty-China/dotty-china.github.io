@@ -16,6 +16,7 @@ nav_order: 10
 ```scala
 import scala.annotation.threadUnsafe
 
-class Hello:
+class Hello {
    @threadUnsafe lazy val x: Int = 1
+}
 ```

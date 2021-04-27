@@ -14,8 +14,9 @@ Scala 为 case 类生成 apply 方法，因此可以简单地使用函数应用�
 Scala 3 将此方案推广到了所有具体类。例如：
 
 ```scala
-class StringBuilder(s: String):
+class StringBuilder(s: String) {
    def this() = this("")
+}
 
 StringBuilder("abc")  // old: new StringBuilder("abc")
 StringBuilder()       // old: new StringBuilder()
@@ -25,9 +26,10 @@ StringBuilder()       // old: new StringBuilder()
 这个伴生对象如下所示：
 
 ```scala
-object StringBuilder:
+object StringBuilder {
    inline def apply(s: String): StringBuilder = new StringBuilder(s)
    inline def apply(): StringBuilder = new StringBuilder()
+}
 ```
 
 合成的对象 `StringBuilder` 以及 `apply` 被成为*构造器代理*。

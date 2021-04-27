@@ -19,13 +19,15 @@ Scala 3 实现了实现性质的安全初始化检查，可以通过编译器选
 给定以下代码段：
 
 ``` scala
-abstract class AbstractFile:
+abstract class AbstractFile {
    def name: String
    val extension: String = name.substring(4)
+}
 
-class RemoteFile(url: String) extends AbstractFile:
+class RemoteFile(url: String) extends AbstractFile {
    val localFile: String = s"${url.##}.tmp"  // error: usage of `localFile` before it's initialized
    def name: String = localFile
+}
 ```
 
 检查器会报告：
@@ -44,11 +46,12 @@ class RemoteFile(url: String) extends AbstractFile:
 给定以下代码段：
 
 ``` scala
-object Trees:
+object Trees {
    class ValDef { counter += 1 }
    class EmptyValDef extends ValDef
    val theEmptyValDef = new EmptyValDef
    private var counter = 0  // error
+}
 ```
 
 检查器会报告：
@@ -68,14 +71,16 @@ object Trees:
 给定以下代码段：
 
 ``` scala
-abstract class Parent:
+abstract class Parent {
    val f: () => String = () => this.message
    def message: String
+}
 
-class Child extends Parent:
+class Child extends Parent {
    val a = f()
    val b = "hello"           // error
    def message: String = b
+}
 ```
 
 检查器会报告：
@@ -126,13 +131,15 @@ following example shows:
 
 ``` scala
 class MyException(val b: B) extends Exception("")
-class A:
+class A {
    val b = try { new B } catch { case myEx: MyException => myEx.b }
    println(b.a)
+}
 
-class B:
+class B {
    throw new MyException(this)
    val a: Int = 1
+}
 ```
 
 In the code above, the control effect teleport the uninitialized value
@@ -145,13 +152,15 @@ field points to an initialized object may not later point to an
 object under initialization. As an example, the following code will be rejected:
 
 ``` scala
-trait Reporter:
+trait Reporter {
    def report(msg: String): Unit
+}
 
-class FileReporter(ctx: Context) extends Reporter:
+class FileReporter(ctx: Context) extends Reporter {
    ctx.typer.reporter = this                // ctx now reaches an uninitialized object
    val file: File = new File("report.txt")
    def report(msg: String) = file.write(msg)
+}
 ```
 
 In the code above, suppose `ctx` points to a transitively initialized
@@ -217,13 +226,15 @@ project boundaries. For example, the following code passes the check when the
 two classes are defined in the same project:
 
 ```Scala
-class Base:
+class Base {
    private val map: mutable.Map[Int, String] = mutable.Map.empty
    def enter(k: Int, v: String) = map(k) = v
+}
 
-class Child extends Base:
+class Child extends Base {
    enter(1, "one")
    enter(2, "two")
+}
 ```
 
 However, when the class `Base` and `Child` are defined in two different

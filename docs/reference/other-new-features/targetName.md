@@ -13,10 +13,12 @@ nav_order: 11
 ```scala
 import scala.annotation.targetName
 
-object VecOps:
-   extension [T](xs: Vec[T])
+object VecOps {
+   extension [T](xs: Vec[T]) {
       @targetName("append")
       def ++= [T] (ys: Vec[T]): Vec[T] = ...
+   }
+}
 ```
 
 这里 `++=` 操作符使用 `append` 名称实现（在字节码或本机代码中）。实现名称影响生成的代码，
@@ -74,10 +76,12 @@ def f(x: => Int): Int = x + 1  // OK
 
 ```scala
 import annotation.targetName
-class A:
+class A {
    def f(): Int = 1
-class B extends A:
+}
+class B extends A {
    @targetName("g") def f(): Int = 2
+}
 ```
 
 编译器会在此报告：
@@ -100,10 +104,12 @@ class B extends A:
 
 ```scala
 import annotation.targetName
-class A:
+class A {
    def f(): Int = 1
-class B extends A:
+}
+class B extends A {
    @targetName("f") def g(): Int = 2
+}
 ```
 
 在这里，原始方法 `g` 和 `f` 之间没有重写关系，因为它们具有相同的名称。

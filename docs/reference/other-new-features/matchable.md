@@ -24,8 +24,9 @@ Scala 3 标准库中有一个不可变的数组类型 `IArray`，其定义类似
 
 ```scala
 val imm: IArray[Int] = ...
-imm match
+imm match {
    case a: Array[Int] => a(0) = 1
+}
 ```
 
 测试将在运行时成功，因为 `IArray` 在运行时被表示为 `Array`。但如果我们允许这段代码，
@@ -44,8 +45,9 @@ imm.asInstanceOf[Array[Int]](0) = 1
 The following slight variant with a value of parametric type `T` as match selector leads to the same problem:
 
 ```scala
-def f[T](x: T) = x match
+def f[T](x: T) = x match {
    case a: Array[Int] => a(0) = 0
+}
 f(imm)
 ```
 
@@ -79,7 +81,7 @@ f(imm)
 下面是定义类和 trait 及其定义的方法的层次结构：
 
 ```scala
-abstract class Any:
+abstract class Any {
    def getClass
    def isInstanceOf
    def asInstanceOf
@@ -89,6 +91,7 @@ abstract class Any:
    def equals
    def hashCode
    def toString
+}
 
 trait Matchable extends Any
 
@@ -106,12 +109,12 @@ Matchable warning is turned on. The most common such method is the universal
 `equals` method. It will have to be written as in the following example:
 
 ```scala
-class C(val x: String):
-
+class C(val x: String) {
    override def equals(that: Any): Boolean =
       that.asInstanceOf[Matchable] match
          case that: C => this.x == that.x
          case _ => false
+}
 ```
 
 The cast of `that` to `Matchable` serves as an indication that universal equality

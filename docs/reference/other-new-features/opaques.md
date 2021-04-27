@@ -11,28 +11,29 @@ nav_order: 5
 不透明类型别名提供了零开销类型抽象。例如：
 
 ```scala
-object MyMath:
+object MyMath {
 
    opaque type Logarithm = Double
 
-   object Logarithm:
+   object Logarithm {
 
       // These are the two ways to lift to the Logarithm type
 
       def apply(d: Double): Logarithm = math.log(d)
 
       def safe(d: Double): Option[Logarithm] =
-         if d > 0.0 then Some(math.log(d)) else None
+         if (d > 0.0) Some(math.log(d)) else None
 
-   end Logarithm
+   }
 
    // Extension methods define opaque types' public APIs
-   extension (x: Logarithm)
+   extension (x: Logarithm) {
       def toDouble: Double = math.exp(x)
       def + (y: Logarithm): Logarithm = Logarithm(math.exp(x) + math.exp(y))
       def * (y: Logarithm): Logarithm = x + y
+   }
 
-end MyMath
+}
 ```
 
 这引入了 `Logarithm` 作为一种新的抽象类型，它被实现为 `Double`。
@@ -68,7 +69,7 @@ l / l2                  // error: `/` is not a member of Logarithm
 不透明类型别名也可以带有界定。例如：
 
 ```scala
-object Access:
+object Access {
 
    opaque type Permissions = Int
    opaque type PermissionChoice = Int
@@ -89,7 +90,7 @@ object Access:
    val ReadWrite: Permissions = Read | Write
    val ReadOrWrite: PermissionChoice = Read | Write
 
-end Access
+}
 ```
 
 `Access` 对象定义了三个不透明类型别名：
@@ -112,7 +113,7 @@ end Access
 因此下面的使用场景能通过类型检查。
 
 ```scala
-object User:
+object User {
    import Access.*
 
    case class Item(rights: Permissions)
@@ -129,7 +130,7 @@ object User:
 
    assert(!noItem.rights.is(ReadWrite))
    assert(!noItem.rights.isOneOf(ReadOrWrite))
-end User
+}
 ```
 
 另一方面，调用 `roItem.rights.isOneOf(ReadWrite)` 会产生一个类型错误，
@@ -143,7 +144,7 @@ end User
 例如，我们可以把上面示例中的 `Logarithms` 重新定义为一个类：
 
 ```scala
-class Logarithms:
+class Logarithms {
 
    opaque type Logarithm = Double
 
@@ -153,6 +154,7 @@ class Logarithms:
       if d > 0.0 then Some(math.log(d)) else None
 
    def mul(x: Logarithm, y: Logarithm) = x + y
+}
 ```
 
 不同实例的不透明类型成员被视为不同的：

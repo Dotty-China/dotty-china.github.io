@@ -14,16 +14,18 @@ Export 子句为选中的对象成员定义别名。例如：
 class BitMap
 class InkJet
 
-class Printer:
+class Printer {
    type PrinterType
    def print(bits: BitMap): Unit = ???
    def status: List[String] = ???
+}
 
-class Scanner:
+class Scanner {
    def scan(): BitMap = ???
    def status: List[String] = ???
+}
 
-class Copier:
+class Copier {
    private val printUnit = new Printer { type PrinterType = InkJet }
    private val scanUnit = new Scanner
 
@@ -31,6 +33,7 @@ class Copier:
    export printUnit.{status => _, _}
 
    def status: List[String] = printUnit.status ++ scanUnit.status
+}
 ```
 
 这两个 `export` 子句在类 `Copier` 中定义了以下的*导出别名*：

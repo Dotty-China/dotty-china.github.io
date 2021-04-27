@@ -20,8 +20,9 @@ Note in particular that named arguments cannot be passed to type constructors:
 ``` scala
 class C[T]
 
-val x: C[T = Int] = // error
+val x: C[T = Int] = {// error
    new C[T = Int] // error
+}
 
 class E extends C[T = Int] // error
 ```

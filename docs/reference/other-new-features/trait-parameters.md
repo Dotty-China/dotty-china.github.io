@@ -11,11 +11,13 @@ nav_order: 1
 Scala 3 允许 trait 拥有参数，就像类能拥有参数一样。
 
 ```scala
-trait Greeting(val name: String):
+trait Greeting(val name: String) {
    def msg = s"How are you, $name"
+}
 
-class C extends Greeting("Bob"):
+class C extends Greeting("Bob") {
    println(msg)
+}
 ```
 
 传递给 trait 的参数在 trait 初始化之前立即计算。

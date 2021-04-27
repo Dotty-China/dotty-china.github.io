@@ -14,20 +14,21 @@ nav_order: 6
 // File Writer.scala
 package p
 
-open class Writer[T]:
+open class Writer[T] {
 
    /** Sends to stdout, can be overridden */
    def send(x: T) = println(x)
 
    /** Sends all arguments using `send` */
    def sendAll(xs: T*) = xs.foreach(send)
-end Writer
+}
 
 // File EncryptedWriter.scala
 package p
 
-class EncryptedWriter[T: Encryptable] extends Writer[T]:
+class EncryptedWriter[T: Encryptable] extends Writer[T] {
    override def send(x: T) = super.send(encrypt(x))
+}
 ```
 
 开放类通常附带一些文档，文档描述了类的方法间的内部调用模式以及可以重写的 hook。
