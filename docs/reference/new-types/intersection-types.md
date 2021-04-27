@@ -15,15 +15,18 @@ nav_order: 1
 类型 `S & T` 表示同时属于类型 `S` 和 `T` 的值。
 
 ```scala
-trait Resettable:
+trait Resettable {
    def reset(): Unit
+}
 
-trait Growable[T]:
+trait Growable[T] {
    def add(t: T): Unit
+}
 
-def f(x: Resettable & Growable[String]) =
+def f(x: Resettable & Growable[String]) = {
    x.reset()
    x.add("first")
+}
 ```
 
 参数 `x` 必须*同时*是类型 `Resettable` 和 `Growable[String]` 的值。
@@ -38,11 +41,13 @@ def f(x: Resettable & Growable[String]) =
 例如，假设定义如下：
 
 ```scala
-trait A:
+trait A {
    def children: List[A]
+}
 
-trait B:
+trait B {
    def children: List[B]
+}
 
 val x: A & B = new C
 val ys: List[A & B] = x.children
@@ -61,8 +66,9 @@ So if one defines a class `C` that inherits `A` and `B`, one needs
 to give at that point a definition of a `children` method with the required type.
 
 ```scala
-class C extends A, B:
+class C extends A, B {
    def children: List[A & B] = ???
+}
 ```
 
 
