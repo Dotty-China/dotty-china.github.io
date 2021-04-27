@@ -17,8 +17,9 @@ The standard library defines an abstract class `Conversion`:
 ```scala
 package scala
 @java.lang.FunctionalInterface
-abstract class Conversion[-T, +U] extends Function1[T, U]:
+abstract class Conversion[-T, +U] extends Function1[T, U] {
    def apply(x: T): U
+}
 ```
 
 Function literals are automatically converted to `Conversion` values.

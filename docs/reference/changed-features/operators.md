@@ -22,7 +22,7 @@ nav_order: 3
 ```scala
 import scala.annotation.targetName
 
-trait MultiSet[T]:
+trait MultiSet[T] {
 
    infix def union(other: MultiSet[T]): MultiSet[T]
 
@@ -31,7 +31,7 @@ trait MultiSet[T]:
    @targetName("intersection")
    def *(other: MultiSet[T]): MultiSet[T]
 
-end MultiSet
+}
 
 val s1, s2: MultiSet[Int]
 

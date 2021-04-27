@@ -11,19 +11,24 @@ A `@main` annotation on a method turns this method into an executable program.
 Example:
 
 ```scala
-@main def happyBirthday(age: Int, name: String, others: String*) =
-   val suffix =
-      age % 100 match
-      case 11 | 12 | 13 => "th"
-      case _ =>
-         age % 10 match
-         case 1 => "st"
-         case 2 => "nd"
-         case 3 => "rd"
-         case _ => "th"
+@main def happyBirthday(age: Int, name: String, others: String*) = {
+   val suffix = {
+      age % 100 match {
+        case 11 | 12 | 13 => "th"
+        case _ => {
+           age % 10 match {
+             case 1 => "st"
+             case 2 => "nd"
+             case 3 => "rd"
+             case _ => "th"
+           }
+        }
+      }
+   }
    val bldr = new StringBuilder(s"Happy $age$suffix birthday, $name")
    for other <- others do bldr.append(" and ").append(other)
    bldr.toString
+}
 ```
 
 This would generate a main program `happyBirthday` that could be called like this
@@ -64,16 +69,16 @@ The Scala compiler generates a program from a `@main` method `f` as follows:
 For instance, the `happyBirthDay` method above would generate additional code equivalent to the following class:
 
 ```scala
-final class happyBirthday:
+final class happyBirthday {
    import scala.util.CommandLineParser as CLP
    <static> def main(args: Array[String]): Unit =
-      try
+      try {
          happyBirthday(
             CLP.parseArgument[Int](args, 0),
             CLP.parseArgument[String](args, 1),
             CLP.parseRemainingArguments[String](args, 2))
-      catch
-         case error: CLP.ParseError => CLP.showError(error)
+      } catch case error: CLP.ParseError => CLP.showError(error)
+}
 ```
 
 **Note**: The `<static>` modifier above expresses that the `main` method is generated

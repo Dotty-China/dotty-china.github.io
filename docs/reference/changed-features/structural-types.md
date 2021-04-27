@@ -30,9 +30,10 @@ names are represented as strings and passed to other operators (e.g.
 这里是结构类型 `Person` 的一个示例：
 
 ```scala
-  class Record(elems: (String, Any)*) extends Selectable:
+  class Record(elems: (String, Any)*) extends Selectable {
      private val fields = elems.toMap
      def selectDynamic(name: String): Any = fields(name)
+  }
 
   type Person = Record { val name: String; val age: Int }
  ```
@@ -79,11 +80,13 @@ names are represented as strings and passed to other operators (e.g.
 ```scala
   type Closeable = { def close(): Unit }
 
-  class FileInputStream:
+  class FileInputStream {
     def close(): Unit
+  }
 
-  class Channel:
+  class Channel {
     def close(): Unit
+  }
 ```
 
 在这里，我们定义了一个结构类型 `Closeable`，其中定义了一个方法 `close`。
@@ -136,12 +139,14 @@ dispatch, Scala 2 requires a language import `import scala.language.reflectiveCa
 这是一个例子：
 
 ```scala
-trait Vehicle extends reflect.Selectable:
+trait Vehicle extends reflect.Selectable {
    val wheels: Int
+}
 
-val i3 = new Vehicle: // i3: Vehicle { val range: Int }
+val i3 = new Vehicle { // i3: Vehicle { val range: Int }
    val wheels = 4
    val range = 240
+}
 
 i3.range
 ```
@@ -155,12 +160,14 @@ defines the necessary `selectDynamic` member.
 `Vehicle` could also extend some other subclass of `scala.Selectable` that implements `selectDynamic` and `applyDynamic` differently. But if it does not extend a `Selectable` at all, the code would no longer typecheck:
 
 ```scala
-trait Vehicle:
+trait Vehicle {
    val wheels: Int
+}
 
-val i3 = new Vehicle: // i3: Vehicle
+val i3 = new Vehicle { // i3: Vehicle
    val wheels = 4
    val range = 240
+}
 
 i3.range // error: range is not a member of `Vehicle`
 ```

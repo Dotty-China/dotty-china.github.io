@@ -86,14 +86,15 @@ trait FromDigits[T]:
 `FromDigits` 的伴生对象还为具有给定进制、带有小数点以及同时有小数点和指数的数字定义了 `FromDigits` 的子类。
 
 ```scala
-object FromDigits:
+object FromDigits {
 
    /** A subclass of `FromDigits` that also allows to convert whole
     *  number literals with a radix other than 10
     */
-   trait WithRadix[T] extends FromDigits[T]:
+   trait WithRadix[T] extends FromDigits[T] {
       def fromDigits(digits: String): T = fromDigits(digits, 10)
       def fromDigits(digits: String, radix: Int): T
+   }
 
    /** A subclass of `FromDigits` that also allows to convert number
     *  literals containing a decimal point ".".
@@ -105,6 +106,7 @@ object FromDigits:
     *  exponent `('e' | 'E')['+' | '-']digit digit*`.
     */
    trait Floating[T] extends Decimal[T]
+}
 ```
 
 用户定义的数字类型可以实现它们中的一个，这会向编译器发出信号，
@@ -129,8 +131,9 @@ class MalformedNumber(msg: String = "malformed number literal") extends FromDigi
 As a fully worked out example, here is an implementation of a new numeric class, `BigFloat`, that accepts numeric literals. `BigFloat` is defined in terms of a `BigInt` mantissa and an `Int` exponent:
 
 ```scala
-case class BigFloat(mantissa: BigInt, exponent: Int):
+case class BigFloat(mantissa: BigInt, exponent: Int) {
    override def toString = s"${mantissa}e${exponent}"
+}
 ```
 
 `BigFloat` literals can have a decimal point as well as an exponent. E.g. the following expression
@@ -144,36 +147,42 @@ The companion object of `BigFloat` defines an `apply` constructor method to cons
 from a `digits` string. Here is a possible implementation:
 
 ```scala
-object BigFloat:
+object BigFloat {
    import scala.util.FromDigits
 
-   def apply(digits: String): BigFloat =
+   def apply(digits: String): BigFloat = {
       val (mantissaDigits, givenExponent) =
-         digits.toUpperCase.split('E') match
-            case Array(mantissaDigits, edigits) =>
+         digits.toUpperCase.split('E') match {
+            case Array(mantissaDigits, edigits) => {
                val expo =
                   try FromDigits.intFromDigits(edigits)
                   catch case ex: FromDigits.NumberTooLarge =>
                      throw FromDigits.NumberTooLarge(s"exponent too large: $edigits")
                (mantissaDigits, expo)
+            }
             case Array(mantissaDigits) =>
                (mantissaDigits, 0)
+         }
       val (intPart, exponent) =
-         mantissaDigits.split('.') match
+         mantissaDigits.split('.') match {
             case Array(intPart, decimalPart) =>
                (intPart ++ decimalPart, givenExponent - decimalPart.length)
             case Array(intPart) =>
                (intPart, givenExponent)
+         }
       BigFloat(BigInt(intPart), exponent)
+   }
+}
 ```
 
 To accept `BigFloat` literals, all that's needed in addition is a `given` instance of type
 `FromDigits.Floating[BigFloat]`:
 
 ```scala
-   given FromDigits: FromDigits.Floating[BigFloat] with
+   given FromDigits: FromDigits.Floating[BigFloat] with {
       def fromDigits(digits: String) = apply(digits)
-end BigFloat
+   }
+
 ```
 
 Note that the `apply` method does not check the format of the `digits` argument. It is
@@ -202,16 +211,18 @@ into a macro, i.e. make it an inline method with a splice as right-hand side.
 To do this, replace the `FromDigits` instance in the `BigFloat` object by the following two definitions:
 
 ```scala
-object BigFloat:
+object BigFloat {
    ...
 
    class FromDigits extends FromDigits.Floating[BigFloat]:
       def fromDigits(digits: String) = apply(digits)
 
-   given FromDigits with
+   given FromDigits with {
       override inline def fromDigits(digits: String) = ${
         fromDigitsImpl('digits)
       }
+   }
+}
 ```
 
 Note that an inline method cannot directly fill in for an abstract method, since it produces
@@ -221,18 +232,20 @@ method in the `FromDigits` given instance. That method is defined in terms of a 
 implementation method `fromDigitsImpl`. Here is its definition:
 
 ```scala
-   private def fromDigitsImpl(digits: Expr[String])(using ctx: Quotes): Expr[BigFloat] =
-      digits.value match
+   private def fromDigitsImpl(digits: Expr[String])(using ctx: Quotes): Expr[BigFloat] = {
+      digits.value match {
          case Some(ds) =>
-            try
+            try {
                val BigFloat(m, e) = apply(ds)
                '{BigFloat(${Expr(m)}, ${Expr(e)})}
-            catch case ex: FromDigits.FromDigitsException =>
+            } catch case ex: FromDigits.FromDigitsException => {
                ctx.error(ex.getMessage)
                '{BigFloat(0, 0)}
+            }
          case None =>
             '{apply($digits)}
-end BigFloat
+      }
+   }
 ```
 
 The macro implementation takes an argument of type `Expr[String]` and yields

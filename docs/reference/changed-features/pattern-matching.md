@@ -124,7 +124,7 @@ For example:
 <!-- To be kept in sync with tests/new/patmat-spec.scala -->
 
 ```scala
-class FirstChars(s: String) extends Product:
+class FirstChars(s: String) extends Product {
    def _1 = s.charAt(0)
    def _2 = s.charAt(1)
 
@@ -132,13 +132,16 @@ class FirstChars(s: String) extends Product:
    def canEqual(that: Any): Boolean = ???
    def productArity: Int = ???
    def productElement(n: Int): Any = ???
+}
 
-object FirstChars:
+object FirstChars {
    def unapply(s: String): FirstChars = new FirstChars(s)
+}
 
-"Hi!" match
+"Hi!" match {
    case FirstChars(char1, char2) =>
       println(s"First: $char1; Second: $char2")
+}
 
 // First: H; Second: i
 ```
@@ -150,16 +153,19 @@ object FirstChars:
 <!-- To be kept in sync with tests/new/patmat-spec.scala -->
 
 ```scala
-class Nat(val x: Int):
+class Nat(val x: Int) {
    def get: Int = x
    def isEmpty = x < 0
+}
 
-object Nat:
+object Nat {
    def unapply(x: Int): Nat = new Nat(x)
+}
 
-5 match
+5 match {
    case Nat(n) => println(s"$n is a natural number")
    case _      => ()
+}
 
 // 5 is a natural number
 ```
@@ -170,16 +176,18 @@ object Nat:
 - Pattern-matching on exactly `N` patterns with types `P1, P2, ..., PN`
 
 ```Scala
-object ProdEmpty:
+object ProdEmpty {
    def _1: Int = ???
    def _2: String = ???
    def isEmpty = true
    def unapply(s: String): this.type = this
    def get = this
+}
 
-"" match
+"" match {
    case ProdEmpty(_, _) => ???
    case _ => ()
+}
 ```
 
 
@@ -202,15 +210,16 @@ type X = {
 <!-- To be kept in sync with tests/new/patmat-spec.scala -->
 
 ```scala
-object CharList:
+object CharList {
    def unapplySeq(s: String): Option[Seq[Char]] = Some(s.toList)
+}
 
-"example" match
+"example" match {
    case CharList(c1, c2, c3, c4, _, _, _) =>
       println(s"$c1,$c2,$c3,$c4")
    case _ =>
       println("Expected *exactly* 7 characters!")
-
+}
 // e,x,a,m
 ```
 
@@ -224,13 +233,15 @@ object CharList:
 
 ```Scala
 class Foo(val name: String, val children: Int *)
-object Foo:
+object Foo {
    def unapplySeq(f: Foo): Option[(String, Seq[Int])] =
       Some((f.name, f.children))
+}
 
-def foo(f: Foo) = f match
+def foo(f: Foo) = f match {
    case Foo(name, ns : _*) =>
    case Foo(name, x, y, ns : _*) =>
+}
 ```
 
 There are plans for further simplification, in particular to factor out *product
