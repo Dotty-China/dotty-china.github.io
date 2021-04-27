@@ -14,23 +14,23 @@ nav_order: 2
 definition will be inlined at the point of use. Example:
 
 ```scala
-object Config:
+object Config {
    inline val logging = false
+}
 
-object Logger:
-
+object Logger {
    private var indent = 0
 
    inline def log[T](msg: String, indentMargin: =>Int)(op: => T): T =
-      if Config.logging then
+      if (Config.logging) {
          println(s"${"  " * indent}start $msg")
          indent += indentMargin
          val result = op
          indent -= indentMargin
          println(s"${"  " * indent}$msg = $result")
          result
-      else op
-end Logger
+      } else op
+}
 ```
 
 The `Config` object contains a definition of the **inline value** `logging`.
@@ -64,7 +64,7 @@ If `Config.logging == false`, this will be rewritten (simplified) to:
 
 ```scala
 def factorial(n: BigInt): BigInt =
-   if n == 0 then 1
+   if (n == 0) 1
    else n * factorial(n - 1)
 ```
 
@@ -77,16 +77,17 @@ Consequently, the code was inlined directly and the call was beta-reduced.
 In the `true` case the code will be rewritten to:
 
 ```scala
-def factorial(n: BigInt): BigInt =
+def factorial(n: BigInt): BigInt = {
    val msg = s"factorial($n)"
    println(s"${"  " * indent}start $msg")
    Logger.inline$indent_=(indent.+(indentSetting))
    val result =
-      if n == 0 then 1
+      if (n == 0) 1
       else n * factorial(n - 1)
    Logger.inline$indent_=(indent.-(indentSetting))
    println(s"${"  " * indent}$msg = $result")
    result
+}
 ```
 
 Note that the by-value parameter `msg` is evaluated only once, per the usual Scala
@@ -101,12 +102,14 @@ exponent `n`, the following method for `power` will be implemented by
 straight inline code without any loop or recursion.
 
 ```scala
-inline def power(x: Double, n: Int): Double =
-   if n == 0 then 1.0
-   else if n == 1 then x
-   else
+inline def power(x: Double, n: Int): Double = {
+   if (n == 0) 1.0
+   else if (n == 1) x
+   else {
       val y = power(x, n / 2)
-      if n % 2 == 0 then y * y else y * y * x
+      if (n % 2 == 0) y * y else y * y * x
+   }
+}
 
 power(expr, 10)
 // translates to
@@ -129,7 +132,7 @@ parameters:
 
 ```scala
 inline def funkyAssertEquals(actual: Double, expected: =>Double, inline delta: Double): Unit =
-   if (actual - expected).abs > delta then
+   if ((actual - expected).abs > delta)
       throw new AssertionError(s"difference between ${expected} and ${actual} was larger than ${delta}")
 
 funkyAssertEquals(computeActual(), computeExpected(), computeDelta())
@@ -148,13 +151,15 @@ Inline methods can override other non-inline methods. The rules are as follows:
 1. If an inline method `f` implements or overrides another, non-inline method, the inline method can also be invoked at runtime. For instance, consider the scenario:
 
     ```scala
-    abstract class A:
+    abstract class A {
        def f: Int
        def g: Int = f
+    }
 
-    class B extends A:
+    class B extends A {
        inline def f = 22
        override inline def g = f + 11
+    }
 
     val b = new B
     val a: A = b
@@ -173,11 +178,13 @@ Inline methods can override other non-inline methods. The rules are as follows:
 3. Inline methods can also be abstract. An abstract inline method can be implemented only by other inline methods. It cannot be invoked directly:
 
     ```scala
-    abstract class A:
+    abstract class A {
        inline def f: Int
+    }
 
-    object B extends A:
+    object B extends A {
        inline def f: Int = 22
+    }
 
     B.f         // OK
     val a: A = B
@@ -235,11 +242,13 @@ inline val four: 4 = 4
 It is also possible to have inline vals of types that do not have a syntax, such as `Short(4)`.
 
 ```scala
-trait InlineConstants:
+trait InlineConstants {
    inline val myShort: Short
+}
 
-object Constants extends InlineConstants:
+object Constants extends InlineConstants {
    inline val myShort/*: Short(4)*/ = 4
+}
 ```
 
 ## Transparent Inline Methods
@@ -250,11 +259,12 @@ specialized to a more precise type upon expansion. Example:
 
 ```scala
 class A
-class B extends A:
+class B extends A {
    def m = true
+}
 
 transparent inline def choose(b: Boolean): A =
-   if b then new A else new B
+   if (b) new A else new B
 
 val obj1 = choose(true)  // static type is A
 val obj2 = choose(false) // static type is B
@@ -314,7 +324,7 @@ Example:
 
 ```scala
 inline def update(delta: Int) =
-   inline if delta >= 0 then increaseBy(delta)
+   inline if (delta >= 0) increaseBy(delta)
    else decreaseBy(-delta)
 ```
 
@@ -347,9 +357,10 @@ single inline match expression that picks a case based on its static type:
 
 ```scala
 transparent inline def g(x: Any): Any =
-   inline x match
+   inline x match {
       case x: String => (x, x) // Tuple2[String, String](x, x)
       case x: Double => x
+   }
 
 g(1.0d) // Has type 1.0d which is a subtype of Double
 g("test") // Has type (String, String)
@@ -367,9 +378,10 @@ case object Zero extends Nat
 case class Succ[N <: Nat](n: N) extends Nat
 
 transparent inline def toInt(n: Nat): Int =
-   inline n match
+   inline n match {
       case Zero     => 0
       case Succ(n1) => toInt(n1) + 1
+   }
 
 inline val natTwo = toInt(Succ(Succ(Zero)))
 val intTwo: 2 = natTwo
@@ -391,9 +403,10 @@ import scala.compiletime.constValue
 import scala.compiletime.ops.int.S
 
 transparent inline def toIntC[N]: Int =
-   inline constValue[N] match
+   inline constValue[N] match {
       case 0        => 0
       case _: S[n1] => 1 + toIntC[n1]
+   }
 
 inline val ctwo = toIntC[2]
 ```
@@ -427,7 +440,7 @@ Using `erasedValue`, we can then define `defaultValue` as follows:
 import scala.compiletime.erasedValue
 
 inline def defaultValue[T] =
-   inline erasedValue[T] match
+   inline erasedValue[T] match {
       case _: Byte    => Some(0: Byte)
       case _: Char    => Some(0: Char)
       case _: Short   => Some(0: Short)
@@ -438,6 +451,7 @@ inline def defaultValue[T] =
       case _: Boolean => Some(false)
       case _: Unit    => Some(())
       case _          => None
+   }
 ```
 
 Then:
@@ -457,9 +471,10 @@ Match_ section above. Here is how `toIntT` can be defined:
 
 ```scala
 transparent inline def toIntT[N <: Nat]: Int =
-   inline scala.compiletime.erasedValue[N] match
+   inline scala.compiletime.erasedValue[N] match {
       case _: Zero.type => 0
       case _: Succ[n] => toIntT[n] + 1
+   }
 
 inline val two = toIntT[Succ[Succ[Zero.type]]]
 ```
@@ -536,9 +551,10 @@ import scala.compiletime.ops.*
 
 import scala.annotation.infix
 
-type +[X <: Int | String, Y <: Int | String] = (X, Y) match
+type +[X <: Int | String, Y <: Int | String] = (X, Y) match {
    case (Int, Int) => int.+[X, Y]
    case (String, String) => string.+[X, Y]
+}
 
 val concat: "a" + "b" = "ab"
 val addition: 1 + 1 = 2

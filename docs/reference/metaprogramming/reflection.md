@@ -32,9 +32,10 @@ import scala.quoted.*
 
 inline def natConst(inline x: Int): Int = ${natConstImpl('{x})}
 
-def natConstImpl(x: Expr[Int])(using Quotes): Expr[Int] =
+def natConstImpl(x: Expr[Int])(using Quotes): Expr[Int] = {
    import quotes.reflect.*
    ...
+}
 ```
 
 ### Extractors
@@ -43,19 +44,24 @@ def natConstImpl(x: Expr[Int])(using Quotes): Expr[Int] =
 For example the `Literal(_)` extractor used below.
 
 ```scala
-def natConstImpl(x: Expr[Int])(using Quotes): Expr[Int] =
+def natConstImpl(x: Expr[Int])(using Quotes): Expr[Int] = {
    import quotes.reflect.*
    val tree: Term = x.asTerm
-   tree match
-      case Inlined(_, _, Literal(IntConstant(n))) =>
-         if n <= 0 then
+   tree match {
+      case Inlined(_, _, Literal(IntConstant(n))) => {
+         if (n <= 0) {
             report.error("Parameter must be natural number")
             '{0}
+         }
          else
             tree.asExprOf[Int]
-      case _ =>
+      }
+      case _ => {
          report.error("Parameter must be a known constant")
          '{0}
+      }
+   }
+}
 ```
 
 We can easily know which extractors are needed using `Printer.TreeStructure.show`,
@@ -82,7 +88,7 @@ information such as the start line, the end line or even the source code at the
 expansion point.
 
 ```scala
-def macroImpl()(quotes: Quotes): Expr[Unit] =
+def macroImpl()(quotes: Quotes): Expr[Unit] = {
    import quotes.reflect.*
    val pos = Position.ofMacroExpansion
 
@@ -95,6 +101,7 @@ def macroImpl()(quotes: Quotes): Expr[Unit] =
    val endColumn = pos.endColumn
    val sourceCode = pos.sourceCode
    ...
+}
 ```
 
 ### Tree Utilities
@@ -108,15 +115,19 @@ of type `List[Symbol]` if we want to collect symbols). The code below, for
 example, collects the `val` definitions in the tree.
 
 ```scala
-def collectPatternVariables(tree: Tree)(using ctx: Context): List[Symbol] =
-   val acc = new TreeAccumulator[List[Symbol]]:
-      def foldTree(syms: List[Symbol], tree: Tree)(owner: Symbol): List[Symbol] = tree match
-         case ValDef(_, _, rhs) =>
+def collectPatternVariables(tree: Tree)(using ctx: Context): List[Symbol] = {
+   val acc = new TreeAccumulator[List[Symbol]] {
+      def foldTree(syms: List[Symbol], tree: Tree)(owner: Symbol): List[Symbol] = tree match {
+         case ValDef(_, _, rhs) => {
             val newSyms = tree.symbol :: syms
             foldTree(newSyms, body)(tree.symbol)
+         }
          case _ =>
             foldOverTree(syms, tree)(owner)
+      }
+   }
    acc(Nil, tree)
+}
 ```
 
 A `TreeTraverser` extends a `TreeAccumulator` and performs the same traversal

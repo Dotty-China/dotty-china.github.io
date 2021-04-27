@@ -40,7 +40,7 @@ inline def assert(inline expr: Boolean): Unit =
    ${ assertImpl('expr) }
 
 def assertImpl(expr: Expr[Boolean])(using Quotes) = '{
-   if !$expr then
+   if (!$expr)
       throw AssertionError(s"failed assertion: ${${ showExpr(expr) }}")
 }
 
@@ -172,9 +172,10 @@ In some cases we want to remove the lambda from the code, for this we provide th
 describing a function into a function mapping trees to trees.
 
 ```scala
-object Expr:
+object Expr {
    ...
    def betaReduce[...](...)(...): ... = ...
+}
 ```
 
 The definition of `Expr.betaReduce(f)(x)` is assumed to be functionally the same as
@@ -235,11 +236,12 @@ a compiler through staging.
 ```scala
 import scala.quoted.*
 
-enum Exp:
+enum Exp {
    case Num(n: Int)
    case Plus(e1: Exp, e2: Exp)
    case Var(x: String)
    case Let(x: String, e: Exp, in: Exp)
+}
 
 import Exp.*
 ```
@@ -260,7 +262,7 @@ The compiler takes an environment that maps variable names to Scala `Expr`s.
 import scala.quoted.*
 
 def compile(e: Exp, env: Map[String, Expr[Int]])(using Quotes): Expr[Int] =
-   e match
+   e match {
       case Num(n) =>
          Expr(n)
       case Plus(e1, e2) =>
@@ -269,6 +271,7 @@ def compile(e: Exp, env: Map[String, Expr[Int]])(using Quotes): Expr[Int] =
          env(x)
       case Let(x, e, body) =>
          '{ val y = ${ compile(e, env) }; ${ compile(body, env + (x -> 'y)) } }
+   }
 ```
 
 Running `compile(letExp, Map())` would yield the following Scala code:
@@ -288,10 +291,11 @@ The `Expr.apply` method is defined in package `quoted`:
 ```scala
 package quoted
 
-object Expr:
+object Expr {
    ...
    def apply[T: ToExpr](x: T)(using Quotes): Expr[T] =
       summon[ToExpr[T]].toExpr(x)
+}
 ```
 
 This method says that values of types implementing the `ToExpr` type class can be
@@ -308,9 +312,10 @@ knowing anything about the representation of `Expr` trees. For
 instance, here is a possible instance of `ToExpr[Boolean]`:
 
 ```scala
-given ToExpr[Boolean] with
+given ToExpr[Boolean] with {
    def toExpr(b: Boolean) =
       if b then '{ true } else '{ false }
+}
 ```
 
 Once we can lift bits, we can work our way up. For instance, here is a
@@ -318,23 +323,27 @@ possible implementation of `ToExpr[Int]` that does not use the underlying
 tree machinery:
 
 ```scala
-given ToExpr[Int] with
-   def toExpr(n: Int) = n match
+given ToExpr[Int] with {
+   def toExpr(n: Int) = n match {
       case Int.MinValue    => '{ Int.MinValue }
       case _ if n < 0      => '{ - ${ toExpr(-n) } }
       case 0               => '{ 0 }
       case _ if n % 2 == 0 => '{ ${ toExpr(n / 2) } * 2 }
       case _               => '{ ${ toExpr(n / 2) } * 2 + 1 }
+   }
+}
 ```
 
 Since `ToExpr` is a type class, its instances can be conditional. For example,
 a `List` is liftable if its element type is:
 
 ```scala
-given [T: ToExpr : Type]: ToExpr[List[T]] with
-   def toExpr(xs: List[T]) = xs match
+given [T: ToExpr : Type]: ToExpr[List[T]] with {
+   def toExpr(xs: List[T]) = xs match {
       case head :: tail => '{ ${ Expr(head) } :: ${ toExpr(tail) } }
       case Nil          => '{ Nil: List[T] }
+   }
+}
 ```
 
 In the end, `ToExpr` resembles very much a serialization
@@ -395,26 +404,30 @@ a macro library and a quoted program. For instance, here’s the `assert` macro
 again together with a program that calls `assert`.
 
 ```scala
-object Macros:
+object Macros {
 
    inline def assert(inline expr: Boolean): Unit =
       ${ assertImpl('expr) }
 
-   def assertImpl(expr: Expr[Boolean])(using Quotes) =
+   def assertImpl(expr: Expr[Boolean])(using Quotes) = {
       val failMsg: Expr[String] = Expr("failed assertion: " + expr.show)
       '{ if !($expr) then throw new AssertionError($failMsg) }
+   }
+}
 
-@main def program =
+@main def program = {
    val x = 1
    Macros.assert(x != 0)
+}
 ```
 
 Inlining the `assert` function would give the following program:
 
 ```scala
-@main def program =
+@main def program = {
    val x = 1
    ${ Macros.assertImpl('{ x != 0) } }
+}
 ```
 
 The example is only phase correct because `Macros` is a global value and
@@ -474,9 +487,9 @@ private def powerCode(x: Expr[Double], n: Expr[Int])(using Quotes): Expr[Double]
       case None => '{ Math.pow($x, $n.toDouble) }
 
 private def powerCode(x: Expr[Double], n: Int)(using Quotes): Expr[Double] =
-   if n == 0 then '{ 1.0 }
-   else if n == 1 then x
-   else if n % 2 == 0 then '{ val y = $x * $x; ${ powerCode('y, n / 2) } }
+   if (n == 0) '{ 1.0 }
+   else if (n == 1) x
+   else if (n % 2 == 0) '{ val y = $x * $x; ${ powerCode('y, n / 2) } }
    else '{ $x * ${ powerCode(x, n - 1) } }
 ```
 
@@ -529,15 +542,15 @@ Assume we have two methods, one `map` that takes an `Expr[Array[T]]` and a
 function `f` and one `sum` that performs a sum by delegating to `map`.
 
 ```scala
-object Macros:
-
+object Macros {
    def map[T](arr: Expr[Array[T]], f: Expr[T] => Expr[Unit])
              (using Type[T], Quotes): Expr[Unit] = '{
       var i: Int = 0
-      while i < ($arr).length do
+      while (i < ($arr).length) {
          val element: T = ($arr)(i)
          ${f('element)}
          i += 1
+      }
    }
 
    def sum(arr: Expr[Array[Int]])(using Quotes): Expr[Int] = '{
@@ -547,8 +560,7 @@ object Macros:
    }
 
    inline def sum_m(arr: Array[Int]): Int = ${sum('arr)}
-
-end Macros
+}
 ```
 
 A call to `sum_m(Array(1,2,3))` will first inline `sum_m`:
@@ -587,10 +599,11 @@ val arr: Array[Int] = Array.apply(1, [2,3 : Int]:Int*)
 var sum = 0
 val f = x => '{sum += $x}
 var i: Int = 0
-while i < arr.length do
+while (i < arr.length) {
    val element: Int = (arr)(i)
    sum += element
    i += 1
+}
 sum
 ```
 
@@ -600,10 +613,11 @@ Finally cleanups and dead code elimination:
 val arr: Array[Int] = Array.apply(1, [2,3 : Int]:Int*)
 var sum = 0
 var i: Int = 0
-while i < arr.length do
+while (i < arr.length) {
    val element: Int = arr(i)
    sum += element
    i += 1
+}
 sum
 ```
 
@@ -617,9 +631,10 @@ import scala.collection.immutable.{ TreeSet, HashSet }
 inline def setFor[T]: Set[T] = ${ setForExpr[T] }
 
 def setForExpr[T: Type](using Quotes): Expr[Set[T]] =
-   Expr.summon[Ordering[T]] match
+   Expr.summon[Ordering[T]] match {
       case Some(ord) => '{ new TreeSet[T]()($ord) }
       case _ => '{ new HashSet[T] }
+   }
 ```
 
 ## Relationship with Transparent Inline
@@ -633,9 +648,10 @@ transparent inline def defaultOf(inline str: String) =
    ${ defaultOfImpl('str) }
 
 def defaultOfImpl(strExpr: Expr[String])(using Quotes): Expr[Any] =
-   strExpr.valueOrError match
+   strExpr.valueOrError match {
       case "int" => '{1}
       case "string" => '{"a"}
+   }
 
 // in a separate file
 val a: Int = defaultOf("int")
@@ -670,17 +686,19 @@ These could be used in the following way to optimize any call to `sum` that has 
 ```scala
 inline def sum(inline args: Int*): Int = ${ sumExpr('args) }
 private def sumExpr(argsExpr: Expr[Seq[Int]])(using Quotes): Expr[Int] =
-   argsExpr match
+   argsExpr match {
       case Varargs(args @ Exprs(argValues)) =>
          // args is of type Seq[Expr[Int]]
          // argValues is of type Seq[Int]
          Expr(argValues.sum) // precompute result of sum
-      case Varargs(argExprs) => // argExprs is of type Seq[Expr[Int]]
+      case Varargs(argExprs) => { // argExprs is of type Seq[Expr[Int]]
          val staticSum: Int = argExprs.map(_.value.getOrElse(0)).sum
          val dynamicSum: Seq[Expr[Int]] = argExprs.filter(_.value.isEmpty)
          dynamicSum.foldLeft(Expr(staticSum))((acc, arg) => '{ $acc + $arg })
+      }
       case _ =>
          '{ $argsExpr.sum }
+   }
 ```
 
 ### Quoted patterns
@@ -700,7 +718,7 @@ optimize {
 def sum(args: Int*): Int = args.sum
 inline def optimize(inline arg: Int): Int = ${ optimizeExpr('arg) }
 private def optimizeExpr(body: Expr[Int])(using Quotes): Expr[Int] =
-   body match
+   body match {
       // Match a call to sum without any arguments
       case '{ sum() } => Expr(0)
       // Match a call to sum with an argument $n of type Int.
@@ -709,11 +727,13 @@ private def optimizeExpr(body: Expr[Int])(using Quotes): Expr[Int] =
       // Match a call to sum and extracts all its args in an `Expr[Seq[Int]]`
       case '{ sum(${Varargs(args)}: _*) } => sumExpr(args)
       case body => body
+   }
 
 private def sumExpr(args1: Seq[Expr[Int]])(using Quotes): Expr[Int] =
-   def flatSumArgs(arg: Expr[Int]): Seq[Expr[Int]] = arg match
+   def flatSumArgs(arg: Expr[Int]): Seq[Expr[Int]] = arg match {
       case '{ sum(${Varargs(subArgs)}: _*) } => subArgs.flatMap(flatSumArgs)
       case arg => Seq(arg)
+   }
    val args2 = args1.flatMap(flatSumArgs)
    val staticSum: Int = args2.map(_.value.getOrElse(0)).sum
    val dynamicSum: Seq[Expr[Int]] = args2.filter(_.value.isEmpty)
@@ -725,7 +745,7 @@ private def sumExpr(args1: Seq[Expr[Int]])(using Quotes): Expr[Int] =
 Sometimes it is necessary to get a more precise type for an expression. This can be achieved using the following pattern match.
 
 ```scala
-def f(expr: Expr[Any])(using Quotes) = expr match
+def f(expr: Expr[Any])(using Quotes) = expr match {
    case '{ $x: t } =>
       // If the pattern match succeeds, then there is
       // some type `t` such that
@@ -734,6 +754,7 @@ def f(expr: Expr[Any])(using Quotes) = expr match
       //   instance `Type[t]` is provided for it
       // That is, we have `x: Expr[t]` and `given Type[t]`,
       // for some (unknown) type `t`.
+}
 ```
 
 This might be used to then perform an implicit search as in:
@@ -744,7 +765,7 @@ extension (inline sc: StringContext)
 
 private def showMeExpr(sc: Expr[StringContext], argsExpr: Expr[Seq[Any]])(using Quotes): Expr[String] =
    import quotes.reflect.report
-   argsExpr match
+   argsExpr match {
       case Varargs(argExprs) =>
          val argShowedExprs = argExprs.map {
             case '{ $arg: tp } =>
@@ -760,13 +781,16 @@ private def showMeExpr(sc: Expr[StringContext], argsExpr: Expr[Seq[Any]])(using 
          // `new StringContext(...).showMeExpr(args: _*)` not an explicit `showMeExpr"..."`
          report.error(s"Args must be explicit", argsExpr)
          '{???}
+   }
 
-trait Show[-T]:
+trait Show[-T] {
    def show(x: T): String
+}
 
 // in a different file
-given Show[Boolean] with
+given Show[Boolean] with {
    def show(b: Boolean) = "boolean!"
+}
 
 println(showMe"${true}")
 ```
@@ -795,16 +819,18 @@ the subexpression of type `Expr[Int]` is bound to `body` as an `Expr[Int => Int]
 ```scala
 inline def eval(inline e: Int): Int = ${ evalExpr('e) }
 
-private def evalExpr(e: Expr[Int])(using Quotes): Expr[Int] = e match
+private def evalExpr(e: Expr[Int])(using Quotes): Expr[Int] = e match {
    case '{ val y: Int = $x; $body(y): Int } =>
       // body: Expr[Int => Int] where the argument represents
       // references to y
       evalExpr(Expr.betaReduce('{$body(${evalExpr(x)})}))
    case '{ ($x: Int) * ($y: Int) } =>
-      (x.value, y.value) match
+      (x.value, y.value) match {
          case (Some(a), Some(b)) => Expr(a * b)
          case _ => e
+      }
    case _ => e
+}
 ```
 
 ```scala
