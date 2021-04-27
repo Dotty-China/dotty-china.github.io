@@ -14,11 +14,12 @@ nav_order: 2
 case class UserName(name: String)
 case class Password(hash: Hash)
 
-def help(id: UserName | Password) =
+def help(id: UserName | Password) = {
    val user = id match
       case UserName(name) => lookupName(name)
       case Password(hash) => lookupPassword(hash)
    ...
+}
 ```
 
 并集类型是交集类型的对偶。`|` 是*可交换的*：`A | B` 与 `B | A` 是相同的类型。

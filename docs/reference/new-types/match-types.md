@@ -11,10 +11,11 @@ nav_order: 4
 匹配类型依赖于它 scrutinee 的类型，化简至其右侧的类型之一。例如：
 
 ```scala
-type Elem[X] = X match
+type Elem[X] = X match {
    case String => Char
    case Array[t] => t
    case Iterable[t] => t
+}
 ```
 
 这定义了一个遵循以下的化简规则的类型：
@@ -39,19 +40,21 @@ S match { P1 => T1 ... Pn => Tn }
 匹配类型可以构成递归类型定义的一部分。例如：
 
 ```scala
-type LeafElem[X] = X match
+type LeafElem[X] = X match {
    case String => Char
    case Array[t] => LeafElem[t]
    case Iterable[t] => LeafElem[t]
    case AnyVal => X
+}
 ```
 
 递归匹配类型也可以像这样给定一个上限：
 
 ```scala
-type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
+type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match {
    case EmptyTuple => Ys
    case x *: xs => x *: Concat[xs, Ys]
+}
 ```
 
 在这个定义中，`Concat[A, B]` 的每个实例，无论是否可化简，都是 `Tuple` 的一个子类型。这是递归调用 `x *: Concat[xs, Ys]` 
@@ -62,11 +65,12 @@ type Concat[Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match
 匹配类型可以用于定义依赖类型的方法。例如，这是上面 `LeafElem` 在值级别的对应（注意，这里使用匹配类型作为返回值类型）：
 
 ```scala
-def leafElem[X](x: X): LeafElem[X] = x match
+def leafElem[X](x: X): LeafElem[X] = x match {
    case x: String      => x.charAt(0)
    case x: Array[t]    => leafElem(x(9))
    case x: Iterable[t] => leafElem(x.head)
    case x: AnyVal      => x
+}
 ```
 
 匹配表达式的特殊类型模式只有在满足以下条件时才可用：

@@ -44,19 +44,22 @@ Scala 已经有了*多态方法（Polymorphi Method）*，即接受类型参数�
 例如，考虑这样一种情况，即我们有一个数据类型，用强类型的方式表示一个简单语言（仅有变量和函数应用组成）的表达式：
 
 ```scala
-enum Expr[A]:
+enum Expr[A] {
    case Var(name: String)
    case Apply[A, B](fun: Expr[B => A], arg: Expr[B]) extends Expr[A]
+}
 ```
 
 我们想要给用户提供一个方法，将函数映射到给定的 `Expr` 的所有 immediate 子表达式上。这将要求给定的函数是多态的，
 因为每个子表达式可能有不同的类型。下面展示了如何用多态函数类型实现这一点：
 
 ```scala
-def mapSubexpressions[A](e: Expr[A])(f: [B] => Expr[B] => Expr[B]): Expr[A] =
-   e match
+def mapSubexpressions[A](e: Expr[A])(f: [B] => Expr[B] => Expr[B]): Expr[A] = {
+   e match {
       case Apply(fun, arg) => Apply(f(fun), f(arg))
       case Var(n) => Var(n)
+   }
+}
 ```
 
 然后下面展示了如何使用这个函数将每个子表达式*包装*到给定的表达式中，并调用某个被定义为变量的 `wrap` 函数：

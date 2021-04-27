@@ -37,8 +37,9 @@ Scala 已经有了*依赖方法（Dependent Method）*，即结果类型引用�
 事实上，上述的依赖函数类型只是
 
 ```scala
-Function1[Entry, Entry#Key]:
+Function1[Entry, Entry#Key] {
    def apply(e: Entry): e.Key
+}
 ```
 
 的语法糖。

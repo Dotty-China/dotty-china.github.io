@@ -23,8 +23,9 @@ TypedFunParam     ::=  id ‘:’ Type
 有 `N` 个参数的依赖函数类型 `(x1: K1, ..., xN: KN) => R` 被翻译为：
 
 ```scala
-FunctionN[K1, ..., Kn, R']:
+FunctionN[K1, ..., Kn, R'] {
    def apply(x1: K1, ..., xN: KN): R
+}
 ```
 
 其中结果类型参数 `R'` 是精确的结果类型 `R` 的近似最小上界，不引用参数值 `x1, ..., xN`。
@@ -46,7 +47,7 @@ type DF = (x: C) => x.M
 
 type IDF = (x: C) ?=> x.M
 
-@main def test =
+@main def test = {
    val c = new C { type M = Int; val m = 3 }
 
    val depfun: DF = (x: C) => x.m
@@ -56,7 +57,7 @@ type IDF = (x: C) ?=> x.M
    val idepfun: IDF = summon[C].m
    val u = idepfun(using c)
    println(s"u=$u")   // prints "u=3"
-
+}
 ```
 
 在下面的例子中，依赖类型 `f.Eff` 引用 effect 类型 `CanThrow`：
@@ -67,9 +68,10 @@ type IDF = (x: C) ?=> x.M
 trait Effect
 
 // Type X => Y
-abstract class Fun[-X, +Y]:
+abstract class Fun[-X, +Y] {
    type Eff <: Effect
    def apply(x: X): Eff ?=> Y
+}
 
 class CanThrow extends Effect
 class CanIO extends Effect
@@ -77,13 +79,15 @@ class CanIO extends Effect
 given ct: CanThrow = new CanThrow
 given ci: CanIO = new CanIO
 
-class I2S extends Fun[Int, String]:
+class I2S extends Fun[Int, String] {
    type Eff = CanThrow
    def apply(x: Int) = x.toString
+}
 
-class S2I extends Fun[String, Int]:
+class S2I extends Fun[String, Int] {
    type Eff = CanIO
    def apply(x: String) = x.length
+}
 
 // def map(f: A => B)(xs: List[A]): List[B]
 def map[A, B](f: Fun[A, B])(xs: List[A]): f.Eff ?=> List[B] =
@@ -103,12 +107,13 @@ def composeFn[A, B, C]:
    (f: Fun[A, B]) => (g: Fun[B, C]) => A => f.Eff ?=> g.Eff ?=> C =
    f => g => x => compose(f)(g)(x)
 
-@main def test =
+@main def test = {
    val i2s = new I2S
    val s2i = new S2I
 
    assert(mapFn(i2s)(List(1, 2, 3)).mkString == "123")
    assert(composeFn(i2s)(s2i)(22) == 2)
+}
 ```
 
 ### 类型检查
