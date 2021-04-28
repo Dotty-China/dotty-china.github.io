@@ -6,33 +6,29 @@ grand_parent: 参考
 nav_order: 9
 ---
 
-An _implicit conversion_, also called _view_, is a conversion that
-is applied by the compiler in several situations:
+# {{ page.title }}
 
-1. When an expression `e` of type `T` is encountered, but the compiler
-   needs an expression of type `S`.
-1. When an expression `e.m` where `e` has type `T` but `T` defines no
-   member `m` is encountered.
+*隐式转换（Implicit Conversion）*，也称为*视图（View）*，
+是编译器会在以下几种情况下应用的转换：
 
-In those cases, the compiler looks in the implicit scope for a
-conversion that can convert an expression of type `T` to an expression
-of type `S` (or to a type that defines a member `m` in the second
-case).
+1. 当遇到类型为 `T` 的表达式 `e`，但是编译器需要类型为 `S` 的表达式时。
+2. 当表达式 `e.m` 中 `e` 的类型为 `T`，但 `T` 没有定义成员 `m` 时。
 
-This conversion can be either:
+在这些情况下，编译器会在隐式范围内查找一个能够把类型为 `T` 的表达式
+转换为类型为 `S` （第二种情况下则是定义了成员 `m` 的类型）的表达式的转换。
 
-1. An `implicit def` of type `T => S` or `(=> T) => S`
-1. An implicit value of type `scala.Conversion[T, S]`
+这个转换可以是其中之一：
 
-Defining an implicit conversion will emit a warning unless the import
-`scala.language.implicitConversions` is in scope, or the flag
-`-language:implicitConversions` is given to the compiler.
+1. 类型为 `T => S` 或 `(=> T) => S` 的 `implicit def`。
+2. 类型为 `scala.Conversion[T, S]` 的隐式值。
 
-## Examples
+定义隐式转换时需要导入 `scala.language.implicitConversions` 到作用域中，
+或向编译器添加标志 `-language:implicitConversions`，否则编译器会发出一个警告。
 
-The first example is taken from `scala.Predef`. Thanks to this
-implicit conversion, it is possible to pass a `scala.Int` to a Java
-method that expects a `java.lang.Integer`
+## 示例
+
+第一个例子来自 `scala.Predef`。因为这个隐式转换，
+可以将 `scala.Int` 类型的值传递给接受 `java.lang.Integer` 的方法。
 
 ```scala
 import scala.language.implicitConversions
@@ -40,9 +36,8 @@ implicit def int2Integer(x: Int): java.lang.Integer =
    x.asInstanceOf[java.lang.Integer]
 ```
 
-The second example shows how to use `Conversion` to define an
-`Ordering` for an arbitrary type, given existing `Ordering`s for other
-types:
+第二个例子演示了给定一个其他类型的 `Ordering` 的情况下，
+如何使用 `Conversion` 为任意类型定义 `Ordering`。
 
 ```scala
 import scala.language.implicitConversions
@@ -63,4 +58,4 @@ implicitly[Ordering[A]] // Ok, will use the implicit conversion from
                         // `A` to `Int` and the `Ordering` for `Int`.
 ```
 
-[More details](implicit-conversions-spec.md)
+[更多细节](implicit-conversions-spec.md){: .btn .btn-purple }
