@@ -8,18 +8,14 @@ nav_order: 10
 
 # 重载解析的变化
 
-Overload resolution in Scala 3 improves on Scala 2 in two ways.
-First, it takes all argument lists into account instead of
-just the first argument list.
-Second, it can infer parameter types of function values even if they
-are in the first argument list.
+Scala 3 在 Scala 2 的基础上从两个方面改进了重载解析。
+首先，现在重载解析时考虑所有参数列表，而不仅仅是第一个参数列表。
+其次，现在重载解析时可以推断函数值的参数类型，即使它们在第一个参数列表中。
 
-## Looking Beyond the First Argument List
+## 超越第一个参数列表
 
-Overloading resolution now can take argument lists into account when
-choosing among a set of overloaded alternatives.
-For example, the following code compiles in Scala 3, while it results in an
-ambiguous overload error in Scala 2:
+重载解析现在可以在从一组重载备选方案选择时考虑所有参数列表。
+例如，以下代码能够在 Scala 3 中编译，但在 Scala 2 中会报出不明确重载错误：
 
 ```scala
 def f(x: Int)(y: String): Int = 0
@@ -28,7 +24,7 @@ def f(x: Int)(y: Int): Int = 0
 f(3)("")     // ok
 ```
 
-The following code compiles as well:
+以下代码也可以通过编译：
 
 ```scala
 def g(x: Int)(y: Int)(z: Int): Int = 0
@@ -38,24 +34,21 @@ g(2)(3)(4)     // ok
 g(2)(3)("")    // ok
 ```
 
-To make this work, the rules for overloading resolution in [SLS §6.26.3](https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#overloading-resolution) are augmented
-as follows:
+为了实现这一点，[SLS §6.26.3](https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#overloading-resolution) 
+中的重载解析规则添加了以下内容：
 
 > In a situation where a function is applied to more than one argument list, if overloading
 resolution yields several competing alternatives when `n >= 1` parameter lists are taken
 into account, then resolution re-tried using `n + 1` argument lists.
 
-This change is motivated by the new language feature
-[extension methods](../contextual/extension-methods.md), where emerges the need to do
-overload resolution based on additional argument blocks.
+这个变化是由新的语言特性[扩展方法](../contextual/extension-methods.md)导致的，
+在扩展方法中，需要基于额外的额外的参数块进行重载解析。
 
-## Parameter Types of Function Values
+## 函数值的参数化类型
 
-The handling of function values with missing parameter types has been improved. We can now
-pass such values in the first argument list of an overloaded application, provided
-that the remaining parameters suffice for picking a variant of the overloaded function.
-For example, the following code compiles in Scala 3, while it results in a
-missing parameter type error in Scala2:
+我们对缺少参数类型的函数值的处理进行了改进。现在可以在重载应用的第一个参数列表中传递这些值，
+前期是其余的参数足以从重载函数选择一个。例如，以下代码能够在 Scala 3 中编译，
+但在 Scala 2 中编译器会报出缺少参数类型错误：
 
 ```scala
 def f(x: Int, f2: Int => Int) = f2(x)
@@ -64,14 +57,14 @@ f("a", _.toUpperCase)
 f(2, _ * 2)
 ```
 
-To make this work, the rules for overloading resolution in [SLS §6.26.3](https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#overloading-resolution) are modified
-as follows:
+为了实现这一点，[SLS §6.26.3](https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#overloading-resolution) 
+中的重载规则进行了以下的修改：
 
-Replace the sentence
+将
 
 > Otherwise, let `S1,…,Sm` be the vector of types obtained by typing each argument with an undefined expected type.
 
-with the following paragraph:
+替换为以下这段：
 
 > Otherwise, let `S1,…,Sm` be the vector of known types of all argument types, where the _known type_ of an argument `E`
 is determined as followed:
@@ -81,16 +74,16 @@ is determined as followed:
    otherwise. Here `?` stands for a _wildcard type_ that is compatible with every other type.
  - Otherwise the known type of `E` is the result of typing `E` with an undefined expected type.
 
-A pattern matching closure
+模式匹配闭包
 
 ```scala
 { case P1 => B1 ... case P_n => B_n }
 ````
 
-is treated as if it was expanded to the function value
+会被视为展开后的函数值
 
 ```scala
 x => x match { case P1 => B1 ... case P_n => B_n }
 ```
 
-and is therefore also approximated with a `? => ?` type.
+因此它也近似于 `? => ?` 类型。
