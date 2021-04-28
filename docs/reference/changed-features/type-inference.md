@@ -1,12 +1,12 @@
 ---
 layout: default
-title: 类型推导的变化
+title: 类型推导
 parent: 其他变化的特性
 grand_parent: 参考
 nav_order: 7
 ---
 
-# {{ page.title }}
+# 类型推导的变化
 
 更多信息请参见这两个演示文稿：
 

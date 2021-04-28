@@ -1,10 +1,12 @@
 ---
 layout: default
-title: 重载解析的变化
+title: 重载解析
 parent: 其他变化的特性
 grand_parent: 参考
 nav_order: 10
 ---
+
+# 重载解析的变化
 
 Overload resolution in Scala 3 improves on Scala 2 in two ways.
 First, it takes all argument lists into account instead of

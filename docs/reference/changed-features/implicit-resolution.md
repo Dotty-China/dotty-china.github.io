@@ -1,12 +1,12 @@
 ---
 layout: default
-title: 隐式解析的变化
+title: 隐式解析
 parent: 其他变化的特性
 grand_parent: 参考
 nav_order: 8
 ---
 
-# {{ page.title }}
+# 隐式解析的变化
 
 本节介绍了对隐式解析规则的更高，该规则既适用于新的 `given`，也适用于 Scala 3 中的旧式 `implicit`。
 隐式解析采用了一种新算法，更积极地缓存隐式结果以改善性能。
