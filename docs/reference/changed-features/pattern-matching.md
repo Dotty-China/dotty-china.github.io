@@ -6,63 +6,65 @@ grand_parent: 参考
 nav_order: 14
 ---
 
-The implementation of pattern matching in Scala 3 was greatly simplified compared to Scala 2. From a user perspective, this means that Scala 3 generated patterns are a *lot* easier to debug, as variables all show up in debug modes and positions are correctly preserved.
+# 无 `Option` 模式匹配
 
-Scala 3 supports a superset of Scala 2 [extractors](https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#extractor-patterns).
+与 Scala 2 相比，Scala 3 中的模式匹配的实现大大简化了。
+从用户角度来看，这意味着 Scala 3 生成的模式更容易调试，
+因为所有变量都会在调试模式下被显示，而且位置都会被正确保留。
 
-## Extractors
+Scala 3 支持 Scala 2 [提取器](https://www.scala-lang.org/files/archive/spec/2.13/08-pattern-matching.html#extractor-patterns)的超集。
 
-Extractors are objects that expose a method `unapply` or `unapplySeq`:
+## 提取器
+
+提取器是公开方法 `unapply` 或 `unapplySeq` 的对象：
 
 ```Scala
 def unapply[A](x: T)(implicit x: B): U
 def unapplySeq[A](x: T)(implicit x: B): U
 ```
 
-Extractors that expose the method `unapply` are called fixed-arity extractors, which
-work with patterns of fixed arity. Extractors that expose the method `unapplySeq` are
-called variadic extractors, which enables variadic patterns.
+公开 `unapply` 方法的提取器被称为固定元数提取器，用于处理元数固定的模式。
+公开 `unapplySeq` 方法的提取器被称为可变提取器，支持可变模式。
 
-### Fixed-Arity Extractors
+### 固定元数提取器
 
-Fixed-arity extractors expose the following signature:
+固定元数提取器公开具有以下签名的方法：
 
-```Scala
+```scala
 def unapply[A](x: T)(implicit x: B): U
 ```
 
-The type `U` conforms to one of the following matches:
+类型 `U` 应该符合以下 match 之一：
 
 - Boolean match
 - Product match
 
-Or `U` conforms to the type `R`:
+或者 `U` 符合以下的类型 `R`：
 
-```Scala
+```scala
 type R = {
   def isEmpty: Boolean
   def get: S
 }
 ```
 
-and `S` conforms to one of the following matches:
+其中 `S` 符合以下 match 之一：
 
 - single match
 - name-based match
 
-The former form of `unapply` has higher precedence, and _single match_ has higher
-precedence over _name-based match_.
+前一种形式的 `unapply` 具有更高的优先级，而 *single match* 的优先级高于 *name-based match*。
 
-A usage of a fixed-arity extractor is irrefutable if one of the following condition holds:
+如果以下条件之一成立，则固定元数提取器是不会失败的：
 
 - `U = true`
-- the extractor is used as a product match
-- `U = Some[T]` (for Scala 2 compatibility)
-- `U <: R` and `U <: { def isEmpty: false }`
+- 提取器用于 product match
+- `U = Some[T]` （为了与 Scala 2 兼容）
+- `U <: R` 且 `U <: { def isEmpty: false }`
 
-### Variadic Extractors
+### 可变提取器
 
-Variadic extractors expose the following signature:
+可变提取器公开具有以下签名的方法：
 
 ```Scala
 def unapplySeq[A](x: T)(implicit x: B): U
