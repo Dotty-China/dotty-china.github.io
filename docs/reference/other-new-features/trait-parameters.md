@@ -40,8 +40,9 @@ class D extends C, Greeting("Bill") // error: parameter passed twice
 这里有一个 trait 继承了参数化 trait `Greeting`。
 
 ```scala
-trait FormalGreeting extends Greeting:
+trait FormalGreeting extends Greeting {
    override def msg = s"How do you do, $name"
+}
 ```
 
 根据规则的需求，这里不向 `Greeting` 传递参数。但是，在定义继承 `FormalGreeting` 的类时，
@@ -64,14 +65,17 @@ class E extends Greeting("Bob"), FormalGreeting
 例如，下面是 `Greeting` 的一个变体，其中 addressee 是 `ImpliedName` 类型的上下文参数：
 
 ```scala
-case class ImpliedName(name: String):
+case class ImpliedName(name: String) {
   override def toString = name
+}
 
-trait ImpliedGreeting(using val iname: ImpliedName):
+trait ImpliedGreeting(using val iname: ImpliedName) {
    def msg = s"How are you, $iname"
+}
 
-trait ImpliedFormalGreeting extends ImpliedGreeting:
+trait ImpliedFormalGreeting extends ImpliedGreeting {
    override def msg = s"How do you do, $iname"
+}
 
 class F(using iname: ImpliedName) extends ImpliedFormalGreeting
 ```

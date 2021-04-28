@@ -23,9 +23,10 @@ for benchmarking! Also, if you want to access the command line arguments,
 you need to use an explicit `main` method for that.
 
 ```scala
-object Hello:
+object Hello {
    def main(args: Array[String]) =
       println(s"Hello, ${args(0)}")
+}
 ```
 
 On the other hand, Scala 3 offers a convenient alternative to such "program" objects

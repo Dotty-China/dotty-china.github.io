@@ -88,9 +88,10 @@ Use sites then implement that decision consistently.
     infix def op2[T](x: T)(y: S): R    // ok
     infix def op3[T](x: T, y: S): R    // error: two parameters
 
-    extension (x: A)
+    extension (x: A) {
        infix def op4(y: B): R          // ok
        infix def op5(y1: B, y2: B): R  // error: two parameters
+    }
     ```
 
  4. `infix` 修饰符也可以赋予给有且仅有两个类型参数的类型、trait 或类定义。这样的中缀类型

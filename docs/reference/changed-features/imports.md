@@ -21,15 +21,18 @@ import scala.annotation.*  // imports everything in the annotation package
 如果要导入名为 `*` 的成员，可以在使用反引号括起其名称。
 
 ```scala
-object A:
+object A {
    def * = ...
    def min = ...
+}
 
-object B:
+object B {
   import A.`*`   // imports just `*`
+}
 
-object C:
+object C {
   import A.*     // imports everything in A
+}
 ```
 
 ## 重命名导入

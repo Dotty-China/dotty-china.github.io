@@ -76,11 +76,13 @@ by a nullary method or _vice versa_. Instead, both methods must agree
 exactly in their parameter lists.
 
 ```scala
-class A:
+class A {
    def next(): Int
+}
 
-class B extends A:
+class B extends A {
    def next: Int // overriding error: incompatible type
+}
 ```
 
 Methods overriding Java or Scala 2 methods are again exempted from this

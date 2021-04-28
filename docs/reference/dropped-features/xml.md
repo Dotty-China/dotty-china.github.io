@@ -14,7 +14,7 @@ import dotty.xml.interpolator.*
 
 case class Person(name: String) { override def toString = name }
 
-@main def test: Unit =
+@main def test: Unit = {
   val bill = Person("Bill")
   val john = Person("John")
   val mike = Person("Mike")
@@ -36,6 +36,7 @@ case class Person(name: String) { override def toString = name }
       <heading>${heading}</heading><body>${body}</body>
     </message>"""
   println(mails2)
+}
 ```
 
 For more information, see the semester project [XML String Interpolator for Dotty](https://infoscience.epfl.ch/record/267527) by Yassin Kammoun (2019).
