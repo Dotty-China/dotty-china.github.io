@@ -5,9 +5,11 @@ nav_exclude: true
 search_exclude: true
 ---
 
-[TOC]
-
 # 捐赠支持 Scala 3 中文站
+{: .no_toc }
+
+1. TOC
+{:toc}
 
 ## 通过爱发电捐赠
 
