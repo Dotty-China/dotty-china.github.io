@@ -25,7 +25,7 @@ permalink: /
 
 **本站对[可选括号](./docs/reference/other-new-features/indentation.md)语法（使用缩进替代大括号）持绝对反对态度，本站所有示例中任何非必要的用缩进替代大括号都是由于疏忽造成的，欢迎通过 [issue](https://github.com/Dotty-China/dotty-china.github.io/issues) 反馈。**
 
-赞助支持中文站请访问[捐赠支持](https://donate.glavo.site/)页面。
+赞助支持中文站请访问[捐赠支持](donate.md)页面。
 
 ## 试用 Scala 3
 
