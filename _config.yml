@@ -79,4 +79,4 @@ exclude:
   - vendor/ruby/
   - git-push.bat
   - README.md
-  - docs/reference/metaprogramming/simple-smp.md
+  #- docs/reference/metaprogramming/simple-smp.md

@@ -50,11 +50,12 @@ x.trim // error: trim is not member of String | Null
 - 一个扩展方法 `.nn`“抛弃”可空性
 
   ```scala
-   extension [T](x: T | Null)
+   extension [T](x: T | Null) {
      inline def nn: T = {
        assert(x != null)
        x.asInstanceOf[T]
      }
+   }
   ```
 
   这意味着给定 `x: String | Null`，`x.nn` 的类型为 `String`，所以我们可以在上面调用它的所有常用方法。
