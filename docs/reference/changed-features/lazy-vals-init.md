@@ -1,24 +1,24 @@
 ---
 layout: default
-title: 惰性值初始化
+title: lazy val 初始化
 parent: 其他变化的特性
 grand_parent: 参考
 nav_order: 17
 ---
 
-Scala 3 implements [Version 6](https://docs.scala-lang.org/sips/improved-lazy-val-initialization.html#version-6---no-synchronization-on-this-and-concurrent-initialization-of-fields)
-of the [SIP-20] improved lazy vals initialization proposal.
+# {{ page.title }}
 
-## Motivation
+Scala 3 实现了 [SIP-20]（improved lazy vals initialization proposal） 
+的[第六版](https://docs.scala-lang.org/sips/improved-lazy-val-initialization.html#version-6---no-synchronization-on-this-and-concurrent-initialization-of-fields)。
 
-The newly proposed lazy val initialization mechanism aims to eliminate the acquisition of resources
-during the execution of the lazy val initializer block, thus reducing the possibility of a deadlock.
-The concrete deadlock scenarios that the new lazy val initialization scheme eliminates are
-summarized in the [SIP-20] document.
+## 动机
 
-## Implementation
+惰性值初始化的新提案旨在消除惰性值初始化块执行中对资源的获取，从而降低死锁的可能性。
+[SIP-20] 文档总结了新的 `lazy val` 初始化方案消除掉的具体死锁场景。
 
-Given a lazy field of the form:
+## 实现
+
+给定以下形式的惰性字段：
 
 ```scala
 class Foo {
@@ -26,7 +26,7 @@ class Foo {
 }
 ```
 
-The Scala 3 compiler will generate code equivalent to:
+Scala 3 将会生产等价于以下内容的代码：
 
 ```scala
 class Foo {
@@ -64,18 +64,16 @@ class Foo {
 }
 ```
 
-The state of the lazy val `<state-i>` is represented with 4 values: 0, 1, 2 and 3. The state 0
-represents a non-initialized lazy val. The state 1 represents a lazy val that is currently being
-initialized by some thread. The state 2 denotes that there are concurrent readers of the lazy val.
-The state 3 represents a lazy val that has been initialized. `<field-id>` is the id of the lazy
-val. This id grows with the number of volatile lazy vals defined in the class.
+lazy val `<state-i>` 的状态由四个值表示：0、1、2 和 3.
+状态 0 表示 lazy val 未初始化。状态 1 表示 lazy val 当前正在由某个线程初始化。
+状态 2 表示存在对 lazy val 的并行读取。状态 3 表示 lazy val 已经被初始化。
+`<field-id>` 是 lazy val 的 id。该 id 随着类中定义的 volatile lazy val 的数量的增长而增长。
 
-## Note on recursive lazy vals
+## 关于递归 `lazy val` 的注记
 
-Ideally recursive lazy vals should be flagged as an error. The current behavior for
-recursive lazy vals is undefined (initialization may result in a deadlock).
+理想情况下，递归惰性 val 应该被标记为错误。递归 `lazy val` 的行为现在未定义（初始化可能导致死锁）。
 
-## Reference
+## 参考
 
 * [SIP-20]
 
