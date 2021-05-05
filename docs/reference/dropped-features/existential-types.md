@@ -6,32 +6,30 @@ grand_parent: 参考
 nav_order: 3
 ---
 
-Existential types using `forSome` (as in
-[SLS §3.2.12](https://www.scala-lang.org/files/archive/spec/2.13/03-types.html#existential-types))
-have been dropped. The reasons for dropping them are:
+# {{ page.title }}
 
- - Existential types violate a type soundness principle on which DOT
-   and Scala 3 are constructed. That principle says that every
-   prefix (`p`, respectvely `S`) of a type selection `p.T` or `S#T`
-   must either come from a value constructed at runtime or refer to a
-   type that is known to have only good bounds.
+使用 `forSome`（[SLS §3.2.12](https://www.scala-lang.org/files/archive/spec/2.13/03-types.html#existential-types)）
+的存在类型（Existential Type）被删除。删除它们的原因是：
 
+ - 存在类型违背了 DOT 和 Scala 3 的类型完备性原则。
+   该原则要求类型选择 `p.T` 或 `S#T` 中的每个前缀（`p` 或 `S`），
+   要么来自运行时构造的值，要么引用已知的只有良好边界的类型。
+   
  - Existential types create many difficult feature interactions
    with other Scala constructs.
 
- - Existential types largely overlap with path-dependent types,
-   so the gain of having them is relatively minor.
+ - 存在类型很大程度上与路径依赖类型（path-dependent type）重叠，因此拥有它的好处相对较小。
 
-Existential types that can be expressed using only wildcards (but not
-`forSome`) are still supported, but are treated as refined types.
-For instance, the type
+现在依然支持只用通配符（而不使用 `forSome`） 表示的存在类型，
+但会将其视为 refined type。
+
+例如，类型
+
 ```scala
 Map[_ <: AnyRef, Int]
 ```
-is treated as the type `Map`, where the first type parameter
-is upper-bounded by `AnyRef` and the second type parameter is an alias
-of `Int`.
+被视为类型 `Map`，其中第一个类型参数是 upper-bounded by `AnyRef`，
+第二个类型参数是 `Int` 的别名。
 
-When reading class files compiled with Scala 2, Scala 3 will do a best
-effort to approximate existential types with its own types. It will
-issue a warning that a precise emulation is not possible.
+当读取使用 Scala 2 编译的 class 文件时，Scala 3 会尽最大努力使用自己的类型来模拟存在类型。
+它会发出警告说明自己无法进行精确的模拟。
