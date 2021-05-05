@@ -6,52 +6,46 @@ grand_parent: 参考
 nav_order: 16
 ---
 
-Compiler plugins are supported by Dotty (and Scala 3) since 0.9. There are two notable changes
-compared to `scalac`:
+# {{ page.title}}
 
-- No support for analyzer plugins
-- Added support for research plugins
+从 Dotty 0.9 开始，Dotty（Scala 3）开始支持编译器插件。与 Scala 2 的 `scala` 相比，
+这有两个显著的变化：
 
-[Analyzer plugins][1] in `scalac` run during type checking and may influence
-normal type checking. This is a very powerful feature but for production usages,
-a predictable and consistent type checker is more important.
+- 不支持 analyzer 插件
+- 添加了对 research 插件的支持
 
-For experimentation and research, Scala 3 introduces _research plugin_. Research plugins
-are more powerful than `scalac` analyzer plugins as they let plugin authors customize
-the whole compiler pipeline. One can easily replace the standard typer by a custom one or
-create a parser for a domain-specific language. However, research plugins are only
-enabled for nightly or snaphot releases of Scala 3.
+`scalac` 中的[Analyzer 插件][1]在类型检查期间运行，可能会影响正常的类型检查。
+这是一个非常强大的特性，但是对于生产用途，可预测的、一致的类型检查更为重要。
 
-Common plugins that add new phases to the compiler pipeline are called
-_standard plugins_ in Scala 3. In terms of features, they are similar to
-`scalac` plugins, despite minor changes in the API.
+为了实验和研究，Scala 3 引入了 *research 插件*。Research 插件比 `scalac` 的 analyzer 插件更强大，
+因为它允许插件作者定制整个编译器 pipeline。可以很容易用定制的 typer 替代标准的 typer，
+或为 DSL 创建一个解析器。不过，research 插件只在 Scala 3 的 nightly 或 snaphot 版本中启用。
 
-## Using Compiler Plugins
+向编译器 pipeline 添加新的阶段的常见插件在 Scala 3 中被称为*标准插件（standard plugin）*。
+特性上它们与 `scalac` 插件类似，但是 API 有一些小变化。
 
-Both standard and research plugins can be used with `scalac` by adding the `-Xplugin:` option:
+## 使用编译器插件
+
+标准插件和 research 插件都可以通过为 `scalac` 添加 `-Xplugin:` 选项启用：
 
 ```shell
 scalac -Xplugin:pluginA.jar -Xplugin:pluginB.jar Test.scala
 ```
 
-The compiler will examine the jar provided, and look for a property file named
-`plugin.properties` in the root directory of the jar. The property file specifies
-the fully qualified plugin class name. The format of a property file is as follows:
+编译器将检查所提供的 jar，在 jar 的根目录中查找名为 `plugin.properties` 的属性文件。
+属性文件指定了插件类的完全限定类名。属性文件的格式如下：
 
 ```properties
 pluginClass=dividezero.DivideZero
 ```
 
-This is different from `scalac` plugins that required a `scalac-plugin.xml` file.
+这与需要 `scalac-plugin.xml` 文件的 `scalac` 插件不同。
 
-Starting from 1.1.5, `sbt` also supports Scala 3 compiler plugins. Please refer to the
-[`sbt` documentation][2] for more information.
+从 1.1.5 开始，`sbt` 支持 Scala 3 编译器插件。更多信息请参见 [`sbt` 文档][2]。
 
-## Writing a Standard Compiler Plugin
+## 编写标准编译器插件
 
-Here is the source code for a simple compiler plugin that reports integer divisions by
-zero as errors.
-
+下面是一个简单的编译器插件的源码，该插件将整数除以零作为错误报告。
 ```scala
 package dividezero
 
@@ -94,20 +88,17 @@ class DivideZeroPhase extends PluginPhase {
 }
 ```
 
-The plugin main class (`DivideZero`) must extend the trait `StandardPlugin`
-and implement the method `init` that takes the plugin's options as argument
-and returns a list of `PluginPhase`s to be inserted into the compilation pipeline.
+插件的主类（`DivideZero`）必须继承 trait `StandardPlugin`，并实现 `init` 方法，
+该方法接受插件的选项作为参数，返回要插入编译器 pipeline 的 `PluginPhase` 列表。
 
-Our plugin adds one compiler phase to the pipeline. A compiler phase must extend
-the `PluginPhase` trait. In order to specify when the phase is executed, we also
-need to specify a `runsBefore` and `runsAfter` constraints that are list of phase
-names.
+我们的插件向 pipeline 插入了一个编译器阶段。编译器阶段必须继承 trait `PluginPhase`。
+为了指定何时执行阶段，我们还需要指定约束 `runsBefore` 与 `runsAfter`，它们是阶段名称的列表。
 
-We can now transform trees by overriding methods like `transformXXX`.
+我们现在可以通过覆盖像 `transformXXX` 这样的方法转换树。
 
-## Writing a Research Compiler Plugin
+## 编写 Research 编译器插件
 
-Here is a template for research plugins.
+这里是一个 research 插件的模板。
 
 ```scala
 import dotty.tools.dotc.core.Contexts.Context
