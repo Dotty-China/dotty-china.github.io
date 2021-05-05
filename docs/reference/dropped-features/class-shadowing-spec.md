@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "已弃用：Class 遮蔽 - 更多详情"
+title: "已删除：Class 遮蔽 - 更多详情"
 nav_exclude: true
 ---
 

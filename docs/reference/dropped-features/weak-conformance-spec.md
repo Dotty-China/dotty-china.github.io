@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "已弃用：弱一致性 - 更多详情"
+title: "已删除：弱一致性 - 更多详情"
 nav_exclude: true
 ---
 

@@ -1,7 +1,7 @@
 ---
 layout: default
-title: "已弃用：延迟初始化"
-parent: 已弃用的特性
+title: "已删除：延迟初始化"
+parent: 已删除的特性
 grand_parent: 参考
 nav_order: 1
 ---

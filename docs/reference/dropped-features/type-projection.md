@@ -1,7 +1,7 @@
 ---
 layout: default
-title: "已弃用：通用类型投影"
-parent: 已弃用的特性
+title: "已删除：通用类型投影"
+parent: 已删除的特性
 grand_parent: 参考
 nav_order: 4
 ---
