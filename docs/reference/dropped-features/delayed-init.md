@@ -6,10 +6,12 @@ grand_parent: 参考
 nav_order: 1
 ---
 
-The special handling of the `DelayedInit` trait is no longer supported.
+# {{ page.title }}
 
-One consequence is that the `App` class, which used `DelayedInit` is
-now partially broken. You can still use `App` as a simple way to set up a main program. Example:
+对 trait `DelayedInit` 的特殊处理不再被支持。
+
+这造成的后果之一是使用 `DelayedInit` 的类 `App` 被部分破坏。
+您现在依然可以使用 `App` 作为定义主程序的简便方法。例如：
 
 ```scala
 object HelloWorld extends App {
@@ -17,10 +19,8 @@ object HelloWorld extends App {
 }
 ```
 
-However, the code is now run in the initializer of the object, which on
-some JVM's means that it will only be interpreted. So, better not use it
-for benchmarking! Also, if you want to access the command line arguments,
-you need to use an explicit `main` method for that.
+但是，这段代码现在是在对象的初始化器中执行，这在某些 JVM 上意味着它们会被解释执行。
+所以，最好不要将它用于基准测试！另外，如果要访问命令行参数，则需要使用显式的 `main` 方法。
 
 ```scala
 object Hello {
@@ -29,5 +29,5 @@ object Hello {
 }
 ```
 
-On the other hand, Scala 3 offers a convenient alternative to such "program" objects
-with [`@main` methods](../changed-features/main-functions.md).
+另一方面，Scala 3 提供了一个便捷的替代方案 [`@main` 方法](../changed-features/main-functions.md)
+实现以上的“程序”对象。
