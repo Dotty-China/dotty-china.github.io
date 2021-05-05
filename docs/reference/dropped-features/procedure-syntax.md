@@ -6,16 +6,19 @@ grand_parent: 参考
 nav_order: 6
 ---
 
-Procedure syntax
+# {{ page.title }}
+
+过程语法
 ```scala
 def f() { ... }
 ```
-has been dropped. You need to write one of the following instead:
+被删除。需要用以下写法之一替代：
+
 ```scala
 def f() = { ... }
 def f(): Unit = { ... }
 ```
-Scala 3 accepts the old syntax under the `-source:3.0-migration` option.
-If the `-migration` option is set, it can even rewrite old syntax to new.
-The [Scalafix](https://scalacenter.github.io/scalafix/) tool also
-can rewrite procedure syntax to make it Scala 3 compatible.
+
+Scala 3 在 `-source:3.0-migration` 选项下接受旧语法。如果还设置了 `-migration` 选项，
+它还可以将旧语法重写为新语法。[Scalafix](https://scalacenter.github.io/scalafix/) 工具
+也可以重写过程语法，使其与 Scala 3 兼容。
