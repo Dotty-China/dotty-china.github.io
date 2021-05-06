@@ -6,8 +6,10 @@ grand_parent: 参考
 nav_order: 11
 ---
 
-XML Literals are still supported, but will be dropped in the near future, to
-be replaced with [XML string interpolation](https://github.com/lampepfl/xml-interpolator):
+# {{ page.title }}
+
+XML 字面量依然被支持，但在不久的将来会被删除，被 [XML 字符串插值器](https://github.com/lampepfl/xml-interpolator)
+所取代：
 
 ```scala
 import dotty.xml.interpolator.*
@@ -39,4 +41,4 @@ case class Person(name: String) { override def toString = name }
 }
 ```
 
-For more information, see the semester project [XML String Interpolator for Dotty](https://infoscience.epfl.ch/record/267527) by Yassin Kammoun (2019).
+更多详情请参阅 semester project [XML String Interpolator for Dotty](https://infoscience.epfl.ch/record/267527) by Yassin Kammoun (2019)。
