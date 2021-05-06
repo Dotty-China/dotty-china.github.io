@@ -44,5 +44,5 @@ xs.map(_ + _)
 
 更多详情请参见：
 
-* [更多详情](./parameter-untupling-spec.md)页面，或者
+* [更多细节](./parameter-untupling-spec.md)页面，或者
 * [Issue #897](https://github.com/lampepfl/dotty/issues/897)。

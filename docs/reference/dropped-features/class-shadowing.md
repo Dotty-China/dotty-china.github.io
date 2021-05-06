@@ -6,7 +6,9 @@ grand_parent: 参考
 nav_order: 9
 ---
 
-Scala 2 so far allowed patterns like this:
+# {{ page.title }}
+
+到目前为止，Scala 允许这样的模式：
 
 ```scala
 class Base {
@@ -18,7 +20,7 @@ class Sub extends Base {
 }
 ```
 
-Scala 3 rejects this with the error message:
+Scala 3 会拒绝这段代码，并显示错误消息：
 
 ```scala
 6 |      class Ops {  }
@@ -27,9 +29,7 @@ Scala 3 rejects this with the error message:
   | -- class definitions cannot be overridden
 ```
 
-The issue is that the two `Ops` classes _look_ like one overrides the
-other, but classes in Scala 2 cannot be overridden. To keep things clean
-(and its internal operations consistent) the Scala 3 compiler forces you
-to rename the inner classes so that their names are different.
+主要问题是这两个 `Ops` *看起来像是*其中一个覆盖了另一个，但 Scala 2 中的类不能真的覆盖。
+为了保持干净（以及其内部操作的一致性），Scala 3 编译器强制您重命名内部类，使它们的名称不同。
 
-[More details](./class-shadowing-spec.md)
+[更多细节](./class-shadowing-spec.md){: .btn .btn-purple }
