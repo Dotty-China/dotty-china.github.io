@@ -6,15 +6,16 @@ grand_parent: 参考
 nav_order: 13
 ---
 
-Previously an empty argument list `()` was implicitly inserted when
-calling a nullary method without arguments. Example:
+# {{ page.title }}
+
+以前在不提供参数调用零元方法时，一个空的参数列表 `()` 会被隐式插入。例如：
 
 ```scala
 def next(): T = ...
 next     // is expanded to next()
 ```
 
-In Scala 3, this idiom is an error.
+在 Scala 3 中，这个惯用法是错误的。
 
 ```scala
 next
@@ -22,31 +23,27 @@ next
 missing arguments for method next
 ```
 
-In Scala 3, the application syntax has to follow exactly the parameter
-syntax. Excluded from this rule are methods that are defined in Java
-or that override methods defined in Java. The reason for being more
-lenient with such methods is that otherwise everyone would have to
-write
+在 Scala 3 中，应用语法必须完全遵循参数语法。在 Java 中定义的方法，
+以及正在重写 Java 中定义的方法的方法是例外。对这种情况宽容的原因是，
+如果没有例外，则所有人都要用这种写法
 
 ```scala
 xs.toString().length()
 ```
 
-instead of
+替代
 
 ```scala
 xs.toString.length
 ```
 
-The latter is idiomatic Scala because it conforms to the _uniform
-access principle_. This principle states that one should be able to
-change an object member from a field to a non-side-effecting method
-and back without affecting clients that access the
-member. Consequently, Scala encourages to define such "property"
-methods without a `()` parameter list whereas side-effecting methods
-should be defined with it. Methods defined in Java cannot make this
-distinction; for them a `()` is always mandatory. So Scala fixes the
-problem on the client side, by allowing the parameterless references.
+后者是符合 Scala 惯用法的，因为它符合统一访问原则。
+这一原则指出，应该能够将对象成员从字段修改为无副作用的方法，
+也能够再修改回来，而不影响访问该成员的客户端。
+因此，Scala 鼓励定义没有 `()` 参数列表的“属性”方法，
+而带有副作用的方法应该带有 `()` 参数列表。
+在 Java 中定义的方法不能做出这种区分；对于它们来说，
+`()` 总是必须的。因此 Scala 通过允许无参数引用在用户侧解决了这个问题。
 But where Scala allows that freedom for all method references, Scala 3
 restricts it to references of external methods that are not defined
 themselves in Scala 3.
