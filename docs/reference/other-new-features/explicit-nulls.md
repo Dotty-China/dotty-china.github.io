@@ -71,7 +71,9 @@ x.trim // error: trim is not member of String | Null
 
 ## Unsoundness
 
-The new type system is unsound with respect to `null`. This means there are still instances where an expression has a non-nullable type like `String`, but its value is actually `null`.
+新类型系统在关于 `null` 的方面是 unsound 的。
+这意味着仍然存在表达式具有不可为 `null`的类型，譬如 `String`，
+而其值实际上是 `null`。
 
 The unsoundness happens because uninitialized fields in a class start out as `null`:
 
@@ -85,8 +87,8 @@ val c = new C()
 // c.f == "field is null"
 ```
 
-The unsoundness above can be caught by the compiler with the option `-Ysafe-init`.
-More details can be found in [safe initialization](./safe-initialization.md).
+编译器可以通过选项 `-Ysafe-init` 捕获到以上的 unsoundness。
+更多细节可以在[安全初始化](./safe-initialization.md)一节找到。
 
 ## Equality
 
