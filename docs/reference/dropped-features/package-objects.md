@@ -6,16 +6,19 @@ grand_parent: 参考
 nav_order: 7
 ---
 
-Package objects
+# {{ page.title }}
+
+包对象（Package Object）
 ```scala
 package object p {
   val a = ...
   def b = ...
 }
 ```
-will be dropped. They are still available in Scala 3.0, but will be deprecated and removed afterwards.
+将被删除。它在 Scala 3.0 中依然可用，但之后会被弃用并删除。
 
-Package objects are no longer needed since all kinds of definitions can now be written at the top-level. Example:
+包对象不再被需要，因为现在可以在顶层编写各类定义。例如：
+
 ```scala
 package p
 type Labelled[T] = (String, T)
@@ -26,24 +29,26 @@ case class C()
 
 extension (x: C) def pair(y: C) = (x, y)
 ```
-There may be several source files in a package containing such top-level definitions, and source files can freely mix top-level value, method, and type definitions with classes and objects.
 
-The compiler generates synthetic objects that wrap top-level definitions falling into one of the following categories:
+包中可能有多个源文件包含各自的顶层定义，源文件可以自由的将顶层值、方法和类型定义与类和对象混合。
 
- - all pattern, value, method, and type definitions,
- - implicit classes and objects,
- - companion objects of opaque type aliases.
+编译器会将以下类别的顶层定义包装到合成的对象中：
 
-If a source file `src.scala` contains such top-level definitions, they will be put in a synthetic object named `src$package`. The wrapping is transparent, however. The definitions in `src` can still be accessed as members of the enclosing package.
+ - 所有模式、值、方法与类型定义，
+ - 隐式类和对象，
+ - 不透明类型别名的伴生对象。
 
-**Note:** This means that
-1. The name of a source file containing wrapped top-level definitions is relevant for binary compatibility. If the name changes, so does the name of the generated object and its class.
+如果源文件 `src.scala` 中包含了这样的顶层定义，他们会被放到名为 `src$package` 的顶层对象中。
+当然，包装是透明的。`src` 中的定义仍然可以作为包含它的包的成员进行访问。
 
-2. A top-level main method `def main(args: Array[String]): Unit = ...` is wrapped as any other method. If it appears
-in a source file `src.scala`, it could be invoked from the command line using a command like `scala src$package`. Since the
-"program name" is mangled it is recommended to always put `main` methods in explicitly named objects.
+**注意：**这意味着
 
-3. The notion of `private` is independent of whether a definition is wrapped or not. A `private` top-level definition is always visible from everywhere in the enclosing package.
+1. 包含顶层定义的源文件名称与二进制兼容性相关。如果名称变化，则生成的对象以及类的名称也会变化。
 
-4. If several top-level definitions are overloaded variants with the same name,
-they must all come from the same source file.
+2. 顶层主方法 `def main(args: Array[String]): Unit = ...` 也会像其他方法一样被包装。
+   如果它声明在源文件 `src.scala` 中，则在命令行内可以使用类似 `scala src$package` 这样的命令调用它。
+   由于“程序名”是 mangled 的，所以建议 `main` 方法总是放在显式命名的对象中。
+
+3. `private` 的解释方式与是否被包装无关。`private` 的顶层定义总是能在包裹它的包中的任何地方可见。
+
+4. 如果多个顶层定义是具有相同名称的重载变体，则它们必须来自同一源文件。
