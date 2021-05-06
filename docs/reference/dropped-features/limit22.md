@@ -6,14 +6,16 @@ grand_parent: 参考
 nav_order: 10
 ---
 
-The limits of 22 for the maximal number of parameters of function types and the
-maximal number of fields in tuple types have been dropped.
+# {{ page.title }}
 
-* Functions can now have an arbitrary number of parameters. Functions beyond
-  [`scala.Function22`](https://www.scala-lang.org/api/current/scala/Function22.html) are erased to a new trait [`scala.runtime.FunctionXXL`](https://dotty.epfl.ch/api/scala/runtime/FunctionXXL.html).
+函数参数与元组字段的最多为 22 个的限制被取消。
 
-* Tuples can also have an arbitrary number of fields. Tuples beyond [`scala.Tuple22`](https://www.scala-lang.org/api/current/scala/Tuple22.html)
-  are erased to a new class [`scala.runtime.TupleXXL`](https://dotty.epfl.ch/api/scala/runtime/TupleXXL.html) (which extends the trait [`scala.Product`](https://dotty.epfl.ch/api/scala/Product.html)). Furthermore, they support generic
-  operation such as concatenation and indexing.
+* 函数现在可以有任意个数的参数。超出 [`scala.Function22`](https://www.scala-lang.org/api/current/scala/Function22.html)
+  的函数会被擦除为另一个新的 trait [`scala.runtime.FunctionXXL`](https://dotty.epfl.ch/api/scala/runtime/FunctionXXL.html)。
 
-Both of these are implemented using arrays.
+* 元组现在也可以有任意个数的字段。超出 [`scala.Tuple22`](https://www.scala-lang.org/api/current/scala/Tuple22.html)
+  的元组会被擦除到另一个新类 [`scala.runtime.TupleXXL`](https://dotty.epfl.ch/api/scala/runtime/TupleXXL.html)
+  （它继承了 trait [`scala.Product`](https://dotty.epfl.ch/api/scala/Product.html)）。
+  此外，元组现在还支持类似连接和索引的通用操作。
+
+这两者都是通过数组实现的。
