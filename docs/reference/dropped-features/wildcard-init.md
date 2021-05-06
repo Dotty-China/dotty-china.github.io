@@ -6,15 +6,16 @@ grand_parent: 参考
 nav_order: 17
 ---
 
-The syntax
+# {{ page.title }}
+
+语法
 
 ```scala
   var x: A = _
 ```
 
-that was used to indicate an uninitialized field, has been dropped.
-At its place there is a special value `uninitialized` in the `scala.compiletime` package.
-To get an uninitialized field, you now write
+用于指示一个字段未初始化，现在这个语法已经被删除。
+要得到一个未初始化的字段，现在需要写作
 
 ```scala
 import scala.compiletime.uninitialized
@@ -22,4 +23,4 @@ import scala.compiletime.uninitialized
 var x: A = uninitialized
 ```
 
-To enable cross-compilation, `_` is still supported, but it will be dropped in a future 3.x version.
+为了支持交叉编译，`_` 依然被支持，但它将在未来的 3.x 版本中被删除。
