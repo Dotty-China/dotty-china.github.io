@@ -8,8 +8,14 @@ nav_order: 1
 
 # {{ page.title }}
 
-The following pages introduce the redesign of metaprogramming in Scala. They
-introduce the following fundamental facilities:
+下面几个页面中将介绍重新设计后的 Scala 元编程。它们引入了以下基本设施：
+
+1. [`inline`](./inline.md) 是一个新的修饰符，它保证定义在使用时被内联。
+   内联的主要目的是用来减少函数调用与值访问背后的开销。
+   展开由 Scala 编译器在 Typer 编译器阶段中执行。与其他一些 ecosystems 中的内联不同，
+   Scala 中的 inline 不仅仅是对编译器的请求，而是一个命令。
+   这是因为 Scala 中的内联可以驱动其他编译时操作，譬如内联模式匹配（启用类型级编程）、
+   宏（enabling compile-time, generative, metaprogramming）
 
 1. [`inline`](./inline.md) is a new modifier that guarantees that
    a definition will be inlined at the point of use. The primary motivation
