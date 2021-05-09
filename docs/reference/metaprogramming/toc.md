@@ -15,26 +15,13 @@ nav_order: 1
    展开由 Scala 编译器在 Typer 编译器阶段中执行。与其他一些 ecosystems 中的内联不同，
    Scala 中的 inline 不仅仅是对编译器的请求，而是一个命令。
    这是因为 Scala 中的内联可以驱动其他编译时操作，譬如内联模式匹配（启用类型级编程）、
-   宏（enabling compile-time, generative, metaprogramming）
+   宏（enabling compile-time, generative, metaprogramming）和运行时代码生成（multi-stage programming）。
 
-1. [`inline`](./inline.md) is a new modifier that guarantees that
-   a definition will be inlined at the point of use. The primary motivation
-   behind inline is to reduce the overhead behind function calls and access to
-   values. The expansion will be performed by the Scala compiler during the
-   `Typer` compiler phase. As opposed to inlining in some other ecosystems,
-   inlining in Scala is not merely a request to the compiler but is a
-   _command_. The reason is that inlining in Scala can drive other compile-time
-   operations, like inline pattern matching (enabling type-level
-   programming), macros (enabling compile-time, generative, metaprogramming) and
-   runtime code generation (multi-stage programming).
-
-2. [Macros](./macros.md) are built on two well-known fundamental
-   operations: quotation and splicing.  Quotation converts program code to
-   data, specifically, a (tree-like) representation of this code. It is
-   expressed as `'{...}` for expressions and as `'[...]` for types. Splicing,
-   expressed as `${ ... }`, goes the other way: it converts a program's representation
-   to program code. Together with `inline`, these two abstractions allow
-   to construct program code programmatically.
+2. [宏](./macros.md)建立在两个熟悉的基本操作上：引用（quotation）和拼接（splicing）。
+   引用将程序代码转换为数据，明确来说是这段代码的（树状）表示形式。
+   表达式用 `'{...}` 来表示，类型用 `'[...]` 来表示。拼接使用 `${}'` 表示，
+   它的作用与引用相反：它将程序的表示形式转换为程序代码。结合内联，
+   这两种抽象允许以编程的方式构造程序代码。
 
 3. [Runtime Staging](./staging.md) Where macros construct code at _compile-time_,
    staging lets programs construct new code at _runtime_. That way,
