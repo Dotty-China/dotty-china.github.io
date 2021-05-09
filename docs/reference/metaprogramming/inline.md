@@ -8,10 +8,10 @@ nav_order: 2
 
 # {{ page.title }}
 
-## Inline Definitions
+## 内联定义
 
-`inline` is a new [soft modifier](../soft-modifier.md) that guarantees that a
-definition will be inlined at the point of use. Example:
+`inline` 是一个新的[软修饰符](../soft-modifier.md)，它保证定义在使用时被内联。
+例如：
 
 ```scala
 object Config {
@@ -33,22 +33,21 @@ object Logger {
 }
 ```
 
-The `Config` object contains a definition of the **inline value** `logging`.
-This means that `logging` is treated as a _constant value_, equivalent to its
-right-hand side `false`. The right-hand side of such an `inline val` must itself
-be a [constant expression](https://scala-lang.org/files/archive/spec/2.13/06-expressions.html#constant-expressions).
-Used in this way, `inline` is equivalent to Java and Scala 2's `final`. Note that `final`, meaning
-_inlined constant_, is still supported in Scala 3, but will be phased out.
+对象 `Config` 包含**内联值（inline value）** `logging` 的定义。
+这意味着 `logging` 被视为一个等价其右侧的 `false` 的*常量值(constant value)*。
+这种 `inline val` 的右侧本身必须是[常量表达式](https://scala-lang.org/files/archive/spec/2.13/06-expressions.html#constant-expressions)。
+这种形式下，`inline` 等价于 Java 和 Scala 2 的 `final`。请注意，
+代表*内联常量（inlined constant）*的 `final` 在 Scala 3 中仍被支持，
+但将会被逐渐淘汰。
 
-The `Logger` object contains a definition of the **inline method** `log`. This
-method will always be inlined at the point of call.
+对象 `Logger` 包含**内联方法（inline method）** `log` 的定义。
+该方法始终会在调用点处被内联。
 
-In the inlined code, an `if-then-else` with a constant condition will be rewritten
-to its `then`- or `else`-part. Consequently, in the `log` method above the
-`if Config.logging` with `Config.logging == true` will get rewritten into its
-`then`-part.
+在被内联后的代码中，具有常量条件的 `if-then-else` 将被重写为其 `then` 或 `else` 部分。
+因此，在上述 `log` 方法中，`if Config.logging` 在 `Config.logging == true` 时会被重写为其 `then` 部分。
 
-Here's an example:
+
+下面是一个例子：
 
 ```scala
 var indentSetting = 2
@@ -60,7 +59,7 @@ def factorial(n: BigInt): BigInt =
    }
 ```
 
-If `Config.logging == false`, this will be rewritten (simplified) to:
+如果 `Config.logging == false`，则它会被重写（简化）为：
 
 ```scala
 def factorial(n: BigInt): BigInt =
@@ -68,13 +67,12 @@ def factorial(n: BigInt): BigInt =
    else n * factorial(n - 1)
 ```
 
-As you notice, since neither `msg` or `indentMargin` were used, they do not
-appear in the generated code for `factorial`. Also note the body of our `log`
-method: the `else-` part reduces to just an `op`. In the generated code we do
-not generate any closures because we only refer to a by-name parameter *once*.
-Consequently, the code was inlined directly and the call was beta-reduced.
+如你所见，由于没有使用 `msg`或 `indentMargin`，所以它们不会出现在为 `factorial` 生成的代码中。
+还需要注意的是我们 `log` 方法的方法体：`else-` 部分被简化为只有一个 `op`。
+在生成的代码中，我们不会生成任何闭包，因为我们只引用了一次按名参数。因此，
+这段代码会被直接内联，调用会被 beta-reduced。
 
-In the `true` case the code will be rewritten to:
+在为 `true` 的情况下，代码会被重写为：
 
 ```scala
 def factorial(n: BigInt): BigInt = {
@@ -90,16 +88,14 @@ def factorial(n: BigInt): BigInt = {
 }
 ```
 
-Note that the by-value parameter `msg` is evaluated only once, per the usual Scala
-semantics, by binding the value and reusing the `msg` through the body of
-`factorial`. Also, note the special handling of the assignment to the private var
-`indent`. It is achieved by generating a setter method `def inline$indent_=` and calling it instead.
+注意，按照常规的 Scala 语义，按值参数 `msg` 只会被求值一次，所以会将它绑定到变量上并重用它。
+另外请注意对私有 var `indent` 赋值的特殊处理。这是通过生成 setter 方法 `def inline$indent_=` 
+并调用它实现的。
 
-### Recursive Inline Methods
+### 递归内联方法
 
-Inline methods can be recursive. For instance, when called with a constant
-exponent `n`, the following method for `power` will be implemented by
-straight inline code without any loop or recursion.
+内联方法可以是递归的。例如，当将常量传递给 `n` 时，下面的 `foo` 方法将通过直接内联代码实现，
+而不需要循环或递归。
 
 ```scala
 inline def power(x: Double, n: Int): Double = {
@@ -121,14 +117,11 @@ power(expr, 10)
 //    y3 * y3          // ^10
 ```
 
-Parameters of inline methods can have an `inline` modifier as well. This means
-that actual arguments to these parameters will be inlined in the body of the
-`inline def`. `inline` parameters have call semantics equivalent to by-name parameters
-but allow for duplication of the code in the argument. It is usually useful when constant
-values need to be propagated to allow further optimizations/reductions.
+内联方法的参数也可以带有 `inline` 修饰符。这意味着这些参数调用时的实际参数将会在 `inline def` 的方法体内被内联。
+`inline` 参数的调用语义与按名参数等效，但是允许复制实参中的代码。当需要传播常量值以允许进一步优化/归约时，
+它非常有用。
 
-The following example shows the difference in translation between by-value, by-name and `inline`
-parameters:
+下面的例子将展示对按值参数、按名参数和 `inline` 参数的转换之间的差异：
 
 ```scala
 inline def funkyAssertEquals(actual: Double, expected: =>Double, inline delta: Double): Unit =
@@ -144,13 +137,14 @@ funkyAssertEquals(computeActual(), computeExpected(), computeDelta())
 //      throw new AssertionError(s"difference between ${expected} and ${actual} was larger than ${computeDelta()}")
 ```
 
-### Rules for Overriding
+### 覆盖规则
 
-Inline methods can override other non-inline methods. The rules are as follows:
+内联方法可以覆盖其他非内联方法。规则如下：
 
-1. If an inline method `f` implements or overrides another, non-inline method, the inline method can also be invoked at runtime. For instance, consider the scenario:
+1. 如果内联方法 `f` 实现或覆盖另一个非内联方法，那么这个内联方法也可以在运行时被调用。
+   例如，考虑以下场景：
 
-    ```scala
+   ```scala
     abstract class A {
        def f: Int
        def g: Int = f
@@ -171,11 +165,11 @@ Inline methods can override other non-inline methods. The rules are as follows:
     assert(a.g == 33)
     ```
 
-    The inlined invocations and the dynamically dispatched invocations give the same results.
+    内联调用和动态分派调用给出相同的结果。
 
-2. Inline methods are effectively final.
+2. 内联方法实际上为 `final` 的。
 
-3. Inline methods can also be abstract. An abstract inline method can be implemented only by other inline methods. It cannot be invoked directly:
+3. 内联方法也可以是抽象的。抽象内联方法只能由其他内联方法实现。它不能直接调用：
 
     ```scala
     abstract class A {
@@ -191,14 +185,13 @@ Inline methods can override other non-inline methods. The rules are as follows:
     a.f         // error: cannot inline f in A.
     ```
 
-### Relationship to `@inline`
+### 与 `@inline` 的关系
 
-Scala 2 also defines a `@inline` annotation which is used as a hint for the
-backend to inline code. The `inline` modifier is a more powerful option:
+Scala 2 也定义了一个 `@inline` 注解，用于提示后端对代码进行内联。`inline` 修饰符是一个更强大的选项：
 
-- expansion is guaranteed instead of best effort,
-- expansion happens in the frontend instead of in the backend and
-- expansion also applies to recursive methods.
+- 展开是强制保证的，而不仅是尽力而为的，
+- 展开发生在（编译器）前端而不是后端，以及
+- 展开也适用于递归方法。
 
 <!--- (Commented out since the docs and implementation differ)
 
@@ -224,14 +217,12 @@ If a `inline` modifier is given for parameters, corresponding arguments must be
 pure expressions of constant type.
 -->
 
-#### The definition of constant expression
+#### 常量表达式的定义
 
-Right-hand sides of inline values and of arguments for inline parameters must be
-constant expressions in the sense defined by the [SLS §6.24](https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#constant-expressions),
-including _platform-specific_ extensions such as constant folding of pure
-numeric computations.
+内联值和作为内联参数传递的实参右侧必须是 [SLS §6.24](https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#constant-expressions) 中定义的常量表达式，
+包括一些*平台特定*的扩展，例如纯数值计算的常量折叠。
 
-An inline value must have a literal type such as `1` or `true`.
+内联值必须具有字面量类型，例如 `1` 和 `true`。
 
 ```scala
 inline val four = 4
@@ -239,7 +230,7 @@ inline val four = 4
 inline val four: 4 = 4
 ```
 
-It is also possible to have inline vals of types that do not have a syntax, such as `Short(4)`.
+拥有无语法的字面量类型（例如 `Short(4)`）的 inline val 也是可能的。
 
 ```scala
 trait InlineConstants {
@@ -251,11 +242,10 @@ object Constants extends InlineConstants {
 }
 ```
 
-## Transparent Inline Methods
+## 透明内联方法
 
-Inline methods can additionally be declared `transparent`.
-This means that the return type of the inline method can be
-specialized to a more precise type upon expansion. Example:
+内联方法也可以被声明为 `transparent` 的。这意味着内联方法的返回值类型可以在展开时特化为更精确的类型。
+例如：
 
 ```scala
 class A
@@ -273,20 +263,18 @@ val obj2 = choose(false) // static type is B
 obj2.m    // OK
 ```
 
-Here, the inline method `choose` returns an instance of either of the two types `A` or `B`.
-If `choose` had not been declared to be `transparent`, the result
-of its expansion would always be of type `A`, even though the computed value might be of the subtype `B`.
-The inline method is a "blackbox" in the sense that details of its implementation do not leak out.
-But if a `transparent` modifier is given, the expansion is the type of the expanded body. If the argument `b`
-is `true`, that type is `A`, otherwise it is `B`. Consequently, calling `m` on `obj2`
-type-checks since `obj2` has the same type as the expansion of `choose(false)`, which is `B`.
-Transparent inline methods are "whitebox" in the sense that the type
-of an application of such a method can be more specialized than its declared
-return type, depending on how the method expands.
+在这里，内联方法 `choose` 返回两种类型 `A` 和 `B` 其中之一的实例。
+如果 `choose` 没有被声明为 `transparent` 的，则其展开后的结果始终是类型 `A`，
+即使计算出的值可能是其子类型 `B`。某种意义上来说，内联方法是一个“黑箱”，
+因为它的实现细节不会被泄露出去。但是如果使用 `transparent` 进行修饰，
+则类型是展开后的内容的类型。如果 `b` 的实参为 `true`，则其类型为 `A`，
+否则为 `B`。因此在 `obj2` 上调用 `m` 能够通过类型检查，
+因为 `obj2` 拥有与 `choose(false)` 展开后相同的类型，即 `B`。
+透明内联方法是“白箱”，因为这种方法引用的类型可以比其声明的返回类型更加特化，
+具体取决于方法是如何展开的。
 
-In the following example, we see how the return type of `zero` is specialized to
-the singleton type `0` permitting the addition to be ascribed with the correct
-type `1`.
+在下面的例子中，我们可以看到 `zero` 的返回类型会被特化到单例类型 `0`，
+从而允许将加法的结果赋予正确的类型 `1`。
 
 ```scala
 transparent inline def zero: Int = 0
@@ -294,33 +282,32 @@ transparent inline def zero: Int = 0
 val one: 1 = zero + 1
 ```
 
-### Transparent vs. non-transparent inline
+### 透明内联 vs 非透明内联
 
-As we already discussed, transparent inline methods may influence type checking at call site.
-Technically this implies that transparent inline methods must be expanded during type checking of the program.
-Other inline methods are inlined later after the program is fully typed.
+正如我们之前讨论的，透明内联方法可能会影响调用点处的类型检查。
+从技术上来说，这意味着必须在程序的类型检查期间展开透明内联方法。
+其他内联方法可以在程序完全类型化后被内联。
 
-For example, the following two functions will be typed the same way but will be inlined at different times.
+例如，下面的两个函数有着相同的类型，但是会在不同时刻被内联。
 
 ```scala
 inline def f1: T = ...
 transparent inline def f2: T = (...): T
 ```
 
-A noteworthy difference is the behavior of `transparent inline given`.
-If there is an error reported when inlining that definition, it will be considered as an implicit search mismatch and the search will continue.
-A `transparent inline given` can add a type ascription in its RHS (as in `f2` from the previous example) to avoid the precise type but keep the search behavior.
-On the other hand, an `inline given` is taken as an implicit and then inlined after typing.
-Any error will be emitted as usual.
+一个值得注意的区别是 `transparent inline given` 的行为。
+如果在内联该定义时报告了错误，则将其视为隐式搜索不匹配，
+搜索将会继续。`transparent inline given` 可以在其右侧添加类型描述（如上例中的 `f2` 所示），
+to avoid the precise type but keep the search behavior。
+另一方面，`inline given` 被视为隐式，在类型检查后被内联。任何错误都会被如常发出。
 
-## Inline Conditionals
+## 内联条件
 
-An if-then-else expression whose condition is a constant expression can be simplified to
-the selected branch. Prefixing an if-then-else expression with `inline` enforces that
-the condition has to be a constant expression, and thus guarantees that the conditional will always
-simplify.
+条件为常量表达式的 if-then-else 表达式可以被简化为其被选中的分支。
+在 if-then-else 前加入 `inline` 会强制要求其条件必须为常量表达式，
+从而保证始终会被简化。
 
-Example:
+例如：
 
 ```scala
 inline def update(delta: Int) =
@@ -328,9 +315,9 @@ inline def update(delta: Int) =
    else decreaseBy(-delta)
 ```
 
-A call `update(22)` would rewrite to `increaseBy(22)`. But if `update` was called with
-a value that was not a compile-time constant, we would get a compile time error like the one
-below:
+调用 `update(22)` 会被重写为 `increaseBy(22)`。
+但如果调用 `update` 时使用的值不是编译时常量，
+则会产生以下的错误：
 
 ```scala
    |  inline if delta >= 0 then ???
@@ -342,18 +329,16 @@ below:
    | This location is in code that was inlined at ...
 ```
 
-In a transparent inline, an `inline if` will force the inlining of any inline definition in its condition during type checking.
+在透明内联中，`inline if` 会在类型检查期间强制内联在其条件中的内联定义。
 
-## Inline Matches
+## 内联匹配
 
-A `match` expression in the body of an `inline` method definition may be
-prefixed by the `inline` modifier. If there is enough static information to
-unambiguously take a branch, the expression is reduced to that branch and the
-type of the result is taken. If not, a compile-time error is raised that
-reports that the match cannot be reduced.
+`inline` 方法的方法体内的 `match` 表达式可以以 `inline` 修饰符作为前缀。
+如果有足够的静态信息明确地选择其中一个分支，则会将表达式简化为该分支，
+并且会获取其结果的类型。否则会产生编译时错误，报告该 `match` 无法归约。
 
-The example below defines an inline method with a
-single inline match expression that picks a case based on its static type:
+下面的例子使用一个内联匹配表达式定义一个内联方法，
+该表达式根据其静态类型选择一个 case：
 
 ```scala
 transparent inline def g(x: Any): Any =
@@ -366,11 +351,11 @@ g(1.0d) // Has type 1.0d which is a subtype of Double
 g("test") // Has type (String, String)
 ```
 
-The scrutinee `x` is examined statically and the inline match is reduced
-accordingly returning the corresponding value (with the type specialized because `g` is declared `transparent`). This example performs a simple type test over the
-scrutinee. The type can have a richer structure like the simple ADT below.
-`toInt` matches the structure of a number in [Church-encoding](https://en.wikipedia.org/wiki/Church_encoding)
-and _computes_ the corresponding integer.
+scrutinee `x` 会被静态的检查，并相应地归约内联匹配，返回相应的值
+（并且使用特化的类型，因为 `g` 被声明为 `transparent` 的）。
+此例子对 scrutinee 进行简单的类型测试。该类型可以具有更复杂的结构，例如以下的简单 ADT。
+`toInt` 匹配 [Church-encoding](https://en.wikipedia.org/wiki/Church_encoding) 的数字结构，
+并*计算（compute）*相应的整数。
 
 ```scala
 trait Nat
@@ -387,16 +372,16 @@ inline val natTwo = toInt(Succ(Succ(Zero)))
 val intTwo: 2 = natTwo
 ```
 
-`natTwo` is inferred to have the singleton type 2.
+`natTwo` 被推断出具有单例类型 `2`。
 
-## The `scala.compiletime` Package
+## `scala.compiletime` 包
 
-The [`scala.compiletime`](https://dotty.epfl.ch/api/scala/compiletime.html) package contains helper definitions that provide support for compile time operations over values. They are described in the following.
+[`scala.compiletime`](https://dotty.epfl.ch/api/scala/compiletime.html) 包包含一些辅助定义，
+提供对值的编译时操作的支持。下面会对它们进行描述。
 
-### `constValue` and `constValueOpt`
+### `constValue` 和 `constValueOpt`
 
-`constValue` is a function that produces the constant value represented by a
-type.
+`constValue` 是一个函数，它可以产生由类型表示的常量值。
 
 ```scala
 import scala.compiletime.constValue
@@ -411,30 +396,27 @@ transparent inline def toIntC[N]: Int =
 inline val ctwo = toIntC[2]
 ```
 
-`constValueOpt` is the same as `constValue`, however returning an `Option[T]`
-enabling us to handle situations where a value is not present. Note that `S` is
-the type of the successor of some singleton type. For example the type `S[1]` is
-the singleton type `2`.
+`constValueOpt` 与 `constValue` 相同，但返回 `Option[T]`，使我们能够处理没有值的情况。
+请注意，`S` 是某些单例类型的 successor 的类型。例如，类型 `S[1]` 是单例类型 `2`。
 
 ### `erasedValue`
 
-So far we have seen inline methods that take terms (tuples and integers) as
-parameters. What if we want to base case distinctions on types instead? For
-instance, one would like to be able to write a function `defaultValue`, that,
-given a type `T`, returns optionally the default value of `T`, if it exists.
-We can already express this using rewrite match expressions and a simple
-helper function, `scala.compiletime.erasedValue`, which is defined as follows:
+到目前为止，我们已经看到了将 term（元组和整数）作为参数的内联方法。
+但如果我们想根据类型区分 case 呢？例如，我们可能想编写一个函数 `defaultValue`，
+给定类型 `T`，该函数返回 `T` 的默认值（如果默认值存在）。
+我们可以使用重写匹配表达式和一个简单的辅助函数 `scala.compiletime.erasedValue` 来实现它，
+该辅助方法定义如下：
 
 ```scala
 erased def erasedValue[T]: T = ???
 ```
 
-The `erasedValue` function _pretends_ to return a value of its type argument
-`T`. In fact, it would always raise a `NotImplementedError` exception when
-called. But the function can in fact never be called, since it is declared
-`erased`, so can only be used at compile-time during type checking.
+`erasedValue` 函数*假装（pretend）*返回其类型参数 `T` 类型的值。
+实际上，它在被调用时总是会抛出 `NotImplementedError` 异常。
+但是该函数实际上永远不能被调用，因为它被声明为 `erased`，
+所以只能在编译时的类型检查期间使用。
 
-Using `erasedValue`, we can then define `defaultValue` as follows:
+使用 `erasedValue`，我们可以这样定义 `defaultValue`：
 
 ```scala
 import scala.compiletime.erasedValue
@@ -454,7 +436,7 @@ inline def defaultValue[T] =
    }
 ```
 
-Then:
+然后可以这样使用它：
 
 ```scala
 val dInt: Some[Int] = defaultValue[Int]
@@ -463,11 +445,9 @@ val dBoolean: Some[Boolean] = defaultValue[Boolean]
 val dAny: None.type = defaultValue[Any]
 ```
 
-As another example, consider the type-level version of `toInt` below:
-given a _type_ representing a Peano number,
-return the integer _value_ corresponding to it.
-Consider the definitions of numbers as in the _Inline
-Match_ section above. Here is how `toIntT` can be defined:
+作为另一个例子，考虑以下 `toInt` 的类型级版本：
+给定一个表示 Peano 数的*类型*，返回对应的整数*值*。
+考虑*内联匹配*小节中整数的定义。下面是 `toIntT` 的定义：
 
 ```scala
 transparent inline def toIntT[N <: Nat]: Int =
@@ -479,21 +459,20 @@ transparent inline def toIntT[N <: Nat]: Int =
 inline val two = toIntT[Succ[Succ[Zero.type]]]
 ```
 
-`erasedValue` is an `erased` method so it cannot be used and has no runtime
-behavior. Since `toIntT` performs static checks over the static type of `N` we
-can safely use it to scrutinize its return type (`S[S[Z]]` in this case).
+`erasedValue` 是一个 `erased` 方法，因此不能在运行时使用它，
+它也没用运行时行为。因为 `toIntT` 对类型 `T` 的静态类型执行静态检查，
+因此我们可以安全地它来检查其返回类型（本例中为 `S[S[Z]]`）。
 
 ### `error`
 
-The `error` method is used to produce user-defined compile errors during inline expansion.
-It has the following signature:
+`error` 方法用于在内联展开期间生成用户定义的编译时错误。
+其签名如下：
 
 ```scala
 inline def error(inline msg: String): Nothing
 ```
 
-If an inline expansion results in a call `error(msgStr)` the compiler
-produces an error message containing the given `msgStr`.
+如果内联展开结果导致调用 `error(msgStr)`，编译器会给出一条包含给定 `msgStr` 的错误消息。
 
 ```scala
 import scala.compiletime.{error, code}
@@ -504,7 +483,7 @@ inline def fail() =
 fail() // error: failed for a reason
 ```
 
-or
+或
 
 ```scala
 inline def fail(p1: => Any) =
@@ -513,14 +492,13 @@ inline def fail(p1: => Any) =
 fail(identity("foo")) // error: failed on: identity("foo")
 ```
 
-### The `scala.compiletime.ops` package
+### `scala.compiletime.ops` 包
 
-The [`scala.compiletime.ops`](https://dotty.epfl.ch/api/scala/compiletime/ops.html) package contains types that provide support for
-primitive operations on singleton types. For example,
-`scala.compiletime.ops.int.*` provides support for multiplying two singleton
-`Int` types, and `scala.compiletime.ops.boolean.&&` for the conjunction of two
-`Boolean` types. When all arguments to a type in `scala.compiletime.ops` are
-singleton types, the compiler can evaluate the result of the operation.
+[`scala.compiletime.ops`](https://dotty.epfl.ch/api/scala/compiletime/ops.html) 包包含支持单例类型的基本操作的类型。
+例如，`scala.compiletime.ops.int.*` 提供对两个单例 `Int` 相乘的支持，
+`scala.compiletime.ops.boolean.&&` 提供对两个 `Boolean` 类型进行逻辑与操作的支持。
+当 `scala.compiletime.ops` 中某个类型的所有参数均为单例类型时，
+编译器可以计算该操作的结果。
 
 ```scala
 import scala.compiletime.ops.int.*
@@ -530,21 +508,19 @@ val conjunction: true && true = true
 val multiplication: 3 * 5 = 15
 ```
 
-Many of these singleton operation types are meant to be used infix (as in [SLS §3.2.10](https://www.scala-lang.org/files/archive/spec/2.13/03-types.html#infix-types)).
+这些单例操作类型很多都可以作为中缀类型使用
+（如 [SLS §3.2.10](https://www.scala-lang.org/files/archive/spec/2.13/03-types.html#infix-types) 中所属）。
 
-Since type aliases have the same precedence rules as their term-level
-equivalents, the operations compose with the expected precedence rules:
+因为类型别名有其 term 级等效项相同的优先级规则，因此这些操作会以预期中的优先级规则进行组合：
 
 ```scala
 import scala.compiletime.ops.int.*
 val x: 1 + 2 * 3 = 7
 ```
 
-The operation types are located in packages named after the type of the
-left-hand side parameter: for instance, `scala.compiletime.ops.int.+` represents
-addition of two numbers, while `scala.compiletime.ops.string.+` represents string
-concatenation. To use both and distinguish the two types from each other, a
-match type can dispatch to the correct implementation:
+操作类型位于以其左侧参数的类型命名的包中：例如 `scala.compiletime.ops.int.+` 表示两个数字的加法，
+`scala.compiletime.ops.string.+` 表示字符串连接。
+要同时使用这两种类型，并将它们区分开，可以使用匹配类型将其分派到正确的实现上：
 
 ```scala
 import scala.compiletime.ops.*
