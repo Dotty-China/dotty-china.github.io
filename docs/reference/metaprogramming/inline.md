@@ -549,11 +549,13 @@ not. We can create a set of implicit definitions like this:
 ```scala
 trait SetFor[T, S <: Set[T]]
 
-class LowPriority:
+class LowPriority {
    implicit def hashSetFor[T]: SetFor[T, HashSet[T]] = ...
+}
 
-object SetsFor extends LowPriority:
+object SetsFor extends LowPriority {
    implicit def treeSetFor[T: Ordering]: SetFor[T, TreeSet[T]] = ...
+}
 ```
 
 Clearly, this is not pretty. Besides all the usual indirection of implicit
