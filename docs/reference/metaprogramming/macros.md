@@ -8,30 +8,29 @@ nav_order: 3
 
 # {{ page.title }}
 
-> When developing macros enable `-Xcheck-macros` scalac option flag to have extra runtime checks.
+> 当开发宏的时候，可以使用 scalac 选项 `-Xcheck-macros` 进行额外的运行时检查。
 
-## Macros: Quotes and Splices
+## 宏：引述与拼接
 
-Macros are built on two well-known fundamental operations: quotation and splicing.
-Quotation is expressed as `'{...}` for expressions and splicing is expressed as `${ ... }`.
-Additionally, within a quote or a splice we can quote or splice identifiers directly (i.e. `'e` and `$e`).
-Readers may notice the resemblance of the two aforementioned syntactic
-schemes with the familiar string interpolation syntax.
+宏建立在两个熟悉的基本操作上：引述（quotation）和拼接（splicing）。
+表达式的引述表示为 `'{...}`，拼接表示为 `${ ... }`。此外，在引述和拼接中，
+我们可以直接引述或拼接标识符（即 `'e` 和 `$e`）。
+读者可能会注意到以上两种语法模式与熟悉的字符串插值语法相似。
 
 ```scala
 println(s"Hello, $name, here is the result of 1 + 1 = ${1 + 1}")
 ```
 
-In string interpolation we _quoted_ a string and then we _spliced_ into it, two others. The first, `name`, is a reference to a value of type [`String`](https://dotty.epfl.ch/api/scala/Predef$.html#String), and the second is an arithmetic expression that will be _evaluated_ followed by the splicing of its string representation.
+在字符串插值中，我们*引述（quoted）*了一个字符串，然后将另外两个字符串*拼接（spliced）*至其中。
+第一个 `name` 是对 [`String`](https://dotty.epfl.ch/api/scala/Predef$.html#String) 类型的值的引用，
+第二个是算数表达式，它将被*求值（evaluated）*，然后对其字符串表示进行拼接。
 
-Quotes and splices in this section allow us to treat code in a similar way,
-effectively supporting macros. The entry point for macros is an inline method
-with a top-level splice. We call it a top-level because it is the only occasion
-where we encounter a splice outside a quote (consider as a quote the
-compilation-unit at the call-site). For example, the code below presents an
-`inline` method `assert` which calls at compile-time a method `assertImpl` with
-a boolean expression tree as argument. `assertImpl` evaluates the expression and
-prints it again in an error message if it evaluates to `false`.
+本节中的引述和拼接允许我们以类似的方式处理代码，从而有效地支持宏。
+宏的入口点是带有顶层拼接的内联方法。我们称其为顶层，
+因为这是我们唯一会在引述（在调用点处将编译单元视为引述）之外遇到拼接的情况。
+例如，下面的代码提供了一个 `inline` 方法 `assert`，
+它在编译时使用 `boolean` 表达式树作为参数调用方法 `assertImpl`。
+`assertImpl` 执行表达式，如果结果为 `false`，则在错误消息中再次打印该表达式。
 
 ```scala
 import scala.quoted.*
@@ -48,46 +47,40 @@ def showExpr(expr: Expr[Boolean])(using Quotes): Expr[String] =
    '{ "<some source code>" } // Better implementation later in this document
 ```
 
-If `e` is an expression, then `'{e}` represents the typed
-abstract syntax tree representing `e`. If `T` is a type, then `Type.of[T]`
-represents the type structure representing `T`.  The precise
-definitions of "typed abstract syntax tree" or "type-structure" do not
-matter for now, the terms are used only to give some
-intuition. Conversely, `${e}` evaluates the expression `e`, which must
-yield a typed abstract syntax tree or type structure, and embeds the
-result as an expression (respectively, type) in the enclosing program.
+如果 `e` 是一个表达式，则 `'{e}` 代表表示 `e` 的类型化抽象语法树。
+如果 `T` 是一个类型，则 `Type.of[T]` 代表表示 `T` 的类型结构。
+“类型化抽象语法树（typed abstract syntax tree）”和“类型结构（type-structure）”
+的精确定义目前并不重要，这些术语只是用来给予一些直觉。
+相反，`${e}` 执行表达式 `e`，该表达式必须生成类型化抽象语法树或类型结构，
+并将其结果作为表达式（或类型）嵌入到包裹其的程序中。
 
-Quotations can have spliced parts in them; in this case the embedded
-splices are evaluated and embedded as part of the formation of the
-quotation.
+引述中可以包含拼接部分；在这种情况下，将计算嵌入的拼接，
+并将结果作为引述的一部分。
 
-Quotes and splices can also be applied directly to identifiers. An identifier
-`$x` starting with a `$` that appears inside a quoted expression or type is treated as a
-splice `${x}`. Analogously, an quoted identifier `'x` that appears inside a splice
-is treated as a quote `'{x}`. See the Syntax section below for details.
+引述和拼接也可以直接应用于标识符。在引述表达式或类型中出现的以 `$` 开头的标识符 `$x` 被视为拼接 `${x}`。
+类似地，出现在拼接中的引述标识符 `'x` 被视为引述 `'{x}`。更多信息请参见下面的语法一节。
 
-Quotes and splices are duals of each other.
-For arbitrary expressions `e` we have:
+引述和拼接互为对偶。
+对于任意表达式 `e`，我们有：
 
 ```scala
 ${'{e}} = e
 '{${e}} = e
 ```
 
-## Types for Quotations
+## 引述的类型
 
-The type signatures of quotes and splices can be described using
-two fundamental types:
+引述和拼接的类型签名可以用两个基本的类型来描述：
 
-- `Expr[T]`: abstract syntax trees representing expressions of type `T`
-- `Type[T]`: non erased representation of type `T`.
+- `Expr[T]`：表示类型为 `T` 的表达式的抽象语法树。
+- `Type[T]`：表示类型 `T` 的非擦除表示。
 
-Quoting takes expressions of type `T` to expressions of type `Expr[T]`
-and it takes types `T` to expressions of type `Type[T]`. Splicing
-takes expressions of type `Expr[T]` to expressions of type `T` and it
-takes expressions of type `Type[T]` to types `T`.
+引述将 `T` 类型的表达式转换为 `Expr[T]` 类型的表达式，
+并将类型 `T` 转换为 `Type[T]` 类型的表达式。
+拼接将 `Expr[T]` 类型的表达式转换为 `T` 类型的表达式，
+并将 `Type[T]` 类型的表达式转换为类型 `T`。
 
-The two types can be defined in package [`scala.quoted`](https://dotty.epfl.ch/api/scala/quoted.html) as follows:
+这两个类型在包 [`scala.quoted`](https://dotty.epfl.ch/api/scala/quoted.html) 中的定义如下：
 
 ```scala
 package scala.quoted
@@ -96,10 +89,8 @@ sealed trait Expr[+T]
 sealed trait Type[T]
 ```
 
-Both `Expr` and `Type` are abstract and sealed, so all constructors for
-these types are provided by the system. One way to construct values of
-these types is by quoting, the other is by type-specific lifting
-operations that will be discussed later on.
+`Expr` 和 `Type` 都是抽象的和密封的，因此这些类型的所有构造器都由系统提供。
+构造这些类型的值的一种方式是使用引述，另一种方式是使用将在后面讨论的特定于类型的提升操作。
 
 ## The Phase Consistency Principle
 

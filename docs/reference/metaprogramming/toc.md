@@ -17,10 +17,10 @@ nav_order: 1
    这是因为 Scala 中的内联可以驱动其他编译时操作，譬如内联模式匹配（启用类型级编程）、
    宏（enabling compile-time, generative, metaprogramming）和运行时代码生成（multi-stage programming）。
 
-2. [宏](./macros.md)建立在两个熟悉的基本操作上：引用（quotation）和拼接（splicing）。
-   引用将程序代码转换为数据，明确来说是这段代码的（树状）表示形式。
+2. [宏](./macros.md)建立在两个熟悉的基本操作上：引述（quotation）和拼接（splicing）。
+   引述将程序代码转换为数据，明确来说是这段代码的（树状）表示形式。
    表达式用 `'{...}` 来表示，类型用 `'[...]` 来表示。拼接使用 `${}'` 表示，
-   它的作用与引用相反：它将程序的表示形式转换为程序代码。结合内联，
+   它的作用与引述相反：它将程序的表示形式转换为程序代码。结合内联，
    这两种抽象允许以编程的方式构造程序代码。
 
 3. [Runtime Staging](./staging.md) Where macros construct code at _compile-time_,
